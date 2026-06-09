@@ -463,6 +463,60 @@ body {
 .fim-placar__rotulo { display: block; font-size: 0.85rem; color: var(--texto-suave); }
 .fim-placar__valor { font-size: 1.9rem; font-weight: 800; }
 
+/* ===== TelaFim — recap de operadores (Passo 13) ===== */
+.fim-faltou {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.75rem;
+  padding: 0.7rem 0.9rem;
+  background: #fff7e6;            /* mesmo tom da .dica-inicial */
+  border: 1px solid #ffd591;
+  border-radius: var(--raio-sm);
+  color: var(--texto);
+}
+.fim-faltou .fa-heart { color: var(--acento-ink); } /* laranja so p/ TEXTO/icone (AA) */
+
+.fim-recap {
+  margin-top: 1rem;
+  padding: 0.85rem 0.9rem;
+  background: var(--superficie-2);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-sm);
+}
+.fim-recap__titulo { font-size: 1.05rem; margin: 0 0 0.6rem; color: var(--texto); } /* <h3>, sem letter-spacing */
+.fim-recap__lista {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+}
+.fim-medalha {
+  flex: 0 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 0.5rem 0.45rem;
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-sm);
+}
+.fim-medalha__simbolo { font-size: 1.8rem; font-weight: 800; line-height: 1; color: var(--op, var(--texto)); }
+.fim-medalha__contagem { font-size: 1.3rem; font-weight: 800; line-height: 1; color: var(--texto); }
+.fim-medalha__nome { font-size: 0.75rem; color: var(--texto-suave); text-align: center; overflow-wrap: anywhere; }
+.fim-medalha--soma          { --op: var(--cor-soma); }
+.fim-medalha--subtracao     { --op: var(--cor-subtracao); }
+.fim-medalha--multiplicacao { --op: var(--cor-multiplicacao); }
+.fim-medalha--divisao       { --op: var(--cor-divisao); }
+/* operador NAO usado: atenua SEM opacity (preserva contraste AA do texto visivel) */
+.fim-medalha--zero { background: var(--superficie-2); }                  /* recua p/ o painel */
+.fim-medalha--zero .fim-medalha__simbolo { color: var(--texto-suave); } /* so o simbolo cinza */
+.fim-recap__prompt { margin: 0.7rem 0 0; font-size: 0.9rem; color: var(--texto-suave); }
+
 /* utilitarios de cor (tokens) */
 .txt-brand { color: var(--brand); }
 .txt-sucesso { color: var(--sucesso); }
