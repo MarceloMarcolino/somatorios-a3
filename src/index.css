@@ -1,0 +1,578 @@
+/* ===== Somatorios - tema global (Passo 2: tokens, tipografia, fundo) =====
+   Identidade infantil/educacional de ALTO CONTRASTE.
+   Os tokens abaixo sao a base de design consumida nos Passos 3-6 (componentes). */
+
+:root {
+  /* ----- Operadores (naipes): cores escuras p/ contraste AA sobre branco ----- */
+  --cor-soma: #1b7f3b;          /* verde    */
+  --cor-subtracao: #c62828;     /* vermelho */
+  --cor-multiplicacao: #1457a8; /* azul     */
+  --cor-divisao: #6a1b9a;       /* roxo     */
+
+  /* ----- Marca / paleta ludica de alto contraste ----- */
+  --brand: #1457a8;             /* azul forte (primaria)    */
+  --brand-escuro: #0f3f7a;
+  --acento: #ff7a00;            /* laranja ludico (destaque) */
+  --acento-ink: #8a3d00;        /* laranja escuro p/ texto   */
+
+  /* ----- Superficies e texto ----- */
+  --bg: #eef4fc;                /* fundo geral        */
+  --bg-2: #dce9f9;              /* base do gradiente  */
+  --superficie: #ffffff;        /* cartoes/paineis    */
+  --superficie-2: #eef3fb;      /* areas secundarias  */
+  --texto: #14233b;             /* texto principal (AA sobre branco)   */
+  --texto-suave: #41506a;       /* texto secundario (AA sobre branco)  */
+  --borda: #cdd8ea;             /* bordas suaves      */
+
+  /* ----- Semanticos ----- */
+  --sucesso: #1b7f3b;
+  --perigo: #c62828;
+  --aviso: #9a5800;             /* laranja escuro p/ texto */
+
+  /* ----- Forma (cantos arredondados ludicos) ----- */
+  --raio: 16px;
+  --raio-sm: 10px;
+
+  /* Integra com o Bootstrap: componentes herdam a fonte e a cor de texto */
+  --bs-body-font-family: 'Fredoka', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --bs-body-color: var(--texto);
+}
+
+body {
+  margin: 0;
+  color: var(--texto);
+  background-color: var(--bg);
+  background-image: radial-gradient(120% 120% at 50% 0%, var(--bg) 38%, var(--bg-2) 100%);
+  background-attachment: fixed;
+  font-family: 'Fredoka', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+  font-family: 'Fredoka', system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+/* Trava anti-overflow horizontal (Passo 3): impede corte/rolagem lateral em telas pequenas. */
+html,
+body {
+  overflow-x: hidden;
+}
+
+/* ----- Carta de baralho (Passo 4): numero em pe / operador deitado ----- */
+.carta {
+  position: relative;
+  width: 86px;
+  height: 120px;
+  border-radius: 14px;
+  border: 3px solid var(--cor-carta, #444);
+  background: #fff;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.16);
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  flex: 0 0 auto;
+}
+/* "carta deitada" = orientacao paisagem (sem rotacao CSS, sem risco de overflow) */
+.carta--operador {
+  width: 120px;
+  height: 86px;
+}
+.carta:hover:not(.carta--desabilitada) {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.22);
+}
+.carta:focus-visible {
+  outline: 3px solid var(--brand);
+  outline-offset: 3px;
+}
+.carta--desabilitada {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* simbolo do naipe/operador nos cantos */
+.carta__canto {
+  position: absolute;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--cor-carta, #444);
+  line-height: 1;
+}
+.carta__canto--tl { top: 7px; left: 9px; }
+.carta__canto--br { bottom: 7px; right: 9px; transform: rotate(180deg); }
+
+/* numero (em pe) ou simbolo do operador (deitado) no centro */
+.carta__centro {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 2.8rem;
+  color: var(--texto);
+}
+.carta--operador .carta__centro {
+  color: var(--cor-carta, #444);
+  font-size: 3rem;
+}
+
+/* chip com o numero da carta, exibido quando ela e jogada como operador */
+.carta__chip {
+  position: absolute;
+  bottom: 7px;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 22px;
+  padding: 0 7px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.5;
+  color: #fff;
+  background: var(--cor-carta, #444);
+  border-radius: 999px;
+}
+
+/* ----- Mao do jogador (Passo 4) ----- */
+.mao__jogador {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.faixa-instrucao {
+  display: inline-block;
+  max-width: 100%;
+  margin-bottom: 0.75rem;
+  padding: 0.6rem 1rem;
+  border-radius: var(--raio-sm);
+  font-size: 1rem;
+}
+.faixa-instrucao--numero {
+  color: var(--brand-escuro);
+  background: #e7f0fb;
+  border: 1px solid #b9d3f0;
+}
+.faixa-instrucao--operador {
+  color: var(--acento-ink);
+  background: #fff3e0;
+  border: 1px solid #ffcc80;
+}
+.faixa-instrucao__dica { font-weight: 500; }
+.mao__cartas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+/* ----- Barra de status (Passo 5): visibilidade do estado do jogo ----- */
+.barra-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: stretch;
+}
+.status-objetivo {
+  flex: 1 1 170px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+  padding: 0.6rem 1rem;
+  color: #fff;
+  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-escuro) 100%);
+  border-radius: var(--raio);
+}
+.status-objetivo .fa-bullseye { font-size: 1.15rem; opacity: 0.9; }
+.status-objetivo__rotulo { font-size: 0.82rem; text-transform: uppercase; opacity: 0.95; }
+.status-objetivo__valor { font-size: 2.4rem; font-weight: 800; line-height: 1; }
+
+.status-chips {
+  flex: 2 1 320px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+.status-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  padding: 0.5rem 0.35rem;
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-sm);
+}
+.status-chip__rotulo { font-size: 0.78rem; color: var(--texto-suave); }
+.status-chip__valor { font-size: 1.5rem; font-weight: 700; color: var(--texto); }
+.status-chip__valor--nome { font-size: 1.1rem; color: var(--sucesso); overflow-wrap: anywhere; }
+
+/* ===== Termometro do objetivo (Passo 12): distancia ate o alvo =====
+   Reforco VISUAL da Heuristica 1 (visibilidade do status). O TEXTO fica
+   acessivel; so a barra visual (.termometro__trilha) e decorativa (aria-hidden).
+   A regiao aria-live da TelaPartida ja anuncia "Resultado parcial: X de Y". */
+.barra-status__wrap { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.termometro {
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  padding: 0.6rem 0.9rem;
+}
+.termometro__cabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 0.75rem;
+  margin-bottom: 0.4rem;
+}
+.termometro__rotulo {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+}
+.termometro__estado { font-size: 1.05rem; font-weight: 800; color: var(--texto); }
+.termometro__estado--acima { color: var(--acento-ink); } /* laranja escuro p/ TEXTO (contraste AA) */
+.termometro__dica {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--texto-suave);
+  overflow-wrap: anywhere; /* hint quebra sem estourar a largura no mobile */
+}
+.termometro__trilha {
+  width: 100%;
+  height: 14px;
+  background: var(--superficie-2);
+  border: 1px solid var(--borda);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.termometro__preenchimento {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-escuro) 100%);
+  transition: width 0.3s ease; /* neutralizado pelo @media prefers-reduced-motion (global) */
+}
+.termometro__preenchimento--acima {
+  /* laranja DECORATIVO (sem texto sobre ele) p/ sinalizar que passou do alvo */
+  background: linear-gradient(135deg, var(--acento) 0%, var(--acento-ink) 100%);
+}
+
+/* ----- Tableau (Passo 5): a conta em construcao ----- */
+.tableau {
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.85rem;
+  background: var(--superficie);
+  border: 2px dashed var(--borda);
+  border-radius: var(--raio);
+  overflow-x: auto; /* expressao longa rola DENTRO do painel, sem estourar a pagina */
+}
+.tableau__vazio { color: var(--texto-suave); text-align: center; }
+.tableau__expressao {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.tableau__item { display: inline-flex; align-items: center; }
+.tableau__operador { font-size: 2rem; font-weight: 800; }
+.tableau__igual { font-size: 2rem; font-weight: 800; color: var(--texto-suave); margin: 0 0.15rem; }
+.tableau__resultado {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--brand);
+  background: #e7f0fb;
+  border-radius: var(--raio-sm);
+  padding: 0.1rem 0.7rem;
+}
+
+/* mini-carta usada no tableau */
+.mini-carta {
+  width: 48px;
+  height: 66px;
+  border-radius: 8px;
+  border: 2px solid var(--cor-carta, #444);
+  background: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.45rem;
+  color: var(--texto);
+}
+
+/* ----- Overlay "passe o dispositivo" (Passo 6) ----- */
+.overlay-passe {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(160deg, var(--brand-escuro) 0%, #0a2a52 100%);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1080;
+  text-align: center;
+  padding: 1.5rem;
+}
+.overlay-passe__caixa { max-width: 360px; }
+.overlay-passe__rotulo { margin: 0; font-size: 1.1rem; opacity: 0.9; }
+.overlay-passe__nome { margin: 0.2rem 0 0.6rem; font-size: 2rem; font-weight: 800; }
+.overlay-passe__aviso { margin-bottom: 1.2rem; opacity: 0.85; }
+
+/* ----- Modal simples (sem JS do Bootstrap) ----- */
+.modal-simples {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1090;
+  padding: 1rem;
+}
+
+.badge-objetivo {
+  font-size: 1.05rem;
+}
+
+/* ===== TelaInicial (Passo 3): identidade visual + layout sem overflow ===== */
+.tela-inicial {
+  max-width: 520px; /* bloco centralizado SEM .row (sem margens negativas) */
+}
+
+.card-ludico {
+  border: none;
+  border-radius: var(--raio);
+}
+
+/* Cabecalho de marca */
+.marca {
+  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-escuro) 100%);
+}
+.marca__mascote {
+  display: flex;
+  gap: 0.55rem;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.7rem;
+  margin-bottom: 0.35rem;
+}
+.marca__titulo {
+  font-size: clamp(1.8rem, 7vw, 2.4rem); /* escala e nunca estoura em telas pequenas */
+  font-weight: 700;
+  line-height: 1.1;
+}
+.marca__tagline {
+  font-size: 0.95rem;
+  margin-top: 0.35rem;
+}
+
+/* Seletor de jogadores: botoes grandes (alvo de toque >= 48px) */
+.seletor-jogadores {
+  display: flex;
+  gap: 0.5rem;
+}
+.btn-opcao {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 56px;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--texto);
+  background: var(--superficie);
+  border: 2px solid var(--borda);
+  border-radius: var(--raio-sm);
+}
+.btn-opcao:hover {
+  border-color: var(--brand);
+}
+.btn-opcao--ativo,
+.btn-opcao--ativo:hover {
+  color: #fff;
+  background: var(--brand);
+  border-color: var(--brand);
+}
+
+/* Botoes de acao grandes (alvo de toque >= 48px) */
+.btn-grande {
+  min-height: 52px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: var(--raio-sm);
+}
+
+/* Inputs de nome maiores */
+.input-group-grande .form-control,
+.input-group-grande .input-group-text {
+  min-height: 48px;
+  font-size: 1rem;
+}
+
+/* Caixa de dica: acento de TEXTO usa --acento-ink (contraste AA, regra do Codex) */
+.dica-inicial {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  background: #fff7e6;
+  border: 1px solid #ffd591;
+  border-radius: var(--raio-sm);
+  padding: 0.75rem 1rem;
+  color: var(--texto);
+  font-size: 0.95rem;
+}
+.dica-inicial .fa-lightbulb,
+.dica-inicial__rotulo {
+  color: var(--acento-ink);
+}
+
+/* ===== TelaFim (Passo 6) ===== */
+.tela-fim {
+  max-width: 600px; /* bloco centralizado SEM .row (mesmo fix da TelaInicial) */
+}
+.fim-faixa {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 1.4rem 1rem;
+  color: #fff;
+}
+.fim-faixa h2 { font-size: 1.6rem; }
+.fim-faixa .fa-trophy,
+.fim-faixa .fa-face-smile { font-size: 2.4rem; }
+.fim-faixa--vitoria { background: linear-gradient(135deg, #1b7f3b 0%, #14692f 100%); }
+.fim-faixa--derrota { background: linear-gradient(135deg, #51607a 0%, #3a465c 100%); }
+.fim-placar {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin: 0.25rem 0 0.75rem;
+}
+.fim-placar__rotulo { display: block; font-size: 0.85rem; color: var(--texto-suave); }
+.fim-placar__valor { font-size: 1.9rem; font-weight: 800; }
+
+/* utilitarios de cor (tokens) */
+.txt-brand { color: var(--brand); }
+.txt-sucesso { color: var(--sucesso); }
+.txt-perigo { color: var(--perigo); }
+.txt-aviso { color: var(--aviso); }
+
+/* ===== Foco visível para teclado (Passo 7) ===== */
+:focus-visible {
+  outline: 3px solid var(--brand);
+  outline-offset: 2px;
+}
+button:focus-visible,
+.btn:focus-visible,
+.btn-close:focus-visible,
+.form-control:focus-visible,
+.form-select:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+  outline: 3px solid var(--brand) !important;
+  outline-offset: 2px;
+}
+/* em superfícies escuras (marca/overlay), o contorno fica branco p/ contraste */
+.marca :focus-visible,
+.overlay-passe :focus-visible {
+  outline-color: #fff !important;
+}
+
+/* ===== Alvos de toque >= 48px (Passo 9) ===== */
+.btn-toque {
+  min-height: 48px;
+}
+/* botao "X" de fechar dos modais com area de toque >= 48px */
+.modal-simples .btn-close {
+  width: 48px;
+  height: 48px;
+  background-position: center;
+  background-size: 1rem;
+  margin: -0.25rem -0.25rem -0.25rem 0;
+}
+
+/* ===== Respeita "prefers-reduced-motion" (Passo 9): desliga animacoes/transicoes ===== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ===== Estatisticas (Passo 10) ===== */
+.estat-grade {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6rem;
+}
+.estat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.7rem;
+  background: var(--superficie-2);
+  border-radius: var(--raio-sm);
+}
+.estat-item__valor { font-size: 1.8rem; font-weight: 800; line-height: 1; }
+.estat-item__rotulo { font-size: 0.8rem; color: var(--texto-suave); margin-top: 0.2rem; }
+
+/* ===== Polish: confete + micro-animacoes (Passo 11) =====
+   Tudo e desligado pelo @media (prefers-reduced-motion: reduce) acima
+   (animation-duration vira ~0); o confete ainda e barrado em JS no TelaFim. */
+.confete {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1070;
+}
+.confete__peca {
+  position: absolute;
+  top: -20px;
+  width: 10px;
+  height: 14px;
+  border-radius: 2px;
+  animation-name: confete-cai;
+  animation-timing-function: linear;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+}
+@keyframes confete-cai {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(var(--giro, 360deg)); opacity: 0.9; }
+}
+
+/* entrada suave das cartas (sem fill-mode p/ nao quebrar o transform do hover) */
+@keyframes carta-entra {
+  from { opacity: 0; transform: translateY(6px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.carta {
+  animation: carta-entra 0.22s ease;
+}
+
+/* "pop" do trofeu na vitoria */
+@keyframes trofeu-pop {
+  0%   { transform: scale(0.6); }
+  60%  { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+.fim-faixa--vitoria .fa-trophy {
+  animation: trofeu-pop 0.5s ease;
+}
