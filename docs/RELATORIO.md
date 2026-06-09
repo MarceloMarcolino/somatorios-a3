@@ -3,7 +3,7 @@
 **UC:** Usabilidade, Desenvolvimento Web, Mobile e Jogos — USJT (2026/1)
 **Squad:** 7823 — Bacharelado em Engenharia de Software
 **Tema (ODS):** ODS 4 — Educação de Qualidade
-**Repositório:** _<inserir link do GitHub>_ · **Vídeo/evidências:** _<inserir link do drive/YouTube não listado>_
+**Repositório:** https://github.com/MarceloMarcolino/somatorios-a3 · **App ao vivo:** https://somatorios-a3.vercel.app · **Vídeo/evidências:** _<inserir link do drive/YouTube não listado>_
 
 ---
 
