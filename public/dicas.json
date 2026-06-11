@@ -2,7 +2,7 @@
   { "id": 1, "texto": "No Somatórios, o cálculo é feito da esquerda para a direita, sem prioridade entre as operações." },
   { "id": 2, "texto": "Toda carta tem dois papéis: vale como NÚMERO (em pé) ou como OPERADOR (deitada)." },
   { "id": 3, "texto": "Cooperem em voz alta: combinem qual operador aproxima o grupo do valor objetivo." },
-  { "id": 4, "texto": "Múltiplicar por 1 ou dividir por 1 não muda o resultado - útil para ajustar a vez sem ultrapassar o alvo." },
+  { "id": 4, "texto": "Multiplicar por 1 ou dividir por 1 não muda o resultado - útil para ajustar a vez sem ultrapassar o alvo." },
   { "id": 5, "texto": "Subtrair pode salvar a partida quando o resultado parcial passou do objetivo." },
   { "id": 6, "texto": "O zero não existe no baralho: as cartas vão de 1 a 9 em quatro naipes de operadores." },
   { "id": 7, "texto": "Aprender em grupo melhora o desempenho em matemática (meta-análise de Johnson & Johnson)." },
