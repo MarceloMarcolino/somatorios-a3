@@ -1,6 +1,6 @@
 // ====== Regras matematicas do Somatorios (logica pura, sem React) ======
 
-export const EPSILON = 1e-9; // tolerancia para comparar resultados com fracao (divisao)
+export const EPSILON = 1e-9; // tolerancia para comparar resultados numericos (ponto flutuante)
 
 // Aplica um operador ao valor acumulado. O calculo e da esquerda para a direita,
 // SEM prioridade de operacoes (como na regra original do jogo de cartas).
@@ -9,7 +9,9 @@ export function aplicarOperacao(acumulado, operadorId, valor) {
     case 'soma':          return acumulado + valor;
     case 'subtracao':     return acumulado - valor;
     case 'multiplicacao': return acumulado * valor;
-    case 'divisao':       return acumulado / valor; // valor nunca e 0 (cartas vao de 1 a 9)
+    // divisao arredondada para o inteiro mais proximo (Math.round, metade para cima);
+    // valor nunca e 0 (cartas vao de 1 a 9). Negativos seguem o Math.round do JS (-3,5 -> -3).
+    case 'divisao':       return Math.round(acumulado / valor);
     default:              return acumulado;
   }
 }

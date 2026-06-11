@@ -7,7 +7,20 @@ describe('aplicarOperacao', () => {
   test('subtracao', () => expect(aplicarOperacao(10, 'subtracao', 5)).toBe(5));
   test('multiplicacao', () => expect(aplicarOperacao(10, 'multiplicacao', 5)).toBe(50));
   test('divisao exata', () => expect(aplicarOperacao(10, 'divisao', 5)).toBe(2));
-  test('divisao pode gerar fracao', () => expect(aplicarOperacao(10, 'divisao', 4)).toBeCloseTo(2.5));
+  test('divisao arredonda para o inteiro mais proximo (metade para cima)', () => {
+    expect(aplicarOperacao(10, 'divisao', 4)).toBe(3); // 2,5 -> 3
+    expect(aplicarOperacao(7, 'divisao', 2)).toBe(4);  // 3,5 -> 4
+    expect(aplicarOperacao(10, 'divisao', 3)).toBe(3); // 3,33 -> 3
+    expect(aplicarOperacao(10, 'divisao', 6)).toBe(2); // 1,67 -> 2
+  });
+  test('divisao arredonda resultado negativo conforme Math.round (em direcao ao +infinito)', () => {
+    expect(aplicarOperacao(-7, 'divisao', 2)).toBe(-3); // -3,5 -> -3
+  });
+  test('arredondamento acontece na divisao, nao na exibicao (calculo sequencial)', () => {
+    let r = aplicarOperacao(9, 'divisao', 2); // 4,5 -> 5
+    r = aplicarOperacao(r, 'soma', 1);        // 6
+    expect(r).toBe(6);
+  });
   test('calculo e da esquerda para a direita (sem prioridade)', () => {
     // 2 + 3 = 5 ; depois 5 x 4 = 20  (e nao 2 + (3x4) = 14)
     let r = aplicarOperacao(2, 'soma', 3);
