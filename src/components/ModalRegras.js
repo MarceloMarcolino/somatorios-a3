@@ -48,7 +48,8 @@ export default function ModalRegras({ onFechar }) {
             </li>
             <li className="mb-2">
               <strong>Conta:</strong> o resultado é calculado da esquerda para a direita, sem
-              prioridade de operações. Após jogar, você compra uma carta nova.
+              prioridade de operações. Quando uma divisão não der exata, o resultado é arredondado
+              para o inteiro mais próximo. Após jogar, você compra uma carta nova.
             </li>
             <li>
               <strong>Vitória:</strong> o resultado parcial bate o objetivo (todos vencem juntos).{' '}

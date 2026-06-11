@@ -6,5 +6,6 @@
   { "id": 5, "texto": "Subtrair pode salvar a partida quando o resultado parcial passou do objetivo." },
   { "id": 6, "texto": "O zero não existe no baralho: as cartas vão de 1 a 9 em quatro naipes de operadores." },
   { "id": 7, "texto": "Aprender em grupo melhora o desempenho em matemática (meta-análise de Johnson & Johnson)." },
-  { "id": 8, "texto": "Errar faz parte: no jogo cooperativo, cada tentativa ensina o grupo inteiro." }
+  { "id": 8, "texto": "Errar faz parte: no jogo cooperativo, cada tentativa ensina o grupo inteiro." },
+  { "id": 9, "texto": "Divisões com decimal são arredondadas: 7 ÷ 2 vira 4, e 10 ÷ 3 vira 3." }
 ]
