@@ -17,7 +17,7 @@ export default function BarraStatus({ objetivo, resultadoParcial, cartasNoBaralh
     : `Faltam ${formatarNumero(distancia)}`;
 
   return (
-    <div className="barra-status__wrap mb-3">
+    <div className="barra-status__wrap mb-3" role="group" aria-label="Status da partida">
       <div className="barra-status">
         <div className="status-objetivo">
           <i className="fas fa-bullseye" aria-hidden="true"></i>
