@@ -24,6 +24,11 @@ export default function TelaPartida({ estado, onRevelar, onJogar, onAbandonar })
           : `Resultado parcial: ${formatarNumero(estado.resultadoParcial)} de objetivo ${formatarNumero(estado.objetivo)}.`}
       </p>
 
+      {/* Live region (Passo 14): anuncia a troca de turno a leitores de tela */}
+      <p className="visually-hidden" aria-live="polite">
+        Vez de {jogador.nome}.
+      </p>
+
       <BarraStatus
         objetivo={estado.objetivo}
         resultadoParcial={estado.resultadoParcial}
