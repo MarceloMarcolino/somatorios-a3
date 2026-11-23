@@ -1,0 +1,564 @@
+{% extends "_base.html" %}
+{#
+  Guia do professor (id 'professor') — 3 páginas A4 retrato, formato de PLANO DE AULA
+  (Tema / Objetivos / Conteúdo / Desenvolvimento / Recursos / Avaliação / Referências).
+  Regras e termos: fonte/REGRAS_CANONICAS.md. Fontes de conteúdo: relatórios H, I, J, D, C, A.
+#}
+{% block head %}
+<style>
+  .gp { font-size: 9pt; line-height: 1.3; }
+  .gp .p2 { line-height: 1.26; }
+  .gp h2 { font-size: 12pt; margin: 0 0 1.4mm; display: flex; align-items: center; gap: 1.8mm; }
+  .gp h2 .num { display: inline-flex; align-items: center; justify-content: center; width: 5.2mm; height: 5.2mm;
+                border-radius: 50%; background: var(--brand); color: #fff; font-size: 8.5pt; font-weight: 700; flex: 0 0 auto; }
+  .gp h3 { font-size: 9.8pt; margin: 0 0 0.8mm; color: var(--brand-escuro); }
+  .gp ul, .gp ol { margin: 0; padding-left: 4.2mm; }
+  .gp li { margin-bottom: 0.7mm; }
+  .gp p { margin: 0 0 1.2mm; }
+  .gp .nota { font-size: 7.6pt; line-height: 1.28; }
+  .gp .cit { font-size: 7.8pt; }
+
+  /* ---------- página 1 ---------- */
+  .topo { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2mm; }
+  .topo .esq { display: flex; align-items: center; gap: 3mm; }
+  .selo { background: var(--brand); color: #fff; font-weight: 600; font-size: 8.5pt; letter-spacing: 0.05em;
+          text-transform: uppercase; padding: 0.9mm 2.8mm; border-radius: 10mm; }
+  .topo .dir { text-align: right; font-size: 7.8pt; color: var(--tinta-suave); line-height: 1.3; }
+  .titulo { font-size: 22pt; font-weight: 700; margin: 0; line-height: 1.05; }
+  .subtitulo { font-size: 11pt; color: var(--brand-escuro); font-weight: 500; margin: 0.8mm 0 0.8mm; }
+  .autoria { font-size: 7.8pt; color: var(--tinta-suave); margin-bottom: 2.3mm !important; }
+  .gp .ficha { margin-bottom: 2.3mm; gap: 1.8mm; flex-wrap: nowrap; }
+  .gp .ficha .item { flex: 1 1 0; min-width: 0; padding: 1.2mm 1mm; }
+  .gp .ficha .valor { font-size: 12pt; color: var(--brand-escuro); white-space: nowrap; }
+  .gp .ficha .rotulo { font-size: 7pt; white-space: nowrap; }
+
+  .p1-grade { display: grid; grid-template-columns: 1fr 73mm; gap: 4.5mm; margin-bottom: 2mm; }
+  .bloco { margin-bottom: 2mm; }
+  .bloco:last-child { margin-bottom: 0; }
+  .lado .caixa { padding: 1.8mm 2.4mm; margin-bottom: 1.8mm; }
+  .lado .caixa:last-child { margin-bottom: 0; }
+  .lado h3 { display: flex; align-items: center; gap: 1.6mm; }
+  .lado ul { padding-left: 3.8mm; }
+  .ods { background: #fff6ec; border-color: #ffd0a1; }
+  .ods-selo { display: inline-flex; align-items: center; justify-content: center; width: 6mm; height: 6mm;
+              border-radius: 1.4mm; background: #c5192d; color: #fff; font-weight: 700; font-size: 9.5pt; }
+  ol.objetivos { padding-left: 0; list-style: none; counter-reset: obj; }
+  ol.objetivos > li { counter-increment: obj; position: relative; padding-left: 6mm; margin-bottom: 0.9mm; }
+  ol.objetivos > li::before { content: counter(obj); position: absolute; left: 0; top: 0.1mm; width: 4.4mm; height: 4.4mm;
+                              border-radius: 50%; background: var(--fundo-2); color: var(--brand-escuro);
+                              font-weight: 700; font-size: 7.6pt; line-height: 4.4mm; text-align: center; }
+
+  table.bncc { font-size: 8.5pt; line-height: 1.25; }
+  table.bncc td, table.bncc th { padding: 0.6mm 1.6mm; vertical-align: top; }
+  table.bncc td:first-child { font-weight: 700; color: var(--brand-escuro); white-space: nowrap; width: 18mm; }
+  table.bncc td:nth-child(2) { width: 88mm; }
+  table.bncc td:last-child { color: var(--tinta-suave); }
+
+  /* ---------- página 2 ---------- */
+  .etapas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.8mm; margin: 1.2mm 0 1.5mm; }
+  .etapa { display: flex; align-items: center; gap: 1.5mm; border: 0.35mm solid var(--borda); border-radius: var(--raio-sm);
+           padding: 0.7mm 1.6mm; background: #fff; }
+  .etapa .n, .m-cab .n { flex: 0 0 auto; border-radius: 50%; color: #fff; font-weight: 700;
+                          display: flex; align-items: center; justify-content: center; }
+  .etapa .n { width: 4.8mm; height: 4.8mm; font-size: 8.6pt; }
+  .etapa .nome { font-weight: 600; font-size: 9pt; line-height: 1.1; }
+  .etapa .min { font-size: 7.6pt; color: var(--tinta-suave); margin-left: auto; white-space: nowrap; }
+
+  .jogue { display: flex; gap: 3mm; align-items: center; margin-top: 1.8mm; padding: 1.6mm 2.6mm; }
+  .jogue .txt { flex: 1 1 auto; }
+  .jogue .qrs { display: flex; gap: 2mm; flex: 0 0 auto; }
+  .jogue .qrs > div { display: flex; flex-direction: column; align-items: center; gap: 0.4mm; font-size: 7pt; color: var(--tinta-suave); }
+  .jogue strong.t { font-size: 10pt; color: var(--acento-ink); }
+
+  .momento { border: 0.35mm solid var(--borda); border-left-width: 1.6mm; border-radius: var(--raio-sm);
+             padding: 1.3mm 2.8mm 1.3mm 2.8mm; margin-bottom: 1.5mm; background: #fff; }
+  .momento:last-of-type { margin-bottom: 0; }
+  .m-cab { display: flex; align-items: center; gap: 1.8mm; margin-bottom: 0.7mm; }
+  .m-cab .n { width: 5.8mm; height: 5.8mm; font-size: 9.5pt; }
+  .m-cab .nome { font-size: 11.5pt; font-weight: 700; }
+  .m-cab .min { font-size: 8.5pt; color: var(--tinta-suave); font-weight: 500; }
+  .m-grade { display: grid; gap: 3.6mm; align-items: start; }
+  .m1 { grid-template-columns: 1fr 54mm; }
+  .m2 { grid-template-columns: 1fr 80mm; }
+  .m3 { grid-template-columns: 1fr 76mm; }
+  .momento ul { padding-left: 4mm; }
+  .momento li { margin-bottom: 0.8mm; }
+
+  .exemplo { background: var(--superficie-2); border: 0.3mm solid var(--borda); border-radius: var(--raio-sm); padding: 1.6mm 1.8mm 1.2mm; }
+  .exemplo .rot { font-size: 7.4pt; color: var(--tinta-suave); text-align: center; line-height: 1.2; }
+  .gp .conta { gap: 1mm; margin: 1.2mm 0 1mm; }
+  .exemplo .conta svg { flex-shrink: 0; }
+  .gp .conta .resultado { font-size: 10.5pt; padding: 0.2mm 1.6mm; }
+  .gp .conta .seta { font-size: 11pt; color: var(--tinta-suave); font-weight: 600; }
+
+  .baloes { display: flex; flex-wrap: wrap; gap: 1.1mm 1mm; margin: 1mm 0 0.4mm; }
+  .gp .balao { font-size: 8pt; padding: 0.5mm 1.5mm; border-radius: 3mm; }
+  .tropecos { background: #fbf0f0; border: 0.3mm solid #ecc3c3; border-radius: var(--raio-sm); padding: 1.4mm 2.2mm;
+              font-size: 8.6pt; line-height: 1.25; }
+  .tropecos h3 { color: var(--sub); margin-bottom: 0.5mm; font-size: 9.4pt; }
+  .tropecos ul { padding-left: 3.6mm; }
+  .tropecos li { margin-bottom: 0.5mm; }
+  .papeis { background: #f3f8ee; border: 0.3mm solid #c9e3bb; border-radius: var(--raio-sm); padding: 1.2mm 2.4mm;
+            font-size: 8.6pt; line-height: 1.27; margin-top: 1.6mm; }
+  .papeis .t { color: #2d6b1c; font-size: 9.2pt; }
+  .papeis p { margin: 0; }
+
+  .ordem { background: #eef2fb; border: 0.3mm solid #c8d3ee; border-radius: var(--raio-sm); padding: 1.6mm 2.4mm; font-size: 8.6pt; }
+  .ordem h3 { color: var(--mult); margin-bottom: 0.4mm; font-size: 9.4pt; }
+  .ordem .quadro { text-align: center; font-size: 12.5pt; font-weight: 700; margin: 0.2mm 0 0.8mm; letter-spacing: 0.02em; }
+  .ordem .linha { display: grid; grid-template-columns: 24mm 1fr; gap: 1.4mm; margin-bottom: 0.6mm; align-items: baseline; }
+  .ordem .linha b { font-weight: 600; }
+  .ordem .res { font-weight: 700; color: var(--brand); }
+  .perguntas { columns: 2; column-gap: 5mm; }
+  .perguntas li { break-inside: avoid; }
+
+  ul.variantes { list-style: none; padding: 0; margin: 0 0 1mm; font-size: 8.6pt; line-height: 1.27; }
+  ul.variantes > li { background: var(--div-claro); border-radius: var(--raio-sm); padding: 0.7mm 2.2mm; margin-bottom: 0.8mm; }
+  ul.variantes b { color: #5a2f99; font-size: 9.2pt; }
+  ul.variantes .pq { color: var(--tinta-suave); font-style: italic; }
+
+  /* ---------- página 3 ---------- */
+  .aval { display: grid; grid-template-columns: 1fr 1fr; gap: 2mm; margin-bottom: 2.2mm; }
+  .aval .caixa { padding: 1.8mm 2.6mm; font-size: 8.7pt; }
+  .aval h3 { display: flex; align-items: center; gap: 1.6mm; }
+  .aval h3 .k { display: inline-flex; width: 4.6mm; height: 4.6mm; border-radius: 50%; background: var(--brand); color: #fff;
+                align-items: center; justify-content: center; font-size: 7.8pt; font-weight: 700; }
+  table.obs { width: 100%; border-collapse: collapse; font-size: 8.5pt; }
+  table.obs th { font-weight: 600; font-size: 7pt; color: var(--tinta-suave); text-align: center; padding: 0 0.4mm 0.3mm; line-height: 1.1; }
+  table.obs.lista th { white-space: nowrap; }
+  table.obs.lista td.q { width: 11.5mm; }
+  table.obs td { border-top: 0.25mm solid var(--borda); padding: 0.2mm 0.4mm; line-height: 1.22; }
+  table.obs td.q { width: 10mm; text-align: center; }
+  table.obs td.q span { display: inline-block; width: 2.8mm; height: 2.8mm; border: 0.3mm solid var(--tinta-suave); border-radius: 0.6mm; vertical-align: middle; }
+  table.obs td.r { width: 10mm; text-align: center; padding: 0.2mm 0.4mm; }
+  svg.rosto { display: inline-block; vertical-align: middle; }
+  .frase { font-weight: 600; background: #fff; border: 0.3mm dashed var(--borda); border-radius: 1.6mm; padding: 0.8mm 2mm; margin: 0.6mm 0 1mm; }
+
+  .etica { display: flex; gap: 2.8mm; align-items: flex-start; margin-bottom: 2.2mm; font-size: 8.8pt; padding: 2mm 3mm; }
+  .etica .icone { flex: 0 0 auto; width: 8mm; height: 8mm; border-radius: 50%; background: var(--acento); color: #fff;
+                  font-weight: 700; font-size: 14pt; display: flex; align-items: center; justify-content: center; }
+  .etica .t { font-size: 10pt; font-weight: 700; color: var(--acento-ink); display: block; margin-bottom: 0.4mm; }
+
+  .incl { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; font-size: 8.7pt; margin-bottom: 2.2mm; }
+  .incl li { margin-bottom: 0.8mm; }
+
+  .kagan { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.6mm; margin: 0.2mm 0 0.8mm; }
+  .kagan > div { border-radius: var(--raio-sm); padding: 1.3mm 1.8mm; font-size: 8.5pt; line-height: 1.22; border: 0.3mm solid; }
+  .kagan b { display: block; font-size: 8.5pt; margin-bottom: 0.3mm; }
+  .fund { columns: 2; column-gap: 5mm; font-size: 8.5pt; line-height: 1.27; margin-bottom: 2mm; }
+  .fund p { margin: 0 0 1.1mm; break-inside: avoid; }
+  .refs { columns: 2; column-gap: 5mm; font-size: 7.1pt; line-height: 1.22; }
+  .refs p { margin: 0 0 0.7mm; padding-left: 2.6mm; text-indent: -2.6mm; break-inside: avoid; }
+</style>
+{% endblock %}
+
+{# ----------------------------------------------------------------- macros #}
+{% macro rodape(n) %}
+<div class="rodape">
+  <span>Somatórios {{ cfg.versao }} · Guia do professor{% if cfg.grupo %} · {{ cfg.grupo }}{% endif %}</span>
+  {% if n == 3 %}<span>Usou este plano? Conte como foi: {{ v('contato_email', 'e-mail de contato') }}</span>{% endif %}
+  <span>Página {{ n }}/3</span>
+</div>
+{% endmacro %}
+
+{% macro rosto(tipo, s=4.4) %}
+<svg class="rosto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="{{ s }}mm" height="{{ s }}mm" role="img"
+     aria-label="{{ {'sim': 'consegui', 'meio': 'mais ou menos', 'nao': 'ainda não'}[tipo] }}">
+  <circle cx="10" cy="10" r="8.8" fill="{{ {'sim': '#e3f3dd', 'meio': '#fff7e6', 'nao': '#eef4fc'}[tipo] }}" stroke="#14233b" stroke-width="1.1"/>
+  <circle cx="7" cy="8.2" r="1.15" fill="#14233b"/><circle cx="13" cy="8.2" r="1.15" fill="#14233b"/>
+  {% if tipo == 'sim' %}<path d="M6 11.8 Q10 16 14 11.8" fill="none" stroke="#14233b" stroke-width="1.2" stroke-linecap="round"/>
+  {% elif tipo == 'meio' %}<path d="M6.6 13.2 H13.4" fill="none" stroke="#14233b" stroke-width="1.2" stroke-linecap="round"/>
+  {% else %}<path d="M6.4 14.4 Q10 11.6 13.6 14.4" fill="none" stroke="#14233b" stroke-width="1.2" stroke-linecap="round"/>{% endif %}
+</svg>
+{% endmacro %}
+
+{% block corpo %}
+{% set COR = {1: NAIPES['soma'].cor, 2: NAIPES['subtracao'].cor, 3: NAIPES['multiplicacao'].cor, 4: NAIPES['divisao'].cor} %}
+<div class="gp">
+
+{# =================================================================== PÁGINA 1 #}
+<section class="pagina">
+  <div class="topo">
+    <div class="esq">{{ logo(9.5) }}<span class="selo">Guia do professor</span></div>
+    <div class="dir">Plano de aula · Matemática<br>Anos iniciais do Ensino Fundamental</div>
+  </div>
+
+  <h1 class="titulo">Juntos até o objetivo</h1>
+  <p class="subtitulo">Cálculo mental com as quatro operações num jogo de cartas cooperativo</p>
+  <p class="autoria">Autoria: {{ autores }}{% if cfg.grupo %} · {{ cfg.grupo }}{% endif %} · {{ cfg.versao }} ({{ cfg.data_versao }})</p>
+
+  <div class="ficha">
+    <div class="item"><span class="valor">50 min</span><span class="rotulo">1 aula</span></div>
+    <div class="item"><span class="valor">3º–5º ano</span><span class="rotulo">público principal</span></div>
+    <div class="item"><span class="valor">3–4</span><span class="rotulo">pessoas por grupo</span></div>
+    <div class="item"><span class="valor">1 kit</span><span class="rotulo">por grupo</span></div>
+    <div class="item"><span class="valor">8+</span><span class="rotulo">idade</span></div>
+  </div>
+
+  <div class="p1-grade">
+    <div>
+      <div class="bloco">
+        <h2><span class="num">1</span>Tema</h2>
+        <p>As quatro operações e o cálculo mental num jogo de cartas cooperativo: cada carta vale um <strong>número</strong>
+          (carta em pé) ou um <strong>operador</strong> (carta deitada), e o grupo precisa chegar <strong>exatamente</strong> ao objetivo.</p>
+      </div>
+      <div class="bloco">
+        <h2><span class="num">2</span>Objetivos de aprendizagem</h2>
+        <h3>Geral</h3>
+        <p>Desenvolver o <strong>cálculo mental</strong> e a <strong>estimativa</strong> com as quatro operações, resolvendo
+          <strong>em grupo</strong> o desafio de chegar exatamente a um número.</p>
+        <h3>Específicos <span class="suave" style="font-weight:400; font-size:8.5pt">(ao final da aula, cada estudante consegue)</span></h3>
+        <ol class="objetivos">
+          <li><strong>Calcular de cabeça</strong> as quatro operações sobre o resultado parcial.</li>
+          <li><strong>Estimar</strong> quanto falta para o objetivo e <strong>escolher</strong> a carta (número ou operador) que
+            aproxima o resultado parcial do objetivo.</li>
+          <li><strong>Seguir a ordem de cálculo</strong> do jogo (da esquerda para a direita, uma operação por vez) e, no 4º e
+            5º ano, <strong>compará-la</strong> com a convenção escolar, em que × e ÷ vêm antes de + e −.</li>
+          <li><strong>Arredondar</strong> uma divisão não exata para o número inteiro mais próximo; se der exatamente meio,
+            para cima (9 ÷ 2 = 4,5 → 5; 10 ÷ 3 = 3,33… → 3).</li>
+          <li><strong>Comunicar e cooperar:</strong> explicar uma ideia, ouvir a do colega e decidir em grupo.</li>
+        </ol>
+      </div>
+      <div class="bloco">
+        <h2><span class="num">3</span>Conteúdo</h2>
+        <ul>
+          <li>As quatro operações com números naturais; fatos básicos.</li>
+          <li>Cálculo mental e estimativa: <em>quanto falta? passou quanto?</em></li>
+          <li>Ordem de cálculo: a do jogo e a da escola; parênteses.</li>
+          <li>Divisão exata e não exata; arredondamento.</li>
+          <li>Zero e números negativos <span class="nao-regra">(raros no jogo)</span>.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="lado">
+      <div class="caixa">
+        <h3>Público</h3>
+        <ul>
+          <li><strong>3º ao 5º ano</strong>: jogo completo (8+).</li>
+          <li><strong>1º e 2º ano</strong>: variante <strong>Iniciante</strong>, com um adulto em cada grupo (6+).
+            <span class="nao-regra">Chame monitores ou famílias, ou jogue com um grupo por vez.</span></li>
+          <li>Funciona também do <strong>6º ano em diante</strong> e com <strong>famílias</strong>.</li>
+        </ul>
+      </div>
+      <div class="caixa">
+        <h3>Recursos</h3>
+        <ul>
+          <li><strong>1 kit por grupo</strong>: 36 cartas, 5 cartas de ajuda <strong>Sua vez</strong>, 1 <strong>Mesa</strong> e
+            1 <strong>marcador Início da rodada</strong>.</li>
+          <li><strong>Folha de registro</strong>: 1 por partida.</li>
+          <li><strong>Lápis</strong> e borracha.</li>
+        </ul>
+        <p class="nota nao-regra" style="margin:0.8mm 0 0">Turma de 30: 8 kits (6 grupos de 4 + 2 de 3). O jogo aceita de
+          2 a 5 pessoas; só grupos de 2 ou 4 usam o marcador. <strong>Antes da aula</strong>, para cada kit, imprima em 100%
+          as <span style="white-space:nowrap">págs. 1–4</span>, 6 e 7 do arquivo 01 (siga o topo de cada página) e a Mesa (arquivo 02, pág. 1). Montar um kit
+          leva de 1 a 2 horas.</p>
+      </div>
+      <div class="caixa ods">
+        <h3><span class="ods-selo">4</span>ODS 4 · meta 4.1</h3>
+        <p style="margin-bottom:0.8mm"><strong>Educação de qualidade.</strong> A meta 4.1 pede que todas as crianças concluam
+          o ensino fundamental e médio com aprendizagem relevante e eficaz (ONU BRASIL).</p>
+        <p class="nota nao-regra" style="margin:0">Contribuição: recurso impresso, de baixo custo, que funciona sem internet
+          nem computador.</p>
+      </div>
+    </div>
+  </div>
+
+  <h2><span class="num">4</span>Habilidades da BNCC relacionadas</h2>
+  <table class="tabela bncc">
+    <tr><th>Código</th><th>Habilidade (resumo)</th><th>Onde aparece no jogo</th></tr>
+    <tr><td>EF03MA05</td><td>Cálculo mental e escrito em problemas de adição e subtração.</td>
+        <td>Somar a mão na preparação; contas com + e −.</td></tr>
+    <tr><td>EF03MA07</td><td>Problemas de multiplicação com números naturais.</td>
+        <td>Carta deitada de ×: 9 × 4 = 36.</td></tr>
+    <tr><td>EF03MA08</td><td>Problemas de divisão, com resto zero e diferente de zero.</td>
+        <td>Carta deitada de ÷; divisão não exata → arredondar.</td></tr>
+    <tr><td>EF04MA03</td><td>Adição e subtração com estratégias diversas, como cálculo mental e estimativa.</td>
+        <td>Estimar quanto falta para o objetivo.</td></tr>
+    <tr><td>EF04MA04</td><td>Relações entre adição e subtração e entre multiplicação e divisão para ampliar estratégias de cálculo.</td>
+        <td>Passou do objetivo? Usem − ou ÷ para voltar.</td></tr>
+    <tr><td>EF05MA07</td><td>Adição e subtração com estimativa, cálculo mental e algoritmos.</td>
+        <td>Objetivos maiores: em média 60&nbsp;(3&nbsp;pessoas) e 80&nbsp;(4&nbsp;pessoas).</td></tr>
+    <tr><td>EF05MA08</td><td>Multiplicação e divisão com estimativa, cálculo mental e algoritmos.</td>
+        <td>Resultados parciais acima de 100; planejar × e ÷.</td></tr>
+  </table>
+  <p class="nota" style="margin-top:1mm"><strong>Resumos nossos, para orientar o planejamento.</strong>
+    Confira a redação oficial na BNCC (BRASIL, 2018) antes de citar no seu plano.</p>
+
+  <div class="caixa-aviso jogue">
+    <div class="txt">
+      <strong class="t">Professora, professor: jogue antes!</strong>
+      Jogue <strong>pelo menos 1 partida</strong> com colegas ou com a família: você antecipa as dúvidas sobre carta deitada,
+      ordem de cálculo e arredondamento. Regras completas no Manual de regras (arquivo 03).
+      <span class="nao-regra cit">Conhecer o recurso antes evita “erros de conteúdo” (SANTOS, 2017a).</span>
+    </div>
+    <div class="qrs">
+      <div>{{ qr(cfg.url_manual, 17) }}<span>manual</span></div>
+      <div>{{ qr(cfg.url_video, 17) }}<span>vídeo</span></div>
+    </div>
+  </div>
+
+  {{ rodape(1) }}
+</section>
+
+{# =================================================================== PÁGINA 2 #}
+<section class="pagina p2">
+  <h2 style="font-size:14pt; margin-bottom:0.4mm"><span class="num">5</span>Desenvolvimento: 4 momentos em 50 minutos</h2>
+  <p class="nota nao-regra" style="margin-bottom:0">Sequência inspirada na metodologia LEGO (RODRIGUES, 2015, p. 21–22), com Jogar no
+    lugar de Construir, e na roda de conversa.</p>
+
+  <div class="etapas">
+    {% for n, nome, mins in [(1, 'Contextualizar', 5), (2, 'Jogar', 25), (3, 'Analisar', 12), (4, 'Continuar', 8)] %}
+    <div class="etapa"><span class="n" style="background: {{ COR[n] }}">{{ n }}</span>
+      <span class="nome">{{ nome }}</span><span class="min">~{{ mins }} min</span></div>
+    {% endfor %}
+  </div>
+
+  {# ---------- Momento 1 ---------- #}
+  <div class="momento" style="border-left-color: {{ COR[1] }}">
+    <div class="m-cab"><span class="n" style="background: {{ COR[1] }}">1</span><span class="nome">Contextualizar</span>
+      <span class="min">· ~5 min · turma toda</span></div>
+    <div class="m-grade m1">
+      <ul>
+        <li><strong>Mostre</strong>, com uma carta desenhada grande no quadro, os dois usos: <strong>carta em pé</strong> vale
+          o <strong>número</strong>; <strong>carta deitada</strong> vale o <strong>sinal do naipe</strong>.</li>
+        <li><strong>Explique a vez</strong> com a carta de ajuda <strong>Sua vez</strong>:
+          <b>1</b> jogar 1 carta, na ordem <strong>número, operador, número…</strong> (a <strong>primeira da partida é
+          sempre um número</strong>); <b>2</b> se foi número, fazer a conta e anotar o <strong>resultado parcial</strong>;
+          <b>3</b> comprar 1 carta do monte de compra (se ainda houver).</li>
+        <li><strong>Lance a pergunta-problema:</strong> “Começando com <strong>9</strong>, como chegar <strong>exatamente a 38</strong>?”
+          Anote os caminhos da turma no quadro, <strong>uma operação por vez</strong>.</li>
+        <li><strong>Combine a regra de conversa:</strong> falem à vontade sobre a conta; <strong>só não vale dizer nem mostrar</strong>
+          os números ou os naipes da própria mão.</li>
+      </ul>
+      <div class="exemplo">
+        <div class="rot"><b>Exemplo do manual</b><br>mãos: Ana 24 + Beto 14 = objetivo 38</div>
+        <div class="conta">
+          {{ carta(9, 'divisao', escala=0.13) }}{{ carta(3, 'multiplicacao', escala=0.13, deitada=True) }}{{ carta(4, 'soma', escala=0.13) }}
+          <span class="seta">=</span><span class="resultado">36</span>
+        </div>
+        <div class="conta">
+          <span class="resultado">36</span>{{ carta(6, 'soma', escala=0.13, deitada=True) }}{{ carta(2, 'multiplicacao', escala=0.13) }}
+          <span class="seta">=</span><span class="resultado">38</span>
+        </div>
+        <div class="rot">em pé = número · deitada = operador<br>38 logo depois de um número: vitória!</div>
+      </div>
+    </div>
+  </div>
+
+  {# ---------- Momento 2 ---------- #}
+  <div class="momento" style="border-left-color: {{ COR[2] }}">
+    <div class="m-cab"><span class="n" style="background: {{ COR[2] }}">2</span><span class="nome">Jogar</span>
+      <span class="min">· ~25 min · grupos de 3–4</span></div>
+    <div class="m-grade m2">
+      <ul>
+        <li><strong>Forme os grupos</strong> e entregue 1 kit e 1 Folha de registro a cada um; cada pessoa fica com 1 carta de
+          ajuda <strong>Sua vez</strong>. Grupos de <strong>4</strong> usam o
+          <strong>marcador Início da rodada</strong>; grupos de 3, não. <span class="nao-regra">Uma partida dura cerca de
+          10–20 min: dá para 1 ou 2 partidas.</span></li>
+        <li><strong>Preparação:</strong> cada pessoa recebe 4 cartas, soma <strong>em silêncio</strong> e diz <strong>só o total</strong>.
+          A soma dos totais é o <strong>objetivo</strong>; peça que anotem na Mesa. <span class="nao-regra">Isso já é cálculo mental!</span></li>
+        <li><strong>Circule e faça a mediação:</strong> não dê a resposta; devolva uma pergunta.
+          <div class="baloes">
+            <span class="balao">Quanto falta para o objetivo?</span>
+            <span class="balao">Essa conta aproxima ou afasta?</span>
+            <span class="balao">Que operação ajudaria agora?</span>
+            <span class="balao">Como vocês conferiram?</span>
+          </div></li>
+      </ul>
+      <div class="tropecos">
+        <h3>Tropeços comuns</h3>
+        <ul>
+          <li>Começar com operador ou trocar a ordem.</li>
+          <li>Esquecer de comprar 1 carta ou de passar o marcador.</li>
+          <li>Usar a prioridade da escola: no jogo, a conta vai da esquerda para a direita.</li>
+          <li>Não arredondar a divisão: inteiro mais próximo; meio, para cima. <span class="nao-regra">Sem vírgula
+            (3º ano): se o dobro do resto for igual ou maior que o divisor, some 1 <span style="white-space:nowrap">(9 ÷ 2 = 4, resto 1 → 5)</span>.</span></li>
+          <li>Parar quando o monte de compra acaba: sigam com as cartas da mão; quem fica sem cartas é pulado;
+            guardem o marcador.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="papeis">
+      <p><strong class="t">Papéis rotativos</strong> <span class="nao-regra">(opcional)</span>: o <strong>conferente</strong> confere
+        cada conta e o <strong>escriba</strong> a anota na Folha de registro. No fim de cada <strong>rodada</strong>, os papéis
+        passam para a pessoa à esquerda. <span class="nota nao-regra">Cada pessoa continua decidindo a própria carta.
+        Adaptado do “sábio e escriba” de Kagan (2003, 2009 apud PÉREZ GÓMEZ, 2015, p. 125).</span></p>
+    </div>
+  </div>
+
+  {# ---------- Momento 3 ---------- #}
+  <div class="momento" style="border-left-color: {{ COR[3] }}">
+    <div class="m-cab"><span class="n" style="background: {{ COR[3] }}">3</span><span class="nome">Analisar</span>
+      <span class="min">· ~12 min · grupos e roda de conversa</span></div>
+    <div class="m-grade m3">
+      <div>
+        <p><strong>Nos grupos (4 min):</strong> na <strong>Folha de registro</strong>, peça que marquem a conta que “virou”
+          a partida e uma em que erraram ou hesitaram.</p>
+        <p style="margin-bottom:0.6mm"><strong>Roda de conversa (8 min):</strong> escolha 3 ou 4 perguntas.</p>
+        <ul>
+          <li>Qual operador ajudou mais? Por quê?</li>
+          <li>Em que momento a conta “virou”?</li>
+          <li>Que outro caminho chegaria ao objetivo?</li>
+          <li>Quando a divisão não deu exata, o que vocês fizeram?</li>
+          <li>Como vocês decidiram juntos sem mostrar as cartas?</li>
+        </ul>
+        <p class="nota nao-regra" style="margin:0.8mm 0 0">Valorize o caminho: esteja “atento ao caminho percorrido, e não apenas
+          ao resultado obtido” (SANTOS, 2017b, p. 6).</p>
+      </div>
+      <div class="ordem">
+        <h3>Ordem de cálculo: o jogo e a escola</h3>
+        <p style="margin-bottom:0">No 4º e 5º ano, escreva no quadro e pergunte: quanto dá?</p>
+        <div class="quadro">5 + 6 × 3</div>
+        <div class="linha"><b>No jogo</b><span>5 + 6 = 11 → 11 × 3 = <span class="res">33</span></span></div>
+        <div class="linha"><b>Na escola</b><span>6 × 3 = 18 → 5 + 18 = <span class="res">23</span></span></div>
+        <div class="linha"><b>Com parênteses</b><span>(5 + 6) × 3 = <span class="res">33</span></span></div>
+        <p class="nota nao-regra" style="margin:0.6mm 0 0">No jogo, a conta funciona como numa calculadora simples; os parênteses
+          escrevem essa ordem do jeito da escola. Cada resposta está certa na sua convenção.</p>
+      </div>
+    </div>
+  </div>
+
+  {# ---------- Momento 4 ---------- #}
+  <div class="momento" style="border-left-color: {{ COR[4] }}">
+    <div class="m-cab"><span class="n" style="background: {{ COR[4] }}">4</span><span class="nome">Continuar</span>
+      <span class="min">· ~8 min · grupos</span></div>
+    <p style="margin-bottom:0.8mm">Com cada grupo, <strong>escolha a próxima partida</strong>: testar uma ideia da roda de conversa
+      <strong>ou</strong> jogar uma variante. <span class="nao-regra">Uma partida não cabe nestes 8 min: ela pode começar agora e
+      terminar na próxima aula, ou ser jogada em casa.</span></p>
+    <ul class="variantes">
+      <li><b>Iniciante</b> <span class="pq">— grupos com dificuldade no cálculo; 1º e 2º ano (6+ com um adulto); melhor com 2–4
+        pessoas.</span> Toda <strong>carta deitada vale + ou −</strong>, à escolha de quem a joga. As partidas ficam um pouco mais longas.</li>
+      <li><b>Mesa aberta</b> <span class="pq">— para aprender.</span> Joguem com as mãos <strong>viradas para cima</strong> e decidam
+        juntos cada jogada.</li>
+      <li><b>Desafio do placar</b> <span class="pq">— grupos que já vencem com facilidade.</span> Ao vencer, contem as cartas que
+        sobraram no monte de compra: são os <strong>pontos do grupo</strong>. Anotem e tentem bater o recorde.
+        <span class="nao-regra">Sugestão: Placar da turma (arquivo 02), com um recorde para cada número de pessoas;
+        nas partidas da Iniciante, marquem um I.</span></li>
+    </ul>
+    <p style="margin:0"><strong>Do 5º ano em diante</strong> <span class="nao-regra">(EF05MA23)</span>: “Qual a chance de tirar um 7
+      do baralho completo?” <span class="nao-regra">4 chances em 36, ou seja, 1 em 9.</span>
+      · <strong>Para casa</strong> <span class="nao-regra">(opcional)</span>: levar um kit em rodízio, jogar com a família e
+      trazer uma conta anotada.</p>
+  </div>
+
+  {{ rodape(2) }}
+</section>
+
+{# =================================================================== PÁGINA 3 #}
+<section class="pagina">
+  <h2><span class="num">6</span>Avaliação processual</h2>
+  <p style="margin-bottom:1.4mm">Avalie o <strong>processo</strong> ao longo da aula, com quatro instrumentos simples que combinam
+    registros qualitativos e quantitativos.</p>
+
+  <div class="aval">
+    <div class="caixa">
+      <h3><span class="k">a</span>Folha de registro</h3>
+      <p style="margin-bottom:0.8mm">Leia as contas anotadas. Estão certas? O grupo percebeu e corrigiu os próprios erros?
+        Que operações usou mais?</p>
+      <p style="margin-bottom:0.8mm">Dado quantitativo simples: quantas contas o grupo fez e quantas estão certas. Use também
+        o quadro <strong>Como foi a cooperação?</strong> da Folha de registro.</p>
+      <p class="nota nao-regra" style="margin:0">Trate o erro como algo a analisar com o grupo, nunca como motivo de vergonha.</p>
+    </div>
+    <div class="caixa">
+      <h3><span class="k">b</span>Observação</h3>
+      <table class="obs lista">
+        <tr><th style="text-align:left">Durante o jogo, a pessoa…</th><th>sempre</th><th>às vezes</th><th>ainda não</th></tr>
+        {% for item in ['calcula de cabeça', 'estima quanto falta', 'explica a própria escolha', 'ouve a ideia do colega', 'respeita a regra de conversa'] %}
+        <tr><td>{{ item }}</td><td class="q"><span></span></td><td class="q"><span></span></td><td class="q"><span></span></td></tr>
+        {% endfor %}
+      </table>
+      <p class="nota nao-regra" style="margin:0.6mm 0 0">Observe 1 ou 2 grupos por aula; copie a lista: 1 coluna por estudante.</p>
+    </div>
+    <div class="caixa">
+      <h3><span class="k">c</span>Autoavaliação com rostos</h3>
+      <table class="obs">
+        <tr><th style="text-align:left">Copie no quadro; cada estudante desenha um rosto no caderno</th><th>consegui</th><th>mais ou menos</th><th>ainda não</th></tr>
+        {% for frase in ['Fiz contas de cabeça.', 'Ajudei meu grupo a decidir.', 'Ouvi as ideias dos colegas.'] %}
+        <tr><td>{{ frase }}</td><td class="r">{{ rosto('sim') }}</td><td class="r">{{ rosto('meio') }}</td><td class="r">{{ rosto('nao') }}</td></tr>
+        {% endfor %}
+      </table>
+    </div>
+    <div class="caixa">
+      <h3><span class="k">d</span>Avaliação por pares</h3>
+      <p style="margin-bottom:0">Cada pessoa completa, sobre um colega do grupo:</p>
+      <div class="frase">“Uma jogada sua que ajudou o grupo foi…”</div>
+      <p class="nota nao-regra" style="margin:0">Peça elogios específicos. Feche com um diálogo: que importância a atividade
+        teve para cada um?</p>
+    </div>
+  </div>
+
+  <div class="caixa-aviso etica">
+    <span class="icone">!</span>
+    <div>
+      <span class="t">Não use o resultado da partida como nota, prêmio ou punição.</span>
+      Vitória e derrota são <strong>do grupo</strong> e dependem também da ordem das cartas no monte de compra.
+      Avalie as contas, as explicações e a cooperação. Na derrota, diga, por exemplo: <em>“Boa tentativa! Faltaram 3 para o objetivo.”</em>
+      <span class="nao-regra">(troque o 3 pela diferença real)</span>.
+      <span class="nao-regra cit">Preserve a motivação intrínseca: “a motivação extrínseca, as recompensas e as punições têm
+        inevitáveis efeitos colaterais” (PINK, 2009 apud PÉREZ GÓMEZ, 2015, p. 120).</span>
+    </div>
+  </div>
+
+  <h2><span class="num">7</span>Inclusão</h2>
+  <div class="incl">
+    <ul>
+      <li><strong>Dificuldade com cálculo ou com as regras:</strong> use a <strong>Mesa aberta</strong>; o grupo pensa junto, em voz alta.</li>
+      <li><strong>Baixa visão ou coordenação motora:</strong> imprima as cartas <strong>e a Mesa</strong> (arquivo 02,
+        pág. 1) em A3 (A4 → A3, 141%).</li>
+      <li><strong>6 e 9</strong> têm um traço embaixo.</li>
+    </ul>
+    <ul>
+      <li><strong>Daltonismo:</strong> não dependa só da cor. Cada carta traz o <strong>sinal desenhado</strong> e o <strong>nome do
+        naipe</strong>: diga “carta de × (multiplicação)”, e não “a carta azul”.</li>
+      <li><strong>Números negativos</strong> <span class="nao-regra">(raros)</span>: use o termômetro. 5 − 9 = −4 é “4 abaixo de zero”.</li>
+    </ul>
+  </div>
+
+  <h2><span class="num">8</span>Fundamentação</h2>
+  <div class="kagan">
+    <div style="background:{{ NAIPES['soma'].claro }}; border-color:#b9e0ad"><b>Interdependência positiva</b>O objetivo vem das mãos de
+      todas as pessoas; todas vencem ou perdem juntas.</div>
+    <div style="background:{{ NAIPES['subtracao'].claro }}; border-color:#ebb9b9"><b>Responsabilidade individual</b>Cada pessoa soma a
+      própria mão e decide a própria carta.</div>
+    <div style="background:{{ NAIPES['multiplicacao'].claro }}; border-color:#b9c6e6"><b>Igualdade de participação</b>Cada pessoa joga
+      1 vez por rodada, e os papéis se alternam.</div>
+    <div style="background:{{ NAIPES['divisao'].claro }}; border-color:#d6c1f2"><b>Interação simultânea</b>Todas as pessoas conversam
+      sobre a conta o tempo todo.</div>
+  </div>
+  <p class="nota nao-regra" style="margin-bottom:1.2mm">Os quatro princípios da cooperação de Kagan (2003, 2009 apud PÉREZ GÓMEZ, 2015, p. 124)
+    no Somatórios. Veja também Johnson e Johnson (2017).</p>
+  <div class="fund">
+    <p><strong>Jogo sério, não gamificação.</strong> Gamificação é “o uso de elementos de game design em contextos que não sejam de
+      jogo” (DETERDING et al., 2011 apud ALBUQUERQUE, 2019, p. 1). O Somatórios é um <strong>jogo completo</strong> com finalidade
+      educativa: um jogo sério (ALVES et al., 2012, p. 24), para a aprendizagem baseada em jogos.</p>
+    <p><strong>Inteligência coletiva.</strong> O objetivo nasce do somatório das mãos: “reunir conhecimento e compará-lo com outros
+      em direção a um objetivo comum” (JENKINS et al., 2006 apud CERIGATTO, 2018, p. 7; ver também LÉVY, 1993 apud SANTOS, 2017b, p. 1–2).</p>
+    <p><strong>Construcionismo.</strong> A criança constrói o conhecimento com “modelos e metáforas sugeridos pela cultura que a rodeia”
+      (PAPERT, 1986 apud SANTOS, 2017b, p. 6), como o baralho; deitar a carta torna a operação concreta.</p>
+    <p><strong>Fluxo.</strong> “Objetivos claros, atividades moderadamente desafiadoras” (CSIKSZENTMIHALYI, 1990 apud
+      ALBUQUERQUE, 2019, p. 3): as variantes ajustam o desafio a cada turma.</p>
+    <p><strong>MDA.</strong> Das oito estéticas do MDA (HUNICKE; LEBLANC; ZUBEK, 2004 apud PEREIRA, 2026, slide 41), o Somatórios mira
+      <strong>Desafio</strong> e <strong>Companheirismo</strong> (<em>Challenge</em> e <em>Fellowship</em>).</p>
+  </div>
+
+  <h2><span class="num">9</span>Referências</h2>
+  <div class="refs">
+    <p>ALBUQUERQUE, R. M. Gamificação: conceito e aplicação. In: ALBUQUERQUE, R. M. <em>Estudos contemporâneos em design de jogos e entretenimento digital</em>. Porto Alegre: SAGAH, 2019.</p>
+    <p>ALVES, F. P. et al. A rede social móvel Foursquare: uma análise dos elementos de gamificação sob a ótica dos usuários. In: WAIHCWS, 4., 2012, Cuiabá. <em>Anais</em> […]. Cuiabá, 2012.</p>
+    <p>BRASIL. Ministério da Educação. <em>Base Nacional Comum Curricular</em>. Brasília: MEC, 2018.</p>
+    <p>CERIGATTO, M. P. Cultura digital e educação. In: CERIGATTO, M. P. <em>Tecnologias educacionais</em>. Porto Alegre: SAGAH, 2018.</p>
+    <p>JOHNSON, D. W.; JOHNSON, R. T. <em>Cooperative learning</em>. [S. l.]: Interaction Book, 2017.</p>
+    <p>ONU BRASIL. <em>Objetivos de Desenvolvimento Sustentável</em>. Disponível em: https://brasil.un.org/pt-br/sdgs. Acesso em: 22 nov. 2026.</p>
+    <p>PEREIRA, S. A. M. <em>Tópicos especiais em games</em>: aula 8. São Paulo: USJT, 2026. Slides de aula.</p>
+    <p>PÉREZ GÓMEZ, A. I. <em>Educação na era digital</em>: a escola educativa. Porto Alegre: Penso, 2015.</p>
+    <p>RODRIGUES, W. S. <em>Atividades com robótica educacional para as aulas de matemática do 6º ao 9º ano do ensino fundamental</em>: utilização da metodologia LEGO® Zoom Education. 2015. 106 f. Dissertação (Mestrado Profissional em Matemática) – UNESP, São José do Rio Preto, 2015.</p>
+    <p>SANTOS, P. K. dos. Perspectivas pedagógicas e sua relação com as TICs. In: SANTOS, P. K. dos. <em>Tecnologia da informação no ensino de ciências</em>. Porto Alegre: SAGAH, 2017a.</p>
+    <p>______. Reflexão temporal: relação entre escola, sociedade e TICs na educação. In: ______. <em>Tecnologia da informação no ensino de ciências</em>. Porto Alegre: SAGAH, 2017b.</p>
+  </div>
+
+  {{ rodape(3) }}
+</section>
+
+</div>
+{% endblock %}

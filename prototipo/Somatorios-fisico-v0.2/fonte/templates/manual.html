@@ -1,0 +1,849 @@
+{% extends "_base.html" %}
+{#
+  Manual de regras — Somatórios, protótipo físico v0.2.
+  Fonte única das regras: fonte/REGRAS_CANONICAS.md (não contradizer).
+  Estrutura do "Manual de Manual" (Pedro Latro): título · ficha · introdução · componentes ·
+  preparação · objetivo · como jogar · fim de jogo · variantes (+ exemplo, perguntas, reflexão).
+  Itálico (.nao-regra) = o que não é regra. A4 retrato, 4 páginas.
+#}
+{% block head %}
+<style>
+  .m { font-size: 10pt; line-height: 1.36; }
+  .m p { margin: 0 0 1.6mm; }
+  .m b, .m strong { font-weight: 600; }
+
+  /* ---------- títulos de seção ---------- */
+  .m h2.sec {
+    font-size: 13pt; font-weight: 700; text-transform: uppercase; letter-spacing: .07em;
+    color: var(--brand-escuro); margin: 4.4mm 0 2.2mm; display: flex; align-items: center; gap: 2.2mm;
+  }
+  .m h2.sec::before {
+    content: ''; flex: 0 0 auto; width: 6.2mm; height: 2.2mm; border-radius: 1.1mm;
+    background: linear-gradient(90deg, var(--soma) 0 25%, var(--sub) 25% 50%, var(--mult) 50% 75%, var(--div) 75% 100%);
+  }
+  .m h2.sec.primeiro { margin-top: 0; }
+  .m h3.sub { font-size: 10.5pt; font-weight: 600; color: var(--tinta); margin: 0 0 1.4mm; }
+
+  /* ---------- topo das páginas internas ---------- */
+  .topo { display: flex; justify-content: space-between; align-items: center;
+          padding-bottom: 1.8mm; border-bottom: 0.3mm solid var(--borda); margin-bottom: 4.5mm;
+          font-size: 8pt; color: var(--tinta-suave); }
+  .topo .secoes { letter-spacing: .04em; }
+
+  /* ---------- capa ---------- */
+  .capa { text-align: center; padding-top: 1mm; }
+  .capa .logo-svg { margin: 0 auto; }
+  .ficha-linha { margin: 2.6mm auto 2.2mm; display: inline-flex; align-items: center; gap: 3mm;
+                 font-size: 12.5pt; color: var(--tinta); background: var(--fundo);
+                 border: 0.3mm solid var(--borda); border-radius: 10mm; padding: 1.3mm 6mm; }
+  .ficha-linha b { font-weight: 700; color: var(--brand-escuro); }
+  .ficha-linha .sep { color: #9fb0c9; font-weight: 300; }
+  .ficha-linha .ini { font-size: 10pt; color: var(--tinta-suave); }
+  .ficha-linha .ini b { font-size: 12.5pt; }
+  .capa .autoria { font-size: 9pt; color: var(--tinta-suave); margin: -0.6mm 0 1.8mm; }
+  .capa .intro { max-width: 152mm; margin: 0 auto; font-size: 10.5pt; line-height: 1.42; }
+
+  /* ---------- componentes ---------- */
+  .comp { display: flex; gap: 4mm; align-items: flex-start; }
+  .anat { position: relative; flex: 0 0 auto; }
+  .anat .carta-svg { position: absolute; top: 0; }
+  .anat svg.sobre { position: absolute; left: 0; top: 0; overflow: visible; }
+  .sobre .lin { stroke: var(--tinta); stroke-width: 0.32; stroke-linecap: round; }
+  .sobre .pto { fill: var(--tinta); stroke: #fff; stroke-width: 0.3; }
+  .sobre .bol { fill: var(--acento); stroke: #fff; stroke-width: 0.4; }
+  /* letra escura sobre o laranja (≈ 6:1): continua legível em impressão em tons de cinza */
+  .sobre .bolt { fill: var(--tinta); font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 3.2px;
+                 text-anchor: middle; dominant-baseline: central; }
+  .verso-cel { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1.2mm;
+               margin-top: 14mm; font-size: 8pt; color: var(--tinta-suave); }
+  .comp-texto { flex: 1 1 auto; font-size: 9.6pt; }
+  .comp-texto .titulo-comp { font-size: 10.5pt; margin-bottom: 1.6mm; }
+  .naipes { display: flex; gap: 2.6mm; flex-wrap: wrap; margin: 0 0 2mm; font-size: 9pt; }
+  .naipes span { display: inline-flex; align-items: center; gap: 1mm; }
+  .legenda { list-style: none; padding: 0; margin: 0; }
+  .legenda li { display: flex; gap: 1.8mm; align-items: flex-start; margin-bottom: 1.25mm; line-height: 1.3; }
+  .bolinha { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
+             width: 4.4mm; height: 4.4mm; border-radius: 50%; background: var(--acento); color: var(--tinta);
+             font-weight: 700; font-size: 8pt; line-height: 1; margin-top: 0.1mm; }
+  .outros { display: grid; grid-template-columns: 1.24fr 1.2fr 1fr; gap: 3.4mm; margin-top: 4.4mm; }
+  .outro { display: flex; gap: 2.4mm; align-items: center; font-size: 9pt; line-height: 1.27;
+           background: var(--superficie-2); border: 0.3mm solid var(--borda); border-radius: var(--raio-sm);
+           padding: 2mm 2.4mm; }
+  .outro .img { flex: 0 0 auto; }
+
+  /* miniatura da carta de ajuda */
+  .ajuda-mini { position: relative; background: #fff; border: 0.4mm solid var(--brand); border-radius: 1.6mm; }
+  .ajuda-mini .tit { position: absolute; left: 1.4mm; top: 1.2mm; font-weight: 700; color: var(--brand-escuro); font-size: 7pt; line-height: 1; }
+  .ajuda-mini .chs { position: absolute; right: 1.2mm; top: 1.2mm; display: flex; gap: 0.3mm; }
+  .ajuda-mini .chs svg { display: block; }
+  .ajuda-mini .lns { position: absolute; left: 1.6mm; right: 1.6mm; bottom: 1.6mm; }
+  .ajuda-mini .lns i { display: block; height: 0.55mm; background: #c9d4e6; border-radius: 0.3mm; margin-top: 1mm; }
+  .ajuda-mini .lns i.c { width: 70%; }
+  /* miniatura da Mesa (mesmas proporções da Mesa impressa, 297 × 210) e da Folha de registro */
+  .mesa-mini { position: relative; background: #fff; border: 0.4mm solid var(--brand); border-radius: 1.2mm; }
+  .mesa-mini > span { position: absolute; }
+  .mesa-mini .rot { left: 1mm; top: 0.8mm; font-size: 7pt; font-weight: 700; color: var(--brand-escuro); line-height: 1; }
+  .mesa-mini .st { background: #fff; border: 0.25mm solid var(--borda); border-radius: 0.6mm; }
+  .mesa-mini .st.par { border: 0.3mm solid var(--brand); }
+  .mesa-mini .gu { border: 0.25mm dashed #b8c4d8; border-radius: 0.6mm; background: var(--fundo); }
+  .mesa-mini .esp { border: 0.3mm dashed var(--brand); border-radius: 0.8mm; background: var(--fundo); }
+  .mesa-mini .esp.op { border-color: var(--acento); background: #fff4e8; }
+  .mesa-mini .aba { border: 0.25mm dashed #b8c4d8; border-radius: 0.6mm; background: var(--superficie-2); }
+  .mesa-mini .lem { background: var(--superficie-2); border: 0.2mm solid var(--borda); border-radius: 0.5mm; }
+  .folha-mini { position: relative; background: #fff; border: 0.35mm solid var(--tinta-suave); border-radius: 0.8mm; }
+  .folha-mini i { position: absolute; left: 1.2mm; right: 1.2mm; height: 0.3mm; background: #c9d4e6; }
+  .folha-mini .topo-f { position: absolute; left: 0; right: 0; top: 0; height: 2mm; background: var(--brand); border-radius: 0.5mm 0.5mm 0 0; }
+
+  /* ---------- preparação ---------- */
+  .prep { display: flex; gap: 5mm; align-items: flex-start; }
+  .prep .passos { flex: 1 1 auto; font-size: 9.7pt; }
+  .prep .passos > li { margin-bottom: 1.5mm; line-height: 1.33; }
+  .ilustra { position: relative; flex: 0 0 auto; width: 68mm; height: 60mm;
+             background: #f7f9fd; border: 0.3mm solid var(--borda); border-radius: var(--raio-sm); }
+  .ilustra > * { position: absolute; }
+  .monte .verso-svg { position: absolute; }
+  .num-ilu { display: flex; align-items: center; justify-content: center; width: 4.6mm; height: 4.6mm;
+             border-radius: 50%; background: var(--brand); color: #fff; font-weight: 700; font-size: 7.5pt;
+             line-height: 1; border: 0.35mm solid #fff; box-shadow: 0 0 0 0.2mm var(--brand); }
+  .lapis { width: 1.2mm; height: 15mm; background: linear-gradient(#ffd591 0 82%, #41506a 82% 100%);
+           border-radius: 0.5mm; transform: rotate(18deg); }
+  .rotulo-ilu { font-size: 7pt; color: var(--tinta-suave); line-height: 1.1; text-align: center; }
+
+  /* ---------- objetivo ---------- */
+  .objetivo { margin-top: 4mm; display: flex; align-items: center; gap: 5mm; padding: 3.2mm 5mm; }
+  /* sem kerning: na Fredoka bold o par I–V se encosta ("OBJETNO") */
+  .objetivo h2 { color: #fff; font-size: 13pt; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; font-kerning: none; flex: 0 0 auto; }
+  .objetivo .frase { font-size: 13pt; font-weight: 500; line-height: 1.25; }
+  .objetivo .frase b { font-weight: 700; color: #ffd591; }
+
+  /* ---------- como jogar ---------- */
+  .cj { display: flex; gap: 5mm; align-items: flex-start; }
+  .cj .passos { flex: 1 1 auto; font-size: 9.7pt; }
+  .cj .passos > li { margin-bottom: 2mm; }
+  .cj .passos ul { margin: 0.8mm 0 0; padding-left: 4.2mm; }
+  .cj .passos ul li { margin-bottom: 0.7mm; }
+  .formula { display: inline-block; background: var(--fundo); border-radius: 1.4mm; padding: 0.3mm 2mm; margin: 0.5mm 0 0.3mm; }
+  .dois-usos { flex: 0 0 auto; width: 63mm; background: var(--superficie-2); border: 0.3mm solid var(--borda);
+               border-radius: var(--raio); padding: 2.6mm 2.6mm 2.2mm; text-align: center; }
+  .dois-usos .tit { font-weight: 700; color: var(--brand-escuro); font-size: 10.5pt; margin-bottom: 2mm; }
+  .dois-usos .par { display: flex; justify-content: space-around; align-items: flex-start; }
+  .dois-usos .slot { height: 31.7mm; display: flex; align-items: flex-end; }
+  .dois-usos .uso { display: flex; flex-direction: column; align-items: center; gap: 1.3mm; font-size: 9.2pt; line-height: 1.25; }
+  .dois-usos .uso .grande { font-size: 14pt; font-weight: 700; color: var(--tinta); line-height: 1; }
+  .dois-usos .nota { margin-top: 1.8mm; font-size: 8.4pt; line-height: 1.3; }
+
+  .ordem { margin-top: 3.4mm; }
+  .fila { display: flex; align-items: flex-start; justify-content: center; gap: 1.6mm; }
+  .fila .pos { display: flex; flex-direction: column; align-items: center; gap: 1mm; }
+  .fila .slot { height: 24.6mm; display: flex; align-items: center; }
+  .fila .seta { height: 24.6mm; display: flex; align-items: center; font-size: 15pt; font-weight: 600; color: #9fb0c9; }
+  .fila .cap { font-size: 8.6pt; line-height: 1.2; text-align: center; color: var(--tinta-suave); }
+  .fila .cap b { color: var(--tinta); }
+  .fila .res { font-size: 9pt; font-weight: 600; color: var(--brand); background: #e7f0fb; border-radius: 1.4mm;
+               padding: 0.4mm 1.8mm; white-space: nowrap; }
+  .fila .res.fim { background: var(--brand); color: #fff; }
+  .fila .aguarda { font-size: 8pt; color: var(--tinta-suave); font-style: italic; white-space: nowrap; }
+
+  /* cena da Mesa (p2): a Mesa impressa, com o monte de compra e as cartas jogadas AO LADO dela */
+  .mesa-bloco { display: flex; gap: 4.5mm; align-items: center; margin-top: 3.4mm; }
+  .cena { position: relative; flex: 0 0 auto; width: 124mm; height: 44mm; }
+  .cena > * { position: absolute; }
+  .cena .lado { top: 0; bottom: 0; width: 15.5mm; display: flex; flex-direction: column; align-items: center;
+                justify-content: center; gap: 1.6mm; text-align: center; }
+  .cena .pilha { position: relative; }
+  .cena .pilha > div { position: absolute; }
+  .cena .lb { font-size: 7.5pt; font-weight: 600; line-height: 1.12; color: var(--tinta); }
+  .cena .lb small { display: block; font-size: 7pt; font-weight: 400; font-style: italic; color: var(--tinta-suave); margin-top: 0.5mm; }
+  .folha-mesa { left: 17mm; top: 0; width: 90mm; height: 44mm; background: #fff; border: 0.45mm solid var(--brand); border-radius: 2.6mm; }
+  .folha-mesa > * { position: absolute; }
+  .folha-mesa .rot { left: 2.6mm; top: 2.2mm; font-size: 10pt; font-weight: 700; color: var(--brand-escuro); line-height: 1; }
+  .folha-mesa .st { top: 1.8mm; height: 9.6mm; background: #fff; border: 0.3mm solid var(--borda); border-radius: 1.2mm;
+                    padding: 0.7mm 1.3mm 0.5mm; display: flex; flex-direction: column; justify-content: space-between; }
+  .folha-mesa .st.parcial { border: 0.45mm solid var(--brand); }
+  .folha-mesa .st .l { font-size: 7pt; font-weight: 700; color: var(--brand-escuro); line-height: 1.05; white-space: nowrap;
+                       text-transform: uppercase; letter-spacing: .02em; font-kerning: none; }
+  .folha-mesa .st .l i { font-style: normal; font-weight: 500; text-transform: none; color: var(--tinta-suave); }
+  .folha-mesa .st .val { align-self: center; font-size: 11pt; font-weight: 700; color: var(--brand); line-height: 1; }
+  .folha-mesa .st .val s { font-size: 8.5pt; font-weight: 500; color: var(--tinta-suave); margin-right: 1.6mm; }
+  .folha-mesa .guia { border: 0.3mm dashed #b8c4d8; border-radius: 1.4mm; background: var(--fundo); display: flex; flex-direction: column;
+                      align-items: center; justify-content: center; gap: 0.8mm; text-align: center; font-size: 7pt; font-weight: 600;
+                      line-height: 1.12; color: var(--brand-escuro); padding: 0.6mm; }
+  .folha-mesa .guia svg { display: block; }
+  .folha-mesa .esp2 { border: 0.4mm dashed var(--brand); border-radius: 1.8mm; background: var(--fundo); display: flex; flex-direction: column;
+                      align-items: center; justify-content: flex-end; gap: 1mm; padding-bottom: 1.1mm; }
+  .folha-mesa .esp2.op { border-color: var(--acento); background: #fff4e8; }
+  .folha-mesa .esp2 > span { font-size: 7.5pt; font-weight: 700; color: var(--brand-escuro); line-height: 1; text-transform: uppercase; letter-spacing: .03em; }
+  .folha-mesa .esp2.op > span { color: var(--acento-ink); }
+  .folha-mesa .igual { font-size: 15pt; font-weight: 700; color: var(--brand-escuro); line-height: 1; text-align: center; }
+  .mesa-texto { flex: 1 1 auto; font-size: 9.2pt; line-height: 1.32; }
+  .mesa-texto p { margin: 0 0 1.6mm; }
+  .mesa-texto p.nao-regra { font-size: 8.8pt; margin: 0; }
+
+  /* Folha de registro (mesmas colunas da folha impressa) */
+  .folha-linha { display: flex; gap: 4.5mm; align-items: center; margin-top: 2.8mm; }
+  table.reg { flex: 0 0 auto; width: 124mm; border-collapse: collapse; table-layout: fixed; background: #fff; font-size: 8.8pt; }
+  table.reg th { font-size: 7pt; font-weight: 700; line-height: 1.1; color: var(--brand-escuro); background: var(--fundo);
+                 border: 0.25mm solid var(--borda); padding: 0.6mm 0.4mm; text-align: center; vertical-align: middle; }
+  table.reg th small { display: block; font-size: 7pt; font-weight: 400; color: var(--tinta-suave); }
+  table.reg th.th-novo { background: var(--fundo-2); }
+  table.reg td { border: 0.25mm solid var(--borda); text-align: center; vertical-align: middle; height: 5mm; padding: 0 0.6mm; line-height: 1; }
+  table.reg td.cinza { background: var(--superficie-2); font-size: 7.5pt; font-style: italic; color: var(--tinta-suave); }
+  table.reg td.novo { font-weight: 600; }
+  table.reg tr.ult td { background: #e7f0fb; font-weight: 700; color: var(--brand); }
+  table.reg .ops { display: inline-flex; gap: 0.7mm; align-items: center; vertical-align: middle; }
+  table.reg .ops > span { display: inline-flex; border-radius: 50%; padding: 0.35mm; }
+  table.reg .ops .off { opacity: .3; }
+  table.reg .ops .on { box-shadow: 0 0 0 0.35mm var(--tinta); }
+  table.reg .ops svg { display: block; vertical-align: 0; }
+  .folha-nota { flex: 1 1 auto; font-size: 9.2pt; line-height: 1.32; }
+  .folha-nota p { margin: 0 0 1.2mm; }
+  .folha-nota p.nao-regra { font-size: 8.8pt; margin: 0; }
+
+  /* ---------- a conta ---------- */
+  .conta-lista { list-style: none; padding: 0; margin: 0; }
+  .conta-lista > li { position: relative; padding-left: 5mm; margin-bottom: 2.6mm; }
+  .conta-lista > li::before { content: ''; position: absolute; left: 0.6mm; top: 1.5mm; width: 2.2mm; height: 2.2mm;
+                              border-radius: 0.6mm; background: var(--brand); }
+  .exs { display: flex; gap: 2.2mm; margin-top: 1.4mm; }
+  .exs span { flex: 1 1 0; text-align: center; background: var(--div-claro); border-radius: 1.6mm; padding: 1mm 1mm; font-size: 9.2pt; white-space: nowrap; }
+  .exs b { color: var(--tinta); font-size: 10.5pt; }
+  .ex-esq { display: inline-flex; align-items: center; gap: 1.6mm; background: var(--fundo); border-radius: 1.6mm; padding: 0.6mm 2.4mm; margin-top: 1mm; }
+  .ex-esq .ok { font-weight: 700; color: var(--brand); }
+
+  /* ---------- marcador ---------- */
+  .marc { display: flex; gap: 6mm; align-items: flex-start; }
+  .marc-texto { flex: 1 1 auto; }
+  .marc-cab { display: flex; align-items: center; gap: 3mm; margin-bottom: 2.4mm; }
+  .marc-cab p { margin: 0; }
+  .marc-texto ul { padding-left: 4.5mm; margin: 0; }
+  .marc-texto ul li { margin-bottom: 1.6mm; }
+  .assentos { flex: 0 0 auto; width: 96mm; background: var(--superficie-2); border: 0.3mm solid var(--borda);
+              border-radius: var(--raio); padding: 3mm 3.2mm 2.6mm; }
+  .assentos .tit { font-weight: 700; color: var(--brand-escuro); font-size: 10pt; margin-bottom: 1.6mm; }
+  .assentos .corpo { display: flex; gap: 3mm; align-items: center; }
+  .rodadas { display: grid; grid-template-columns: auto repeat(4, 9.6mm); column-gap: 1.4mm; row-gap: 2.2mm; align-items: center; }
+  .rodadas .r { font-size: 8.6pt; color: var(--tinta-suave); white-space: nowrap; padding-right: 1mm; }
+  .assento { position: relative; display: flex; flex-direction: column; align-items: center; gap: 0.7mm; }
+  .assento .letra { width: 7.4mm; height: 7.4mm; border-radius: 50%; border: 0.4mm solid var(--tinta); background: #fff;
+                    display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 10.5pt; line-height: 1; }
+  .assento .mk { position: absolute; left: -2.2mm; top: -1.8mm; }
+  .assento .mk .marcador-svg { width: 4.8mm; height: 4.8mm; }
+  .ic { display: inline-block; border: 0.35mm solid var(--tinta-suave); border-radius: 0.4mm; background: #fff; vertical-align: -0.1em; }
+  .ic.pe { width: 2.4mm; height: 3.4mm; }
+  .ic.dei { width: 3.4mm; height: 2.4mm; background: var(--fundo-2); border-color: var(--brand); }
+  .chave { margin-top: 2mm; font-size: 8.2pt; color: var(--tinta-suave); display: flex; gap: 3.2mm; justify-content: center; }
+  .chave .mk-in .marcador-svg { display: inline-block; vertical-align: -0.15em; }
+  .duas-caixas { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin-top: 4mm; }
+  .porque { background: var(--superficie-2); border: 0.3mm solid var(--borda); border-radius: var(--raio-sm); padding: 2.6mm 3.2mm; font-size: 9.4pt; }
+  .porque b { color: var(--tinta); font-style: normal; }
+  .porque .sem { margin-top: 2.2mm; font-style: normal; color: var(--tinta); display: flex; align-items: center; gap: 1.2mm; flex-wrap: wrap; }
+  .porque .sem-nota { margin-top: 1mm; font-size: 8.8pt; }
+  .linhas2 { display: grid; grid-template-columns: auto auto 1fr; column-gap: 2mm; row-gap: 1.6mm; align-items: center; margin: 2mm 0 2mm; }
+  .linhas2 .r { font-size: 8.6pt; color: var(--tinta-suave); }
+  .pill { position: relative; display: inline-flex; align-items: center; gap: 1.2mm; background: #fff; border: 0.3mm solid var(--aviso-borda);
+          border-radius: 1.6mm; padding: 0.6mm 2.2mm 0.6mm 2.4mm; font-weight: 600; justify-self: start; }
+  .pill .mk { position: absolute; left: -2.2mm; top: -2mm; }
+  .pill .mk .marcador-svg { width: 4.4mm; height: 4.4mm; }
+  .dupla { margin-top: 0; background: var(--aviso-fundo); border: 0.3mm solid var(--aviso-borda); border-radius: var(--raio-sm);
+           padding: 2.2mm 3mm; }
+  .dupla .seq { display: flex; align-items: center; gap: 1.6mm; flex-wrap: wrap; font-weight: 600; margin: 0.8mm 0 0.8mm; }
+  .dupla .seq .gr { display: inline-flex; align-items: center; gap: 1mm; background: #fff; border: 0.3mm solid var(--aviso-borda); border-radius: 1.4mm; padding: 0.4mm 1.8mm; }
+  .dupla .seq .fl { color: var(--acento-ink); }
+
+  /* ---------- conversa ---------- */
+  .conversa { display: flex; gap: 4mm; margin-top: 2mm; }
+  .fala { flex: 1 1 0; display: flex; gap: 2.4mm; align-items: center; border-radius: var(--raio-sm); padding: 2.4mm 3mm; }
+  .fala.pode { background: #e7f6e3; border: 0.35mm solid #9fd18e; }
+  .fala.nao { background: #fbe9e9; border: 0.35mm solid #e4a5a5; }
+  .fala .rot { font-weight: 700; font-size: 9.5pt; }
+  .fala.pode .rot { color: #1f5a12; }
+  .fala.nao .rot { color: #8a1515; }
+  .fala .txt { font-style: italic; font-size: 9.8pt; }
+  .fala svg { flex: 0 0 auto; display: block; }
+
+  /* ---------- fim de jogo ---------- */
+  .fim-lista { list-style: none; padding: 0; margin: 0; }
+  .fim-lista > li { display: flex; gap: 2.6mm; align-items: flex-start; margin-bottom: 2.2mm; }
+  .fim-lista .tag { flex: 0 0 23mm; text-align: center; font-size: 8.3pt; font-weight: 700; border-radius: 1.4mm; padding: 0.6mm 0; margin-top: 0.2mm; text-transform: uppercase; letter-spacing: .04em; }
+  .tag.vit { background: #2f8a1f; color: #fff; }
+  .tag.mon { background: var(--fundo-2); color: var(--brand-escuro); }
+  .tag.der { background: #51607a; color: #fff; }
+  .gentil { margin-top: 1mm; }
+
+  /* ---------- exemplo ---------- */
+  .exemplo { background: var(--superficie-2); border: 0.3mm solid var(--borda); border-radius: var(--raio); padding: 3mm 3.4mm 2.6mm; }
+  .maos { display: flex; column-gap: 6mm; row-gap: 1.4mm; justify-content: center; align-items: center; flex-wrap: wrap; font-size: 9.6pt; margin-bottom: 2.4mm; }
+  .maos .mao { display: inline-flex; align-items: center; gap: 1.2mm; }
+  .tk { display: inline-flex; align-items: center; gap: 0.3mm; padding: 0.1mm 1.2mm 0.1mm 1.4mm; border-radius: 1.2mm;
+        background: #fff; border: 0.4mm solid; font-weight: 700; font-size: 9.5pt; line-height: 1.25; font-style: normal; }
+  .objex { font-weight: 700; color: #fff; background: var(--brand); border-radius: 1.6mm; padding: 0.5mm 2.4mm; font-style: normal; }
+  .rodadas-ex { display: flex; gap: 2.6mm; justify-content: center; align-items: stretch; }
+  .rex { background: #fff; border: 0.35mm solid var(--borda); border-radius: var(--raio-sm); padding: 1.6mm 2.2mm 2mm; }
+  .rex .cab { display: flex; align-items: center; gap: 1.6mm; font-size: 8.4pt; line-height: 1.22; color: var(--tinta-suave); margin-bottom: 1.8mm; white-space: nowrap; }
+  .rex .cab b { color: var(--tinta); }
+  .rex .cab .marcador-svg { width: 6mm; height: 6mm; }
+  .rex .jogs { display: flex; gap: 2.6mm; align-items: flex-start; }
+  .jog { display: flex; flex-direction: column; align-items: center; gap: 1.1mm; }
+  .jog .slot { height: 26.4mm; display: flex; align-items: center; }
+  .jog .cap { font-size: 8.3pt; line-height: 1.2; text-align: center; color: var(--tinta-suave); white-space: nowrap; }
+  .jog .cap b { color: var(--tinta); }
+  .jog .res { font-size: 8.8pt; font-weight: 700; color: var(--brand); background: #e7f0fb; border-radius: 1.4mm; padding: 0.3mm 1.6mm; white-space: nowrap; }
+  .jog .res.vit { background: #2f8a1f; color: #fff; }
+  .jog .aguarda { font-size: 8pt; color: var(--tinta-suave); font-style: italic; white-space: nowrap; }
+  .falta { font-size: 8.3pt; font-style: italic; color: var(--acento-ink); white-space: nowrap; }
+  .obs { margin: 2.4mm 0 0; padding-left: 4.5mm; font-size: 9.2pt; }
+  .obs li { margin-bottom: 0.6mm; }
+
+  .p4 h2.sec { margin-top: 3.3mm; }
+  .p3 h2.sec { margin-top: 10mm; }
+  .p3 h2.sec.primeiro { margin-top: 0; }
+  .p3 .duas-caixas { margin-top: 5mm; }
+  .p3 .conversa { margin-top: 3.2mm; }
+  .p3 .fala { padding: 3.4mm 3.6mm; }
+  .p3 .fim-lista > li { margin-bottom: 3.2mm; }
+  .p3 .gentil { margin-top: 3mm; }
+  /* ---------- variantes, perguntas, reflexão ---------- */
+  .variantes { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1.22fr 1fr 1fr; gap: 3mm; }
+  .variantes li { background: var(--superficie-2); border: 0.3mm solid var(--borda); border-radius: var(--raio-sm); padding: 2.2mm 2.6mm; font-size: 9.2pt; line-height: 1.3; margin: 0; }
+  .variantes .nome { display: block; font-weight: 700; color: var(--brand-escuro); font-size: 10pt; margin-bottom: 0.6mm; }
+  .variantes .quando { display: block; font-size: 8.3pt; color: var(--tinta-suave); margin-bottom: 1mm; }
+  .faq { columns: 2; column-gap: 7mm; font-size: 8.8pt; line-height: 1.25; }
+  .faq .q { break-inside: avoid; margin-bottom: 1.25mm; }
+  .faq .q b { display: block; color: var(--tinta); }
+  .reflexao { display: grid; grid-template-columns: 0.85fr 1fr 1.25fr; gap: 2.6mm; }
+  .reflexao span { flex: 1 1 0; display: flex; align-items: center; justify-content: center; background: var(--aviso-fundo); border: 0.3mm solid var(--aviso-borda); border-radius: var(--raio-sm);
+                   padding: 1.8mm 2mm; font-style: italic; font-size: 9.4pt; text-align: center; white-space: nowrap; }
+  .creditos { margin-top: 4mm; display: flex; gap: 4mm; align-items: center; border-top: 0.3mm solid var(--borda); padding-top: 3mm;
+              font-size: 8.4pt; color: var(--tinta-suave); line-height: 1.4; }
+  .creditos .txt { flex: 1 1 auto; }
+  .creditos .txt b { color: var(--tinta); }
+  .creditos .qrs { display: flex; gap: 3mm; flex: 0 0 auto; }
+  .creditos .qrc { display: flex; flex-direction: column; align-items: center; gap: 0.8mm; font-size: 7.5pt; }
+  .qr svg { width: 100%; height: 100%; display: block; }
+</style>
+{% endblock %}
+
+{# ------------------------------------------------------------ macros #}
+{% macro topo(secoes) %}
+<div class="topo">{{ logo(5.6) }}<span class="secoes">Manual de regras &nbsp;·&nbsp; {{ secoes }}</span></div>
+{% endmacro %}
+
+{% macro rodape(n) %}
+<div class="rodape">
+  <span>Somatórios {{ cfg.versao }} · protótipo físico · Manual de regras{% if cfg.grupo %} · {{ cfg.grupo }}{% endif %}</span>
+  <span>Página {{ n }}/4</span>
+</div>
+{% endmacro %}
+
+{# chamada (bolinha com letra + linha até o ponto da carta), em mm.
+   Sem contorno branco: ele abria "cortes" brancos na faixa do naipe que a carta real não tem. #}
+{% macro chamada(px, py, bx, letra) %}
+<line x1="{{ bx }}" y1="{{ py }}" x2="{{ px }}" y2="{{ py }}" class="lin"/>
+<circle cx="{{ px }}" cy="{{ py }}" r="0.75" class="pto"/>
+<circle cx="{{ bx }}" cy="{{ py }}" r="2.5" class="bol"/>
+<text x="{{ bx }}" y="{{ py }}" class="bolt">{{ letra }}</text>
+{% endmacro %}
+
+{# carta em formato texto: número + sinal na cor do naipe #}
+{% macro tk(valor, naipe) %}<span class="tk" style="border-color: {{ NAIPES[naipe].cor }}">{{ valor }}{{ sinal(naipe, 3.6) }}</span>{% endmacro %}
+
+{# mão de 4 cartas viradas para baixo, em fila levemente sobreposta #}
+{% macro mao(x, y, escala=0.15, passo=5) %}
+<div style="left: {{ x }}mm; top: {{ y }}mm; width: {{ 63 * escala + 3 * passo }}mm; height: {{ 88 * escala }}mm">
+  {% for i in range(4) %}<div style="position:absolute; left: {{ i * passo }}mm; top: 0">{{ verso(escala) }}</div>{% endfor %}
+</div>
+{% endmacro %}
+
+{% macro ajuda_mini(w, h, chip_mm=2.6) %}
+<div class="ajuda-mini" style="width: {{ w }}mm; height: {{ h }}mm">
+  {% if w >= 20 %}<span class="tit">Sua vez</span>{% endif %}
+  <span class="chs">{% for n in ORDEM_NAIPES %}{{ chip(n, chip_mm) }}{% endfor %}</span>
+  <span class="lns"><i></i><i></i><i class="c"></i></span>
+</div>
+{% endmacro %}
+
+{# Mesa em miniatura: frações medidas na Mesa impressa (02_Mesa…, p1, 297 × 210 mm):
+   em cima Objetivo · Resultado parcial · Faltam ou Passaram; no meio Resultado parcial anterior ·
+   Operador (largo) · Número (alto) · Novo resultado parcial; nas bordas, as abas Monte de compra (esq.)
+   e Cartas jogadas (dir.); embaixo, 4 lembretes. #}
+{% macro mesa_mini(w, h, rotulo=True) %}
+<div class="mesa-mini" style="width: {{ w }}mm; height: {{ h }}mm">
+  {% if rotulo %}<span class="rot">Mesa</span>{% endif %}
+  {% for x, lw in [(0.215, 0.209), (0.441, 0.286), (0.744, 0.229)] %}
+  <span class="st{{ ' par' if loop.index == 2 else '' }}" style="left: {{ w * x }}mm; top: {{ h * 0.05 }}mm; width: {{ w * lw }}mm; height: {{ h * 0.17 }}mm"></span>
+  {% endfor %}
+  <span class="aba" style="left: {{ w * 0.025 }}mm; top: {{ h * 0.28 }}mm; width: {{ w * 0.045 }}mm; height: {{ h * 0.41 }}mm"></span>
+  <span class="gu" style="left: {{ w * 0.09 }}mm; top: {{ h * 0.4 }}mm; width: {{ w * 0.12 }}mm; height: {{ h * 0.17 }}mm"></span>
+  <span class="esp op" style="left: {{ w * 0.225 }}mm; top: {{ h * 0.335 }}mm; width: {{ w * 0.295 }}mm; height: {{ h * 0.3 }}mm"></span>
+  <span class="esp" style="left: {{ w * 0.535 }}mm; top: {{ h * 0.275 }}mm; width: {{ w * 0.21 }}mm; height: {{ h * 0.42 }}mm"></span>
+  <span class="gu" style="left: {{ w * 0.785 }}mm; top: {{ h * 0.4 }}mm; width: {{ w * 0.12 }}mm; height: {{ h * 0.17 }}mm"></span>
+  <span class="aba" style="left: {{ w * 0.93 }}mm; top: {{ h * 0.28 }}mm; width: {{ w * 0.045 }}mm; height: {{ h * 0.41 }}mm"></span>
+  {% for i in range(4) %}
+  <span class="lem" style="left: {{ w * (0.03 + i * 0.237) }}mm; top: {{ h * 0.73 }}mm; width: {{ w * 0.22 }}mm; height: {{ h * 0.13 }}mm"></span>
+  {% endfor %}
+</div>
+{% endmacro %}
+
+{# os 4 operadores da Folha de registro, com o usado circulado (como na folha impressa) #}
+{% macro ops(usado) %}<span class="ops">{% for n in ORDEM_NAIPES %}<span class="{{ 'on' if n == usado else 'off' }}">{{ chip(n, 2.7) }}</span>{% endfor %}</span>{% endmacro %}
+
+{# seta para cima (aponta para o campo Resultado parcial) #}
+{% macro seta_cima(mm=3.2) %}<svg width="{{ mm }}mm" height="{{ mm }}mm" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 9 V1.6 M1.8 4.6 L5 1.4 L8.2 4.6" fill="none" stroke="#0f3f7a" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>{% endmacro %}
+
+{% macro folha_mini(w, h) %}
+<div class="folha-mini" style="width: {{ w }}mm; height: {{ h }}mm">
+  <span class="topo-f"></span>
+  {% for i in range(1, ((h - 3) / 2.2) | int) %}<i style="top: {{ 2 + i * 2.2 }}mm"></i>{% endfor %}
+</div>
+{% endmacro %}
+
+{% macro check(ok) %}
+{% if ok %}
+<svg width="7mm" height="7mm" viewBox="0 0 10 10"><circle cx="5" cy="5" r="5" fill="#2f8a1f"/><path d="M2.6 5.2 L4.4 7 L7.6 3.4" fill="none" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+{% else %}
+<svg width="7mm" height="7mm" viewBox="0 0 10 10"><circle cx="5" cy="5" r="5" fill="#a51b1b"/><path d="M3.2 3.2 L6.8 6.8 M6.8 3.2 L3.2 6.8" fill="none" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/></svg>
+{% endif %}
+{% endmacro %}
+
+{% block corpo %}
+<div class="m">
+
+{# =================================================================== PÁGINA 1 #}
+<section class="pagina">
+  <header class="capa">
+    {{ logo(15.5) }}
+    <div class="ficha-linha">
+      <span><b>2–5</b> pessoas</span><span class="sep">|</span>
+      <span><b>10–20</b> min</span><span class="sep">|</span>
+      <span><b>8+</b> anos</span><span class="sep">|</span>
+      <span class="ini">Variante Iniciante: <b>6+</b> com um adulto</span>
+    </div>
+    <div class="autoria">Um jogo de {{ autores }}{% if cfg.grupo %} · {{ cfg.grupo }}{% endif %}</div>
+    <p class="intro nao-regra">Somatórios é um jogo <b>cooperativo</b> de cartas e cálculo mental: todas as pessoas ganham
+      ou perdem juntas. Cada carta tem <b>dois usos</b> — em pé, é um número; deitada, é um operador.
+      Com elas, o grupo monta uma conta; o valor da conta até agora é o <b>resultado parcial</b>,
+      que precisa chegar exatamente ao objetivo.</p>
+  </header>
+
+  <h2 class="sec">Componentes</h2>
+  {% set k = 0.68 %}{% set M = 8 %}
+  {% set cw = 63 * k %}{% set ch = 88 * k %}{% set W = cw + 2 * M %}
+  <div class="comp">
+    <div class="anat" style="width: {{ W }}mm; height: {{ ch }}mm">
+      <div style="position:absolute; left: {{ M }}mm; top: 0">{{ carta(6, 'divisao', escala=k, economica=economica) }}</div>
+      <svg class="sobre" viewBox="0 0 {{ W }} {{ ch }}" width="{{ W }}mm" height="{{ ch }}mm">
+        {{ chamada(M + 4.6 * k, 9.4 * k, 2.6, 'B') }}
+        {{ chamada(M + 3.2 * k, 44 * k, 2.6, 'C') }}
+        {{ chamada(M + 22.6 * k, 82.2 * k, 2.6, 'D') }}
+        {{ chamada(M + 41 * k, 33 * k, W - 2.6, 'A') }}
+        {{ chamada(M + 39.4 * k, 61.1 * k, W - 2.6, 'E') }}
+      </svg>
+    </div>
+    <div class="verso-cel">{{ verso(0.34) }}<span>verso</span></div>
+    <div class="comp-texto">
+      <div class="titulo-comp"><b>36 cartas</b> (63 × 88 mm): números <b>1 a 9</b> em <b>4 naipes</b>.</div>
+      <div class="naipes">
+        <span>{{ chip('soma', 4.4) }} soma</span>
+        <span>{{ chip('subtracao', 4.4) }} subtração</span>
+        <span>{{ chip('multiplicacao', 4.4) }} multiplicação</span>
+        <span>{{ chip('divisao', 4.4) }} divisão</span>
+      </div>
+      <p style="margin-bottom: 2.2mm">Cada carta tem dois usos: <b>em pé</b>, vale o número; <b>deitada</b>, vale o sinal do naipe.</p>
+      <ul class="legenda">
+        <li><span class="bolinha">A</span><span><b>Número grande</b>: o valor da carta em pé.</span></li>
+        <li><span class="bolinha">B</span><span><b>Índice</b> nos cantos: número e sinal.</span></li>
+        <li><span class="bolinha">C</span><span><b>Faixas laterais</b> na cor do naipe, com o sinal desenhado <b>girado</b>: ele fica certo quando a carta está deitada.</span></li>
+        <li><span class="bolinha">D</span><span><b>Nome do naipe</b> por extenso.</span></li>
+        <li><span class="bolinha">E</span><span><b>6 e 9 sublinhados</b>, para não confundir um com o outro.</span></li>
+      </ul>
+    </div>
+  </div>
+
+  {# mesma ordem em que a Preparação usa os componentes: Mesa e Folha → cartas de ajuda → marcador #}
+  <div class="outros">
+    <div class="outro">
+      <div class="img" style="display:flex; gap:1.2mm; align-items:flex-end">{{ mesa_mini(18, 12.6, False) }}{{ folha_mini(7.4, 10.4) }}</div>
+      <div><b>1 Mesa</b> (folha&nbsp;A4) e <b>Folha de registro</b> (bloco). <span class="nao-regra">Lápis não incluso.</span></div>
+    </div>
+    <div class="outro">
+      <div class="img">{{ ajuda_mini(21, 14, 1.5) }}</div>
+      <div><b>5 cartas de ajuda Sua&nbsp;vez</b> (tamanho diferente das cartas): os 3 passos da vez e as regras da conta.</div>
+    </div>
+    <div class="outro">
+      <div class="img">{{ marcador('frente', 15) }}</div>
+      <div><b>1 marcador Início da rodada</b>: ficha redonda, só para 2 ou 4 pessoas.</div>
+    </div>
+  </div>
+
+  <h2 class="sec">Preparação</h2>
+  <div class="prep">
+    <ol class="passos">
+      <li>Coloque a <b>Mesa</b> no centro, à vista de todas as pessoas, com a <b>Folha de registro</b> e um lápis ao lado. Dê 1 <b>carta de ajuda Sua vez</b> a cada pessoa e guarde as que sobrarem.</li>
+      <li>Embaralhe as <b>36 cartas</b> e dê <b>4 cartas</b> a cada pessoa, viradas para baixo. Ninguém mostra a própria mão.</li>
+      <li>Cada pessoa soma, <b>em silêncio</b>, os números das próprias 4 cartas e diz em voz alta <b>só o total</b>.</li>
+      <li>Somem os totais de todas as pessoas: esse é o <b>objetivo</b>. Anotem na Mesa.
+        <span class="nao-regra">(É daí que vem o nome do jogo: o objetivo é um somatório!)</span></li>
+      <li>As cartas que sobraram formam o <b>monte de compra</b>, virado para baixo, ao lado da Mesa.</li>
+      <li>Escolham quem começa. <b>Com 2 ou 4 pessoas</b>, essa pessoa pega o <b>marcador Início da rodada</b> (veja a página 3). Com 3 ou 5 pessoas, deixem o marcador de lado.</li>
+    </ol>
+    <div class="ilustra">
+      {# mão de cima (4 cartas viradas para baixo) + carta de ajuda #}
+      {{ mao(22.5, 2.5) }}
+      <div style="left: 51.5mm; top: 4.5mm">{{ ajuda_mini(12, 8.4, 1.6) }}</div>
+      {# monte de compra: ao lado da Mesa, à esquerda (onde fica a aba Monte de compra da Mesa impressa) #}
+      <div class="monte" style="left: 3mm; top: 26mm; width: 11mm; height: 15mm">
+        {% for d in [0, 0.6, 1.2] %}<div style="position:absolute; left: {{ d }}mm; top: {{ -d }}mm">{{ verso(0.15) }}</div>{% endfor %}
+      </div>
+      {# Mesa #}
+      <div style="left: 16.5mm; top: 20mm">{{ mesa_mini(34, 24) }}</div>
+      {# Folha de registro + lápis, à direita #}
+      <div style="left: 54mm; top: 23mm">{{ folha_mini(10, 14) }}</div>
+      <div class="lapis" style="left: 63.4mm; top: 22.6mm"></div>
+      {# mão de baixo + carta de ajuda + marcador #}
+      {{ mao(22.5, 45) }}
+      <div style="left: 5mm; top: 47.5mm">{{ ajuda_mini(12, 8.4, 1.6) }}</div>
+      <div style="left: 51mm; top: 46.6mm">{{ marcador('frente', 10) }}</div>
+      {# bolinhas numeradas = passos da lista #}
+      <span class="num-ilu" style="left: 56.6mm; top: 16.6mm">1</span>
+      <span class="num-ilu" style="left: 17.4mm; top: 5mm">2</span>
+      <span class="num-ilu" style="left: 24.8mm; top: 15.7mm">4</span>
+      <span class="num-ilu" style="left: 6.2mm; top: 18.6mm">5</span>
+      <span class="num-ilu" style="left: 61.6mm; top: 49.2mm">6</span>
+    </div>
+  </div>
+
+  <div class="objetivo caixa-marca">
+    <h2>Objetivo</h2>
+    <div class="frase">Juntos, façam o resultado parcial ficar <b>exatamente igual</b> ao objetivo.</div>
+  </div>
+
+  {{ rodape(1) }}
+</section>
+
+{# =================================================================== PÁGINA 2 #}
+<section class="pagina">
+  {{ topo('Como jogar · A conta') }}
+
+  <h2 class="sec primeiro">Como jogar</h2>
+  <div class="cj">
+    <div style="flex: 1 1 auto">
+      <p>Joguem em <b>sentido horário</b>. Na sua vez, siga estes 3 passos:</p>
+      <ol class="passos">
+        <li><b>Jogue 1 carta</b> da sua mão, seguindo a ordem da conta:
+          <ul>
+            <li>A primeira carta da partida é sempre um <b>número</b>. Depois, a ordem é sempre número, operador, número, operador…</li>
+            <li><b>Número → carta em pé.</b> Vale o número dela (o naipe não importa).</li>
+            <li><b>Operador → carta deitada</b> (para qualquer lado). Vale o sinal do naipe dela (o número não importa).</li>
+          </ul>
+        </li>
+        <li><b>Se você jogou um número, façam a conta</b> e anotem o novo resultado parcial na Mesa (em <b>Resultado parcial</b>) e na Folha de registro:<br>
+          <span class="formula"><i>resultado parcial anterior</i> (operador) <i>número</i> <span style="white-space: nowrap">= <b>novo resultado parcial</b></span></span><br>
+          A primeira carta da partida já é o primeiro resultado parcial.</li>
+        <li><b>Compre 1 carta</b> do monte de compra (se ainda houver).</li>
+      </ol>
+    </div>
+    <div class="dois-usos">
+      <div class="tit">A mesma carta, dois usos</div>
+      <div class="par">
+        <div class="uso"><div class="slot">{{ carta(7, 'subtracao', escala=0.36, economica=economica) }}</div>
+          <span><b>em pé</b> = número</span><span class="grande">7</span></div>
+        <div class="uso"><div class="slot">{{ carta(7, 'subtracao', escala=0.36, deitada=True, economica=economica) }}</div>
+          <span><b>deitada</b> = operador</span><span class="grande">{{ sinal('subtracao', 6.4) }}</span></div>
+      </div>
+      <div class="nota nao-regra">Em pé, a faixa mostra o sinal girado; deite a carta e ele fica certo.</div>
+    </div>
+  </div>
+
+  <div class="ordem">
+    <h3 class="sub">A ordem da conta: número → operador → número…</h3>
+    <div class="fila">
+      <div class="pos"><div class="slot">{{ carta(5, 'multiplicacao', escala=0.28, economica=economica) }}</div>
+        <div class="cap"><b>número</b> 5</div><div class="res">5</div></div>
+      <div class="seta">→</div>
+      {# operador +: o 8 deitado não lembra outro número (o 9 deitado, com o traço, parecia "16") #}
+      <div class="pos"><div class="slot">{{ carta(8, 'soma', escala=0.28, deitada=True, economica=economica) }}</div>
+        <div class="cap"><b>operador</b> +</div><div class="aguarda">aguarda número</div></div>
+      <div class="seta">→</div>
+      <div class="pos"><div class="slot">{{ carta(6, 'subtracao', escala=0.28, economica=economica) }}</div>
+        <div class="cap"><b>número</b> 6</div><div class="res">5 + 6 = 11</div></div>
+      <div class="seta">→</div>
+      <div class="pos"><div class="slot">{{ carta(8, 'multiplicacao', escala=0.28, deitada=True, economica=economica) }}</div>
+        <div class="cap"><b>operador</b> ×</div><div class="aguarda">aguarda número</div></div>
+      <div class="seta">→</div>
+      <div class="pos"><div class="slot">{{ carta(3, 'divisao', escala=0.28, economica=economica) }}</div>
+        <div class="cap"><b>número</b> 3</div><div class="res fim">11 × 3 = 33</div></div>
+    </div>
+  </div>
+
+  {# A Mesa como ela é impressa (02_Mesa…, p1): status em cima, conta em construção no meio;
+     monte de compra e cartas jogadas FORA da folha, ao lado dela. Momento: a conta 11 × 3 = 33 da fila acima. #}
+  <div class="mesa-bloco">
+    <div class="cena">
+      <div class="lado" style="left: 0">
+        <div class="pilha" style="width: 11mm; height: 16.4mm">
+          {% for d in [0, 0.7, 1.4] %}<div style="left: {{ d }}mm; top: {{ 1.4 - d }}mm">{{ verso(0.17) }}</div>{% endfor %}
+        </div>
+        <div class="lb">Monte de<br>compra<small>ao lado da Mesa</small></div>
+      </div>
+      <div class="folha-mesa">
+        <span class="rot">Mesa</span>
+        <div class="st" style="left: 14.4mm; width: 17.6mm"><span class="l">Objetivo</span></div>
+        <div class="st parcial" style="left: 33.6mm; width: 27.6mm"><span class="l">Resultado parcial</span><span class="val"><s>11</s>33</span></div>
+        <div class="st" style="left: 62.8mm; width: 24.8mm"><span class="l" style="white-space: normal">Faltam <i>ou</i><br>Passaram</span></div>
+        <div class="guia" style="left: 2.4mm; top: 17mm; width: 14.2mm; height: 21mm">{{ seta_cima() }}<span>Resultado parcial anterior</span></div>
+        <div class="esp2 op" style="left: 18.2mm; top: 13mm; width: 26.4mm; height: 29mm">{{ carta(8, 'multiplicacao', escala=0.27, deitada=True, economica=economica) }}<span>Operador</span></div>
+        <div class="esp2" style="left: 46.2mm; top: 13mm; width: 20.6mm; height: 29mm">{{ carta(3, 'divisao', escala=0.27, economica=economica) }}<span>Número</span></div>
+        <div class="igual" style="left: 66.8mm; top: 21.6mm; width: 5.6mm">=</div>
+        <div class="guia" style="left: 72.6mm; top: 17mm; width: 15mm; height: 21mm">{{ seta_cima() }}<span>Novo resultado parcial</span></div>
+      </div>
+      <div class="lado" style="right: 0">
+        <div class="pilha" style="width: 15mm; height: 17mm">
+          <div style="left: 0.6mm; top: 0.4mm; transform: rotate(-9deg)">{{ carta(5, 'multiplicacao', escala=0.17, economica=economica) }}</div>
+          <div style="left: 0; top: 3.6mm; transform: rotate(4deg)">{{ carta(8, 'soma', escala=0.17, deitada=True, economica=economica) }}</div>
+          <div style="left: 3.4mm; top: 1mm; transform: rotate(8deg)">{{ carta(6, 'subtracao', escala=0.17, economica=economica) }}</div>
+        </div>
+        <div class="lb">Cartas<br>jogadas<small>ao lado da Mesa</small></div>
+      </div>
+    </div>
+    <div class="mesa-texto">
+      <p>Na Mesa, o operador fica no espaço <b>Operador</b>, e o número, no espaço <b>Número</b>.
+        Depois de anotar o novo resultado parcial, levem as duas cartas para <b>Cartas jogadas</b>, ao lado da Mesa.
+        <span class="nao-regra">Na 1ª jogada, só há uma carta: levem-na também.</span></p>
+      <p class="nao-regra">Na figura (11 × 3 = 33), o 11 dá lugar ao 33 em Resultado parcial.</p>
+    </div>
+  </div>
+
+  <div class="folha-linha">
+    <table class="reg">
+      <colgroup><col style="width: 8mm"><col style="width: 22.5mm"><col style="width: 21.5mm"><col style="width: 13mm"><col style="width: 22mm"><col style="width: 18.5mm"><col style="width: 18.5mm"></colgroup>
+      <thead><tr><th>Linha</th><th>Resultado<br>parcial anterior</th><th>Operador<small>circule</small></th><th>Número</th>
+        <th class="th-novo">= Novo<br>resultado parcial</th><th>Faltam<small>para o objetivo</small></th><th>Passaram<small>do objetivo</small></th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td class="cinza" colspan="2">1ª carta da partida: só o número →</td><td>5</td><td class="novo">= 5</td><td></td><td></td></tr>
+        <tr><td>2</td><td>5</td><td>{{ ops('soma') }}</td><td>6</td><td class="novo">= 11</td><td></td><td></td></tr>
+        <tr class="ult"><td>3</td><td>11</td><td>{{ ops('multiplicacao') }}</td><td>3</td><td class="novo">= 33</td><td></td><td></td></tr>
+      </tbody>
+    </table>
+    <div class="folha-nota">
+      <p>Na <b>Folha de registro</b>, anotem uma linha para cada número jogado.</p>
+      <p class="nao-regra">Dica: em Faltam ou Passaram (na Mesa e na Folha), anotem quanto falta ou quanto passou do objetivo.</p>
+    </div>
+  </div>
+
+  <h2 class="sec">A conta</h2>
+  <ul class="conta-lista">
+    <li><b>Uma operação por vez</b>, sempre sobre o resultado parcial — como numa calculadora simples.
+      Não existe prioridade de × e ÷: a conta vai <b>da esquerda para a direita</b>.<br>
+      <span class="ex-esq">5 + 6 × 3 &nbsp;→&nbsp; 5 + 6 = 11 &nbsp;→&nbsp; 11 × 3 = <span class="ok">33</span></span></li>
+    <li><b>Divisão que não dá exata:</b> arredonde para o <b>número inteiro mais próximo</b>.
+      Se der <b>exatamente meio, arredonde para cima</b>.
+      <div class="exs">
+        <span>9 ÷ 2 = 4,5 → <b>5</b></span>
+        <span>10 ÷ 3 = 3,33… → <b>3</b></span>
+        <span>7 ÷ 4 = 1,75 → <b>2</b></span>
+        <span>3 ÷ 7 = 0,43… → <b>0</b></span>
+      </div></li>
+    <li><b>Zero e números negativos valem</b> (ex.: 5 − 9 = −4). <span class="nao-regra">Com jogo cuidadoso, negativos são raros.</span></li>
+  </ul>
+
+  {{ rodape(2) }}
+</section>
+
+{# =================================================================== PÁGINA 3 #}
+<section class="pagina">
+  {{ topo('Marcador Início da rodada · Conversa à mesa · Fim de jogo') }}
+  <div class="p3">
+
+  <h2 class="sec primeiro">Marcador Início da rodada</h2>
+  <div class="marc">
+    <div class="marc-texto">
+      <div class="marc-cab">{{ marcador('frente', 19) }}<p><b>Use o marcador só com 2 ou 4 pessoas.</b><br>Ele mostra quem começa cada rodada.</p></div>
+      <ul>
+        <li>A <b>rodada</b> começa com quem está com o marcador. Quando <b>todas as pessoas tiverem jogado 1 vez</b>,
+          passe o marcador para a pessoa à <b>esquerda</b>: ela começa a nova rodada.</li>
+        <li><b>Com 3 ou 5 pessoas, não usem o marcador:</b> os papéis já se alternam sozinhos.</li>
+        <li><b>Quando o monte de compra acabar,</b> guardem o marcador e sigam em sentido horário.</li>
+      </ul>
+    </div>
+    <div class="assentos">
+      <div class="tit">4 pessoas: A B C D → B C D A → C D A B → D A B C…</div>
+      <div class="corpo">
+        <svg width="36mm" height="36mm" viewBox="0 0 44 44" role="img" aria-label="mesa com 4 pessoas em sentido horário">
+          <defs><marker id="ponta" viewBox="0 0 6 6" refX="4.2" refY="3" markerWidth="4" markerHeight="4" orient="auto">
+            <path d="M0.5 0.6 L5 3 L0.5 5.4" fill="none" stroke="#41506a" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+          <circle cx="22" cy="22" r="10" fill="#dce9f9" stroke="#cdd8ea" stroke-width="0.5"/>
+          {# arcos em sentido horário entre os assentos (pré-calculados: raio 16,6, de a+22° a a+68°) #}
+          {% for d in ['M28.22 6.61 A16.6 16.6 0 0 1 37.39 15.78', 'M37.39 28.22 A16.6 16.6 0 0 1 28.22 37.39',
+                       'M15.78 37.39 A16.6 16.6 0 0 1 6.61 28.22', 'M6.61 15.78 A16.6 16.6 0 0 1 15.78 6.61'] %}
+            <path d="{{ d }}" fill="none" stroke="#41506a" stroke-width="0.9" stroke-linecap="round" marker-end="url(#ponta)"/>
+          {% endfor %}
+          {% for l, x, y in [('A', 22, 5.4), ('B', 38.6, 22), ('C', 22, 38.6), ('D', 5.4, 22)] %}
+            <circle cx="{{ x }}" cy="{{ y }}" r="4.8" fill="#fff" stroke="#14233b" stroke-width="0.6"/>
+            <text x="{{ x }}" y="{{ y }}" font-family="Fredoka, sans-serif" font-weight="700" font-size="5.4" fill="#14233b" text-anchor="middle" dominant-baseline="central">{{ l }}</text>
+          {% endfor %}
+        </svg>
+        <div class="rodadas">
+          {% set ordens = [['A','B','C','D'], ['B','C','D','A'], ['C','D','A','B'], ['D','A','B','C']] %}
+          {% for ordem in ordens %}
+            <span class="r">Rodada {{ loop.index }}</span>
+            {% for l in ordem %}
+              <span class="assento">
+                {% if loop.first %}<span class="mk">{{ marcador('frente', 4.8) }}</span>{% endif %}
+                <span class="letra">{{ l }}</span>
+                <span class="ic {{ 'pe' if loop.index is odd else 'dei' }}"></span>
+              </span>
+            {% endfor %}
+          {% endfor %}
+        </div>
+      </div>
+      <div class="chave">
+        <span><span class="ic pe"></span> em pé = número</span>
+        <span><span class="ic dei"></span> deitada = operador</span>
+        <span class="mk-in">{{ marcador('frente', 3.8) }} marcador</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="duas-caixas">
+    <div class="dupla">
+      <b>2 pessoas</b> <span class="suave">(por exemplo, Ana e Beto)</span>
+      <div class="linhas2">
+        {% for a, b in [('Ana', 'Beto'), ('Beto', 'Ana'), ('Ana', 'Beto')] %}
+        <span class="r">Rodada {{ loop.index }}</span>
+        <span class="pill"><span class="mk">{{ marcador('frente', 4.4) }}</span>{{ a }} <span class="ic pe"></span></span>
+        <span class="pill">{{ b }} <span class="ic dei"></span></span>
+        {% endfor %}
+      </div>
+      <span class="nao-regra">Quem recebe o marcador joga duas vezes seguidas — está certo!</span>
+    </div>
+    <div class="porque nao-regra">
+      <b>Por quê?</b> Com número par de pessoas, sem o marcador, cada pessoa jogaria sempre o mesmo tipo de carta
+      (só números ou só operadores). O marcador faz os papéis se alternarem.
+      <div class="sem">Sem o marcador: &nbsp;Ana <span class="ic pe"></span> Beto <span class="ic dei"></span>
+        Ana <span class="ic pe"></span> Beto <span class="ic dei"></span> …</div>
+      <div class="sem-nota">A Ana só jogaria números; o Beto, só operadores.</div>
+    </div>
+  </div>
+
+  <h2 class="sec">Conversa à mesa</h2>
+  <p>Conversem à vontade <b>sobre a conta</b>: o resultado parcial, quanto falta, que operação ajudaria.
+    <b>Só não vale dizer nem mostrar os números ou os naipes das cartas da sua mão.</b></p>
+  <div class="conversa">
+    <div class="fala pode">{{ check(True) }}<div><div class="rot">Pode</div><div class="txt">“Faltam 12. Uma multiplicação agora seria ótima!”</div></div></div>
+    <div class="fala nao">{{ check(False) }}<div><div class="rot">Não pode</div><div class="txt">“Eu tenho um 7.” &nbsp;·&nbsp; “Tenho um ×.”</div></div></div>
+  </div>
+
+  <h2 class="sec">Fim de jogo</h2>
+  <ul class="fim-lista">
+    <li><span class="tag vit">Vitória</span>
+      <span>Logo depois de jogar um <b>número</b>, se o resultado parcial for <b>exatamente igual ao objetivo</b>,
+        <b>todas as pessoas vencem juntas!</b></span></li>
+    <li><span class="tag mon">Monte acabou</span>
+      <span>Quando o monte de compra acabar, continuem jogando as cartas da mão, sem comprar.
+        Quem ficar sem cartas é <b>pulado</b> — a próxima pessoa joga o tipo de carta que faltava.</span></li>
+    <li><span class="tag der">Derrota</span>
+      <span>Se <b>todas as cartas acabarem</b> (monte e mãos) sem chegar ao objetivo, todas as pessoas perdem juntas.
+        Se a última carta jogada for um operador, ele não conta.</span></li>
+  </ul>
+  <p class="gentil nao-regra">Perderam? Usem palavras gentis, como: “Boa tentativa! Faltaram 3 para o objetivo.”</p>
+  </div>
+
+  {{ rodape(3) }}
+</section>
+
+{# =================================================================== PÁGINA 4 #}
+<section class="pagina">
+  {{ topo('Exemplo · Variantes · Perguntas frequentes · Depois da partida') }}
+  <div class="p4">
+
+  <h2 class="sec primeiro">Exemplo de partida</h2>
+  <div class="exemplo">
+    <div class="maos nao-regra">
+      <span class="mao"><b>2 pessoas</b> &nbsp;·&nbsp; <b>Ana:</b> {{ tk(9, 'divisao') }} {{ tk(6, 'soma') }} {{ tk(2, 'multiplicacao') }} {{ tk(7, 'subtracao') }} → 24</span>
+      <span class="mao"><b>Beto:</b> {{ tk(3, 'multiplicacao') }} {{ tk(4, 'soma') }} {{ tk(5, 'divisao') }} {{ tk(2, 'subtracao') }} → 14</span>
+      <span class="mao" style="flex-basis: 100%; justify-content: center">Objetivo = 24 + 14 = <span class="objex">38</span></span>
+    </div>
+    <div class="rodadas-ex">
+      <div class="rex">
+        <div class="cab">{{ marcador('frente', 5) }}<span><b>Rodada 1</b><br>a Ana começa com o marcador</span></div>
+        <div class="jogs">
+          <div class="jog"><div class="slot">{{ carta(9, 'divisao', escala=0.3, economica=economica) }}</div>
+            <div class="cap"><b>1 · Ana</b><br>em pé: 9</div><div class="res">9</div></div>
+          <div class="jog"><div class="slot">{{ carta(3, 'multiplicacao', escala=0.3, deitada=True, economica=economica) }}</div>
+            <div class="cap"><b>2 · Beto</b><br>deitada: ×</div><div class="aguarda">aguarda número</div></div>
+        </div>
+      </div>
+      <div class="rex">
+        <div class="cab">{{ marcador('frente', 5) }}<span><b>Rodada 2</b><br>o marcador passa para o Beto</span></div>
+        <div class="jogs">
+          <div class="jog"><div class="slot">{{ carta(4, 'soma', escala=0.3, economica=economica) }}</div>
+            <div class="cap"><b>3 · Beto</b><br>em pé: 4</div><div class="res">9 × 4 = 36</div><div class="falta">“Faltam 2!”</div></div>
+          <div class="jog"><div class="slot">{{ carta(6, 'soma', escala=0.3, deitada=True, economica=economica) }}</div>
+            <div class="cap"><b>4 · Ana</b><br>deitada: +</div><div class="aguarda">aguarda número</div></div>
+        </div>
+      </div>
+      <div class="rex">
+        <div class="cab">{{ marcador('frente', 5) }}<span><b>Rodada 3</b><br>o marcador volta para a Ana</span></div>
+        <div class="jogs">
+          <div class="jog"><div class="slot">{{ carta(2, 'multiplicacao', escala=0.3, economica=economica) }}</div>
+            <div class="cap"><b>5 · Ana</b><br>em pé: 2</div><div class="res vit">36 + 2 = 38</div><div class="falta" style="color:#1f5a12">= objetivo: vitória!</div></div>
+        </div>
+      </div>
+    </div>
+    <ul class="obs nao-regra">
+      <li>O Beto joga duas vezes seguidas (jogadas 2 e 3) por causa do marcador.</li>
+      <li>O naipe da carta em pé não importa (o 9 de divisão valeu 9); o número da carta deitada não importa (o 3 de multiplicação valeu ×).</li>
+      <li>Após cada jogada, quem jogou compra 1 carta.</li>
+    </ul>
+  </div>
+
+  <h2 class="sec">Variantes</h2>
+  <ul class="variantes">
+    <li><span class="nome">Iniciante</span><span class="quando nao-regra">6+ com um adulto · melhor com 2–4 pessoas</span>
+      <b>Toda carta deitada vale + ou −</b>, à escolha de quem a joga. <span class="nao-regra">As partidas ficam um pouco mais longas.</span></li>
+    <li><span class="nome">Mesa aberta</span><span class="quando nao-regra">para aprender ou para a sala de aula</span>
+      Joguem com as mãos <b>viradas para cima</b> e decidam juntos cada jogada.</li>
+    <li><span class="nome">Desafio do placar</span><span class="quando nao-regra">para várias partidas</span>
+      Ao vencer, contem as cartas que sobraram no monte de compra: são os <b>pontos do grupo</b>. Anotem e tentem bater o recorde.</li>
+  </ul>
+
+  <h2 class="sec">Perguntas frequentes</h2>
+  <div class="faq">
+    <div class="q"><b>Posso jogar um operador quando é a vez de um número?</b>Não. A ordem número/operador é fixa — mas <b style="display:inline">qualquer carta</b> pode ser número (em pé) ou operador (deitada).</div>
+    <div class="q"><b>E se alguém errar a soma no começo?</b>O objetivo anotado vale até o fim.</div>
+    <div class="q"><b>O resultado parcial passou do objetivo. E agora?</b>Continuem! Usem − ou ÷ para voltar.</div>
+    <div class="q"><b>Deito a carta para a direita ou para a esquerda?</b>Tanto faz: os sinais ficam iguais.</div>
+    <div class="q"><b>Como diferencio o 6 do 9?</b>O 6 e o 9 têm um traço embaixo.</div>
+    <div class="q"><b>Com quantas cartas fico na mão?</b>Sempre 4, enquanto houver monte de compra.</div>
+    <div class="q"><b>E se a divisão der meio negativo?</b>Arredonde para cima, isto é, para o maior: <span style="white-space:nowrap">−7 ÷ 2 = −3,5 → −3.</span></div>
+    <div class="q"><b>Posso passar a vez?</b>Não. Enquanto tiver cartas, jogue 1 na sua vez.</div>
+    <div class="q"><b>As cartas jogadas voltam para o monte de compra?</b>Não. Ficam em Cartas jogadas até o fim da partida.</div>
+    <div class="q"><b>E se alguém revelar uma carta sem querer?</b>Sigam jogando normalmente. <span class="nao-regra">Dica: falem do que a conta precisa (“uma multiplicação ajudaria”), não do que vocês têm.</span></div>
+  </div>
+
+  <h2 class="sec">Depois da partida</h2>
+  <div class="reflexao">
+    <span>Qual operador ajudou mais?</span>
+    <span>Em que momento a conta “virou”?</span>
+    <span>Que outro caminho chegaria ao objetivo?</span>
+  </div>
+
+  <div class="creditos">
+    <div class="txt">
+      <b>Somatórios {{ cfg.versao }}</b> · protótipo físico · {{ cfg.data_versao }}<br>
+      Autoria: {{ autores }}{% if cfg.grupo %} · {{ cfg.grupo }}{% endif %}<br>
+      Contato: {{ v('contato_email', 'e-mail de contato') }}
+    </div>
+    <div class="qrs">
+      {# 18 mm: com um link longo (ex.: Google Drive), os módulos ficam ≈ 0,4 mm, legíveis em impressora doméstica #}
+      <div class="qrc">{{ qr(cfg.url_video, 18, 'vídeo') }}<span>vídeo</span></div>
+      <div class="qrc">{{ qr(cfg.url_manual, 18, 'manual') }}<span>manual</span></div>
+    </div>
+  </div>
+  </div>
+
+  {{ rodape(4) }}
+</section>
+
+</div>
+{% endblock %}

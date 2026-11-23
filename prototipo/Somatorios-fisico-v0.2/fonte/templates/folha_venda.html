@@ -1,0 +1,313 @@
+{% extends "_base.html" %}
+{#  Folha de venda (sell sheet) — 1 página A4 retrato.
+    Regulamento DOFF: nome e contato, descrição prática, nº de pessoas, idade, duração,
+    componentes; QR para manual e vídeo (recomendado).
+    Regras e termos: fonte/REGRAS_CANONICAS.md (exemplo canônico Ana e Beto, objetivo 38). #}
+{% set S = 0.37 %}{# escala das cartas da imagem-herói #}
+{% block head %}
+<style>
+  .fv { color: var(--tinta); }
+  .fv .bloco { position: absolute; left: 12mm; right: 12mm; }
+
+  /* ------------------------------------------------------------ topo */
+  .fv-topo { top: 10mm; height: 33mm; display: flex; justify-content: space-between; align-items: center; }
+  .fv-marca { display: flex; flex-direction: column; gap: 1.6mm; }
+  .fv-autor { font-size: 12.5pt; font-weight: 500; line-height: 1.15; color: var(--tinta); }
+  .fv-autor strong { font-weight: 700; color: var(--brand-escuro); }
+  .fv-marca { max-width: 106mm; }
+  .fv-autor.medio { font-size: 11pt; }
+  .fv-autor.longo { font-size: 9.6pt; }
+  .fv-autor { text-wrap: balance; }
+  .fv-autor .nome { white-space: nowrap; }
+  .fv-grupo { font-size: 9pt; color: var(--tinta-suave); letter-spacing: 0.02em; }
+  .fv-ref { font-size: 9.5pt; letter-spacing: 0; }
+  .fv-ref b { font-weight: 600; color: var(--tinta); }
+  /* linha do objetivo com 4 pessoas */
+  .pessoa { display: flex; align-items: center; gap: 1.3mm; flex: 0 0 auto; }
+  .pessoa .v { display: block; transform: rotate(-6deg); }
+  .pessoa .diz .num { font-size: 16pt; }
+  /* quem joga cada carta (número da jogada · pessoa) */
+  .quem-joga { position: absolute; top: calc(100% + 1.3mm); left: 50%; transform: translateX(-50%);
+               font-size: 7.8pt; font-weight: 600; color: var(--tinta-suave); white-space: nowrap; }
+  .quem-joga i { font-style: normal; color: var(--brand); }
+  .quem-joga.dt { top: calc(100% + 1.3mm + {{ (88 - 63) * S / 2 }}mm); }  /* carta deitada é mais baixa: alinha com as em pé */
+  .fv-ficha { display: grid; grid-template-columns: repeat(2, 36mm); gap: 2.2mm; }
+  .fv-ficha .item { min-width: 0; height: 14.4mm; padding: 1.2mm 1.6mm; border-color: #b9c9e3; }
+  .fv-ficha .valor { font-size: 14pt; color: var(--brand-escuro); }
+  .fv-ficha .valor.texto { font-size: 12.5pt; }
+  .fv-ficha .rotulo { font-size: 7.2pt; margin-top: 0.5mm; }
+
+  /* ---------------------------------------------------------- tagline */
+  .fv-tagline { top: 45mm; margin: 0; font-size: 15pt; font-weight: 500; line-height: 1.2;
+                white-space: nowrap; text-align: center; letter-spacing: -0.005em; }
+  .fv-tagline b { font-weight: 700; }
+  .fv-tagline .coop { color: var(--brand); }
+
+  /* ------------------------------------------------------ imagem-herói */
+  .fv-heroi { position: absolute; left: 0; right: 0; top: 55mm; height: 92mm; background: var(--fundo);
+              border-top: 0.4mm solid var(--fundo-2); border-bottom: 0.4mm solid var(--fundo-2); }
+
+  /* linha do objetivo: mãos escondidas -> totais -> objetivo */
+  .fv-obj { position: absolute; left: 12mm; right: 12mm; top: 5mm; height: 23mm; display: flex; align-items: center;
+            justify-content: center; gap: 2.4mm; }
+  .mao { position: relative; width: 21mm; height: 21mm; flex: 0 0 auto; }
+  .mao .v { position: absolute; left: 3.9mm; bottom: 0; transform-origin: 50% 100%; }
+  .diz { display: flex; flex-direction: column; align-items: flex-start; line-height: 1; }
+  .diz .quem { font-size: 8.5pt; color: var(--tinta-suave); font-weight: 500; }
+  .diz .num { font-size: 19pt; font-weight: 700; color: var(--tinta); margin-top: 0.6mm; }
+  .fv-obj .op { font-size: 17pt; font-weight: 700; color: var(--tinta-suave); padding: 0 0.6mm; }
+  .pill-obj { display: flex; flex-direction: column; align-items: center; justify-content: center;
+              background: var(--brand); color: #fff; border-radius: var(--raio-sm); padding: 1.2mm 3.6mm 1.4mm; line-height: 1; }
+  .pill-obj .rot { font-size: 7.2pt; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; opacity: .92; }
+  .pill-obj .num { font-size: 21pt; font-weight: 700; margin-top: 0.6mm; }
+
+  /* balões */
+  .fv .balao { position: relative; border: 0.4mm solid var(--brand); font-size: 9pt; font-weight: 600;
+               color: var(--tinta); padding: 1.1mm 2.6mm; white-space: nowrap; line-height: 1.2; }
+  .fv .balao b { color: var(--brand); font-weight: 700; }
+  .fv .balao::after { content: ''; position: absolute; width: 2.4mm; height: 2.4mm; background: #fff;
+                      border: 0.4mm solid var(--brand); }
+  .balao.seta-esq::after { left: -1.45mm; top: 50%; transform: translateY(-50%) rotate(45deg);
+                           border-top: none; border-right: none; }
+  .balao.seta-baixo::after { left: 50%; bottom: -1.45mm; transform: translateX(-50%) rotate(45deg);
+                             border-top: none; border-left: none; }
+  .balao.seta-cima::after { left: 50%; top: -1.45mm; transform: translateX(-50%) rotate(45deg);
+                            border-bottom: none; border-right: none; }
+  .fv-obj .balao { margin-left: 2.6mm; }
+
+  /* a conta com cartas reais */
+  .fv-conta { position: absolute; left: 12mm; right: 12mm; top: 40.5mm; height: {{ 88 * S }}mm;
+              display: flex; align-items: center; justify-content: space-between; }
+  .fv-conta .cel { position: relative; flex: 0 0 auto; }
+  .fv-conta .cel .balao { position: absolute; left: 50%; transform: translateX(-50%); }
+  .fv-conta .cel .balao.em-cima { bottom: calc(100% + 2.6mm); }
+  .fv-conta .cel .balao.embaixo { top: calc(100% + 2.6mm); }
+  .fv-conta .cel .balao.alinha-esq { left: 0; transform: none; }
+  .fv-conta .cel .balao.alinha-esq::after { left: {{ 63 * S / 2 }}mm; }
+  .rp { display: flex; flex-direction: column; align-items: center; gap: 1mm; flex: 0 0 auto; }
+  .rp .linha { display: flex; align-items: center; gap: 0.8mm; }
+  .rp .n { font-size: 17pt; font-weight: 700; color: var(--brand); background: #fff; border: 0.4mm solid #b9c9e3;
+           border-radius: var(--raio-sm); padding: 0.6mm 2.2mm; line-height: 1.1; }
+  .rp .leg { font-size: 7.2pt; color: var(--tinta-suave); text-align: center; line-height: 1.12; }
+  .rp.final .n { color: #fff; background: var(--soma); border-color: var(--soma); font-size: 19pt; }
+  .rp.final .leg { color: #2b6b1a; font-weight: 700; font-size: 8pt; }
+  .rp .leg .conta-rp { font-size: 8pt; font-weight: 700; color: var(--tinta); }  /* a conta que gerou o resultado */
+  .rp.final .leg .conta-rp { color: #2b6b1a; }
+  .rp { position: relative; }
+  .fala { position: absolute; left: 50%; bottom: calc(100% + 2.2mm); transform: translateX(-42%);
+          font-size: 9pt; font-style: italic; font-weight: 500; color: var(--tinta-suave); white-space: nowrap; }
+
+  /* posicionamento (rodapé da imagem) */
+  .fv-pos { position: absolute; left: 12mm; right: 12mm; bottom: 4mm; display: flex; align-items: center;
+            justify-content: center; gap: 1.6mm; font-size: 8.5pt; color: var(--tinta-suave); }
+  .fv-pos .chips { display: inline-flex; gap: 0.8mm; margin-right: 1mm; }
+
+  /* --------------------------------------------------------- colunas */
+  .fv-colunas { top: 153.5mm; height: 70mm; display: grid; grid-template-columns: 99mm 1fr; column-gap: 8mm; }
+  .fv h2 { font-size: 12.5pt; margin: 0 0 2.6mm; color: var(--brand-escuro); display: flex; align-items: center; gap: 2mm; }
+  .fv h2::after { content: ''; flex: 1; height: 0.35mm; background: var(--fundo-2); }
+  .fv .passos { font-size: 10pt; line-height: 4.65mm; }
+  .fv .passos > li { margin-bottom: 3mm; padding-left: 8.6mm; }
+  .fv .passos > li::before { width: 6mm; height: 6mm; line-height: 6mm; font-size: 9.5pt; top: -0.2mm; }
+  .fv .passos .nota { display: block; }
+  .destaques { list-style: none; margin: 0; padding: 0; font-size: 10pt; line-height: 4.65mm; }
+  .destaques li { display: grid; grid-template-columns: 5.6mm 1fr; column-gap: 2.4mm; margin-bottom: 2.4mm; }
+  .destaques li svg.chip { margin-top: 0.3mm; }
+  .destaques b { font-weight: 700; color: var(--tinta); }
+
+  /* ------------------------------------------------------ componentes */
+  .fv-comp { top: 225.5mm; height: 30mm; }
+  .comp-grade { display: flex; justify-content: space-between; align-items: center; }
+  .comp { display: flex; align-items: center; gap: 2.4mm; font-size: 9pt; line-height: 1.24; white-space: nowrap; }
+  .comp .ilu { flex: 0 0 auto; display: flex; align-items: flex-end; }
+  .comp b { font-weight: 700; display: block; font-size: 9.6pt; }
+  .duas-cartas { position: relative; width: 18.8mm; height: 18.2mm; }
+  .duas-cartas > span { position: absolute; top: 0; }
+  .duas-cartas > span:first-child { left: 0; transform: rotate(-8deg); transform-origin: 50% 100%; }
+  .duas-cartas > span:last-child { left: 6mm; transform: rotate(7deg); transform-origin: 50% 100%; }
+  .mini-ajuda { width: 12mm; height: 17mm; border: 0.45mm solid var(--brand); border-radius: 1.4mm; background: #fff;
+                display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 1.8mm; gap: 1.2mm; }
+  .mini-ajuda .t { width: 8mm; height: 1.5mm; background: var(--brand); border-radius: 0.4mm; }
+  .mini-ajuda .ch { display: grid; grid-template-columns: repeat(2, auto); gap: 0.6mm; }
+  .mini-ajuda .ln { width: 8mm; height: 0.5mm; background: var(--borda); border-radius: 0.3mm; }
+  .mini-mesa { position: relative; width: 23mm; height: 16.2mm; background: #fff; border: 0.4mm solid var(--tinta-suave);
+               border-radius: 1mm; }
+  .mini-mesa .slot { position: absolute; top: 5mm; width: 3.9mm; height: 5.4mm; border: 0.3mm dashed #8b97ad; border-radius: 0.5mm; }
+  .mini-mesa .barra { position: absolute; left: 1.8mm; right: 1.8mm; top: 1.6mm; height: 2.4mm; background: var(--fundo-2); border-radius: 0.5mm; }
+  .mini-mesa .fr { position: absolute; left: 1.8mm; right: 1.8mm; bottom: 1.5mm; height: 3mm;
+                   background: repeating-linear-gradient(0deg, var(--borda) 0 0.25mm, transparent 0.25mm 0.8mm); }
+
+  /* ----------------------------------------------------------- rodapé */
+  .fv-rodape { position: absolute; left: 0; right: 0; bottom: 0; height: 41mm;
+               background: linear-gradient(120deg, var(--brand) 0%, var(--brand-escuro) 100%); color: #fff;
+               display: flex; align-items: center; justify-content: space-between; padding: 0 12mm; }
+  .fv-rodape .faixa-naipes { position: absolute; left: 0; right: 0; top: 0; height: 1.2mm; display: flex; }
+  .fv-rodape .faixa-naipes span { flex: 1; }
+  .contato { display: flex; flex-direction: column; gap: 1.1mm; font-size: 9.4pt; line-height: 1.25; max-width: 108mm; }
+  .contato .cta { font-size: 13pt; font-weight: 700; line-height: 1.1; margin-bottom: 0.6mm; }
+  .contato .lin .r { color: #cfe0f6; margin-right: 1.4mm; }
+  .contato a { color: #fff; text-decoration: none; }
+  .contato .meta { font-size: 7.6pt; color: #cfe0f6; margin-top: 1mm; }
+  .contato .preencher { font-size: 8.4pt; }
+  .qrs { display: flex; gap: 4.5mm; align-items: flex-start; }
+  .qr-cel { display: flex; flex-direction: column; align-items: center; gap: 1.1mm; }
+  .qr-cel .moldura { display: block; background: #fff; border-radius: 1.8mm; padding: 1.2mm; line-height: 0; }
+  .qr-cel a { color: #fff; text-decoration: none; }
+  .qr-cel .moldura .qr svg { width: 100%; height: 100%; display: block; }
+  .qr-cel .leg { font-size: 8.4pt; font-weight: 600; color: #fff; white-space: nowrap; line-height: 1.1; }
+</style>
+{% endblock %}
+
+{% macro seta(cor='#1457a8') -%}
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 6 4" width="4.6mm" height="3.1mm" aria-hidden="true">
+  <path d="M0.5 2 H5 M3.4 0.6 L5.1 2 L3.4 3.4" fill="none" stroke="{{ cor }}" stroke-width="0.7"
+        stroke-linecap="round" stroke-linejoin="round"/></svg>
+{%- endmacro %}
+
+{# QR + legenda; com URL no config.json, QR e legenda viram link clicável no PDF #}
+{% macro qr_cel(url, chave, legenda) -%}
+<div class="qr-cel">
+{%- if url %}<a class="moldura" href="{{ url }}">{{ qr(url, 22, chave) }}</a><a class="leg" href="{{ url }}">{{ legenda }}</a>
+{%- else %}<span class="moldura">{{ qr(url, 22, chave) }}</span><span class="leg">{{ legenda }}</span>{% endif -%}
+</div>
+{%- endmacro %}
+
+{% block corpo %}
+<section class="pagina sem-margem fv">
+
+  {# ---------------- (1) topo: logo, autoria e ficha técnica ---------------- #}
+  <header class="bloco fv-topo">
+    <div class="fv-marca">
+      {{ logo(17) }}
+      {# nomes inteiros nunca quebram no meio; a lista equilibra em até 2 linhas #}
+      {% set nomes = cfg.autores | map('trim') | select | list %}
+      {% set tam_aut = nomes | join(', ') | length %}
+      <div class="fv-autor{% if tam_aut > 70 %} longo{% elif tam_aut > 38 %} medio{% endif %}">por <strong>
+        {%- if nomes %}{% for n in nomes %}<span class="nome">{{ n }}</span>{% if loop.revindex == 2 %} e {% elif not loop.last %}, {% endif %}{% endfor %}
+        {%- else %}{{ autores }}{% endif -%}
+      </strong></div>
+      {% if cfg.grupo %}<div class="fv-grupo">{{ cfg.grupo }}</div>{% endif %}
+      <div class="fv-grupo fv-ref">Para quem gosta de <b>Hanabi</b>, <b>The Mind</b> e <b>Regicide</b></div>
+    </div>
+    <div class="ficha fv-ficha" aria-label="Ficha técnica">
+      <div class="item"><span class="valor">2–5</span><span class="rotulo">pessoas · ideal 3–4</span></div>
+      <div class="item"><span class="valor">10–20</span><span class="rotulo">minutos</span></div>
+      <div class="item"><span class="valor">8+</span><span class="rotulo">anos</span></div>
+      <div class="item"><span class="valor texto">Cooperativo</span><span class="rotulo">peso leve</span></div>
+    </div>
+  </header>
+
+  {# ---------------- (2) tagline ---------------- #}
+  <p class="bloco fv-tagline">Jogo de cartas <b class="coop">cooperativo</b>: <b>em pé</b>, a carta é número; <b>deitada</b>, é operador.</p>
+
+  {# ---------------- (3) imagem-herói: o exemplo canônico ---------------- #}
+  <div class="fv-heroi">
+    {# exemplo canônico de 4 pessoas (REGRAS_CANONICAS.md): cada carta da conta vem de uma pessoa diferente #}
+    <div class="fv-obj">
+      {% for nome, total in [('Ana', 22), ('Beto', 22), ('Caio', 20), ('Duda', 15)] %}
+      <div class="pessoa"><span class="v">{{ verso(0.15) }}</span><div class="diz"><span class="quem">{{ nome }} diz</span><span class="num">{{ total }}</span></div></div>
+      <span class="op">{{ '=' if loop.last else '+' }}</span>
+      {% endfor %}
+      <div class="pill-obj"><span class="rot">objetivo</span><span class="num">79</span></div>
+      <span class="balao seta-esq"><b>Objetivo</b> = soma das mãos</span>
+    </div>
+
+    <div class="fv-conta">
+      <div class="cel">
+        <span class="balao seta-baixo em-cima alinha-esq"><b>Em pé</b> = número</span>
+        {{ carta(9, 'divisao', escala=S, sombra=True) }}
+        <span class="quem-joga"><i>1</i> · Ana</span>
+      </div>
+      <div class="cel">
+        <span class="balao seta-baixo em-cima"><b>Deitada</b> = operador</span>
+        {{ carta(3, 'multiplicacao', escala=S, deitada=True, sombra=True) }}
+        <span class="quem-joga dt"><i>2</i> · Beto</span>
+      </div>
+      <div class="cel">{{ carta(8, 'multiplicacao', escala=S, sombra=True) }}<span class="quem-joga"><i>3</i> · Caio</span></div>
+      <div class="rp">
+        <span class="fala">“Faltam 7!”</span>
+        <span class="linha">{{ seta() }}<span class="n">72</span></span>
+        <span class="leg"><b class="conta-rp">9 × 8</b><br>resultado<br>parcial</span>
+      </div>
+      <div class="cel">
+        {{ carta(4, 'soma', escala=S, deitada=True, sombra=True) }}
+        <span class="quem-joga dt"><i>4</i> · Duda aposta no 7</span>
+      </div>
+      <div class="cel">{{ carta(7, 'divisao', escala=S, sombra=True) }}<span class="quem-joga"><i>5</i> · Beto</span></div>
+      <div class="rp final">
+        <span class="linha">{{ seta('#43a02a') }}<span class="n">79</span></span>
+        <span class="leg"><span class="conta-rp">72 + 7</span><br>= objetivo:<br>vitória!</span>
+      </div>
+    </div>
+
+    <div class="fv-pos">
+      <span class="chips">{% for n in ORDEM_NAIPES %}{{ chip(n, 4.4) }}{% endfor %}</span>
+      <span><strong>Juntos, façam o resultado parcial ficar exatamente igual ao objetivo.</strong></span>
+    </div>
+  </div>
+
+  {# ---------------- (4) como jogar · (5) destaques ---------------- #}
+  <div class="bloco fv-colunas">
+    <section>
+      <h2>Como jogar</h2>
+      <ol class="passos">
+        <li>Receba <strong>4 cartas</strong>, some os números da sua mão em silêncio e diga só o total. A soma dos totais é o <strong>objetivo</strong>.</li>
+        <li>Na sua vez, <strong>jogue 1 carta</strong>: número, operador, número… <strong>Carta em pé</strong> vale o número; <strong>deitada</strong>, o sinal do naipe.</li>
+        <li>Jogou um número? Façam a conta, <strong>uma operação por vez</strong>, e anotem o <strong>resultado parcial</strong>. Após cada jogada, compre 1 carta do <strong>monte de compra</strong>, se ainda houver.</li>
+        <li>Resultado parcial <strong>exatamente igual ao objetivo</strong> logo após um número? <strong>Todas as pessoas vencem juntas.</strong> Acabaram monte e mãos antes? Todas perdem.</li>
+      </ol>
+    </section>
+    <section>
+      <h2>Destaques</h2>
+      <ul class="destaques">
+        <li>{{ chip('soma', 5.2) }}<span><b>Uma carta, dois papéis.</b> Seu 7 de multiplicação vale mais como 7 ou como ×?</span></li>
+        <li>{{ chip('subtracao', 5.2) }}<span><b>Ninguém joga sozinho.</b> A conta é uma só: cada pessoa continua o que as outras deixaram, sem ver a mão de ninguém.</span></li>
+        <li>{{ chip('multiplicacao', 5.2) }}<span><b>Objetivo novo a cada partida.</b> Vem das mãos&nbsp;— e cada pessoa só vê a sua.</span></li>
+        <li>{{ chip('divisao', 5.2) }}<span><b>Matemática que vira conversa.</b> Quatro operações e cálculo mental: potencial educativo para escolas. Variante Iniciante: 6+&nbsp;com um&nbsp;adulto.</span></li>
+      </ul>
+    </section>
+  </div>
+
+  {# ---------------- (6) componentes ---------------- #}
+  <section class="bloco fv-comp">
+    <h2>Componentes</h2>
+    <div class="comp-grade">
+      <div class="comp">
+        <span class="ilu duas-cartas"><span>{{ verso(0.188) }}</span><span>{{ carta(7, 'multiplicacao', escala=0.188) }}</span></span>
+        <span><b>36 cartas</b>63 × 88 mm<br>1 a 9 em 4 naipes</span>
+      </div>
+      <div class="comp">
+        <span class="ilu">{{ marcador('frente', diametro=15) }}</span>
+        <span><b>1 marcador</b>Início da rodada<br>(2 ou 4 pessoas)</span>
+      </div>
+      <div class="comp">
+        <span class="ilu"><span class="mini-ajuda"><span class="t"></span><span class="ch">{% for n in ORDEM_NAIPES %}{{ chip(n, 2.8) }}{% endfor %}</span><span class="ln"></span><span class="ln"></span></span></span>
+        <span><b>5 cartas</b>de ajuda<br>Sua vez</span>
+      </div>
+      <div class="comp">
+        <span class="ilu"><span class="mini-mesa"><span class="barra"></span><span class="slot" style="left: 4.6mm"></span><span class="slot" style="left: 9.6mm"></span><span class="slot" style="left: 14.6mm"></span><span class="fr"></span></span></span>
+        <span><b>1 Mesa (A4)</b>e bloco<br>Folha de registro</span>
+      </div>
+    </div>
+  </section>
+
+  {# ---------------- (7) rodapé: contato e QR ---------------- #}
+  <footer class="fv-rodape">
+    <div class="faixa-naipes">{% for n in ORDEM_NAIPES %}<span style="background: {{ NAIPES[n].cor }}"></span>{% endfor %}</div>
+    <div class="contato">
+      <div class="cta">Quer jogar? Peça um protótipo.</div>
+      <div class="lin"><span class="r">E-mail</span>{% if cfg.contato_email %}<a href="mailto:{{ cfg.contato_email }}?subject={{ 'Somatórios: protótipo' | urlencode }}">{{ cfg.contato_email }}</a>{% else %}{{ v('contato_email', 'e-mail de contato') }}{% endif %}</div>
+      {% if cfg.contato_instagram %}<div class="lin"><span class="r">Instagram</span>{{ cfg.contato_instagram }}</div>{% endif %}
+      {% if cfg.contato_telefone %}<div class="lin"><span class="r">Telefone</span>{{ cfg.contato_telefone }}</div>{% endif %}
+      <div class="meta">Protótipo físico {{ v('versao', 'versão') }} · {{ v('data_versao', 'data da versão') }}</div>
+    </div>
+    <div class="qrs">
+      {{ qr_cel(cfg.url_video, 'url_video', 'Vídeo (' ~ (cfg.duracao_video or 'até 3 min') ~ ')') }}
+      {{ qr_cel(cfg.url_manual, 'url_manual', 'Manual (PDF)') }}
+      {% if cfg.mostrar_versao_digital_na_folha %}
+      {{ qr_cel(cfg.url_versao_digital, 'url_versao_digital', 'Versão digital') }}
+      {% endif %}
+    </div>
+  </footer>
+</section>
+{% endblock %}

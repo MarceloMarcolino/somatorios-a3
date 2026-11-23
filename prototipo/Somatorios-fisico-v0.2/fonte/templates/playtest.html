@@ -1,0 +1,739 @@
+{% extends "_base.html" %}
+{#
+  Kit de playtest (id 'playtest') — 5 páginas A4 retrato, na ordem do roteiro da sessão.
+  p1 Protocolo · p2 Termos de autorização (6 por folha) · p3 Ficha de observação ·
+  p4 Questionário (2 por página) · p5 Registro de testes e ajustes.
+  Regras e termos: REGRAS_CANONICAS.md. Estilos próprios abaixo (prefixo pt-).
+#}
+{% block head %}
+<style>
+  /* ---------- base do documento ---------- */
+  .pt { font-size: 9.2pt; line-height: 1.32; }
+  .pt h1 { font-size: 20pt; color: var(--tinta); }
+  .pt h2 { font-size: 11.6pt; margin: 0 0 1.4mm; color: var(--brand-escuro); display: flex; align-items: center; gap: 1.8mm; }
+  .pt h2 .ic { display: inline-flex; width: 5mm; height: 5mm; border-radius: 1.3mm; background: var(--brand); color: #fff;
+               font-size: 8.5pt; font-weight: 700; align-items: center; justify-content: center; }
+  .pt h2 svg.chip { flex: 0 0 auto; }   /* ícones de seção = chips na cor do naipe, como no resto do kit */
+  .pt p { margin: 0 0 1.4mm; }
+  .pt ul, .pt ol { margin: 0; padding-left: 4.2mm; }
+  .pt li { margin-bottom: 0.8mm; }
+  .pt .nota { font-size: 7.6pt; color: var(--tinta-suave); }
+  .pt .nao-regra { font-size: inherit; }
+
+  .pt-topo { display: flex; justify-content: space-between; align-items: center;
+             padding-bottom: 2mm; border-bottom: 0.6mm solid var(--brand); margin-bottom: 3.2mm; }
+  .pt-marca { display: flex; align-items: center; gap: 2.6mm; }
+  .pt-doc { font-size: 9pt; font-weight: 600; color: var(--brand-escuro); padding-left: 2.6mm; border-left: 0.3mm solid var(--borda); }
+  .pt-tag { display: flex; align-items: center; gap: 1.8mm; font-size: 9pt; font-weight: 600; color: var(--tinta); }
+  .pt-tag .n { width: 5.6mm; height: 5.6mm; border-radius: 50%; background: var(--brand); color: #fff;
+               font-weight: 700; font-size: 9pt; line-height: 5.6mm; text-align: center; }
+  .pt-tag .q { font-weight: 400; color: var(--tinta-suave); }
+
+  .pt-titulo { display: flex; justify-content: space-between; align-items: flex-end; gap: 6mm; margin-bottom: 3mm; }
+  .pt-titulo .lead { font-size: 9.6pt; color: var(--tinta-suave); margin: 1mm 0 0; }
+
+  /* campos para escrever à mão */
+  .cx { display: inline-block; width: 3.2mm; height: 3.2mm; border: 0.35mm solid var(--tinta); border-radius: 0.7mm;
+        background: #fff; vertical-align: -0.55mm; margin-right: 0.9mm; }
+  .bola { display: inline-flex; width: 4.8mm; height: 4.8mm; border: 0.35mm solid var(--tinta); border-radius: 50%;
+          align-items: center; justify-content: center; font-weight: 600; font-size: 8.5pt; margin-right: 0.6mm; background: #fff; }
+  .ln { display: inline-block; border-bottom: 0.3mm solid var(--tinta-suave); height: 4.2mm; vertical-align: -1.2mm; }
+  .rot { font-size: 7.4pt; color: var(--tinta-suave); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+
+  /* ---------- p1: protocolo ---------- */
+  .imprima { text-align: right; font-size: 8.5pt; line-height: 1.4; color: var(--tinta-suave); white-space: nowrap; }
+  .imprima strong { color: var(--tinta); }
+
+  .gqm { background: var(--fundo); border: 0.3mm solid var(--borda); border-left: 1.6mm solid var(--brand);
+         border-radius: var(--raio-sm); padding: 2.2mm 3.2mm 2.4mm; margin-bottom: 3.4mm; }
+  .gqm .frase { font-size: 9.8pt; line-height: 1.55; margin: 0 0 2mm; }
+  .gqm .frase .k { color: var(--tinta-suave); font-weight: 400; }
+  .gqm .frase .c { font-weight: 600; background: #fff; border: 0.3mm solid var(--borda); border-radius: 1.2mm; padding: 0.1mm 1.2mm; }
+  .gqm .qs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.4mm; }
+  .gqm .qq { background: #fff; border: 0.3mm solid var(--borda); border-radius: var(--raio-sm); padding: 1.5mm 2.2mm 1.6mm; font-size: 8.6pt; line-height: 1.28;
+             display: flex; flex-direction: column; align-items: flex-start; }
+  .gqm .qq b.t { display: block; font-size: 9.2pt; margin-bottom: 0.6mm; }
+  .gqm .qq .m { margin: 0.4mm 0 0.8mm; }
+  .iso-tag { display: inline-block; font-size: 7.2pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #fff;
+             background: var(--brand-escuro); border-radius: 1mm; padding: 0.1mm 1.4mm; margin-bottom: 0.9mm; }
+  /* alertas alinhados na base dos 3 cartões */
+  .gqm .qq .al { align-self: stretch; margin-top: auto; padding-top: 0.6mm; border-top: 0.25mm dashed var(--borda); color: var(--acento-ink); font-size: 8.2pt; }
+
+  .p1-meio { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin-bottom: 3.4mm; }
+  .p1-meio ul { font-size: 9pt; }
+  .bloco h2 { margin-bottom: 1.2mm; }
+  .papeis { display: grid; grid-template-columns: 1fr; gap: 1.6mm; }
+  .papel { border: 0.3mm solid var(--borda); border-radius: var(--raio-sm); padding: 1.8mm 2.2mm; background: #fff; font-size: 8.6pt; }
+  .papel b.t { font-size: 9.4pt; color: var(--brand-escuro); margin-right: 1mm; }
+  .travou { font-size: 8.6pt; margin: 1.6mm 0 0; padding: 1.4mm 2.2mm; border-radius: var(--raio-sm);
+            background: var(--aviso-fundo); border: 0.3mm solid var(--aviso-borda); line-height: 1.28; }
+
+  .roteiro { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.8mm 2.4mm; margin: 0 0 2.6mm; }
+  .passo { position: relative; border: 0.3mm solid var(--borda); border-radius: var(--raio-sm); background: var(--superficie-2);
+           padding: 1.6mm 2.2mm 1.8mm; font-size: 8.6pt; line-height: 1.28; }
+  .passo .cab { display: flex; align-items: center; gap: 1.6mm; margin-bottom: 0.9mm; }
+  .passo .cab .n { flex: 0 0 5.4mm; width: 5.4mm; height: 5.4mm; border-radius: 50%; background: var(--brand); color: #fff;
+                   font-weight: 700; font-size: 9pt; line-height: 5.4mm; text-align: center; }
+  .passo .cab b { font-size: 9.4pt; line-height: 1.1; }
+  .passo .tempo { display: inline-block; font-size: 7.4pt; font-weight: 600; color: var(--brand-escuro); background: #e7f0fb;
+                  border-radius: 1mm; padding: 0 1.2mm; line-height: 1.4; }
+  .passo:not(:nth-child(3n))::after { content: ''; position: absolute; right: -2.05mm; top: 3.2mm; width: 0; height: 0;
+                  border-top: 1.4mm solid transparent; border-bottom: 1.4mm solid transparent; border-left: 1.5mm solid var(--brand); }
+  .fala { display: flex; gap: 3mm; align-items: center; margin-bottom: 3.4mm; }
+  .fala .balao { font-size: 8.8pt; font-weight: 400; padding: 1.4mm 2.6mm; flex: 1; border-color: var(--brand); }
+  .fala .rot { flex: 0 0 auto; }
+
+  .p1-fim { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .p1-fim ul, .p1-fim ol { font-size: 8.8pt; }
+  .p1-fim ol { padding-left: 4.6mm; }
+
+  /* ---------- p2: termos de autorização (6 por folha) ---------- */
+  .termos6 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(3, minmax(0, 1fr)); height: 239mm;
+             border-top: 0.35mm dashed #8b97ad; border-left: 0.35mm dashed #8b97ad; position: relative; }
+  .termos6 .tes { position: absolute; left: -4.2mm; top: -2mm; }
+  .termo { padding: 2.6mm 3.4mm 2.2mm; font-size: 8.5pt; line-height: 1.32; overflow: hidden;
+           border-right: 0.35mm dashed #8b97ad; border-bottom: 0.35mm dashed #8b97ad; display: flex; flex-direction: column; }
+  .termo .tt { font-size: 9.6pt; font-weight: 700; color: var(--brand-escuro); margin-bottom: 1.2mm; display: flex; justify-content: space-between; align-items: flex-end; }
+  .termo .tt .cod { font-size: 8.5pt; font-weight: 400; color: var(--tinta); }
+  .termo .lin { display: flex; align-items: flex-end; gap: 1.2mm; margin-bottom: 1.8mm; white-space: nowrap; }
+  .termo .lin .ln { flex: 1; }
+  .termo .lin .ln[style] { flex: 0 0 auto; }
+  .termo p { margin: 0 0 1.4mm; }
+  .termo .ops { display: flex; flex-wrap: wrap; gap: 0.6mm 3mm; margin: 0 0 1.4mm; }
+  .termo .ops .rotulo-fv { flex: 0 0 100%; white-space: nowrap; }
+  .termo .assin { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 3mm; margin-top: auto; margin-bottom: 1mm; }
+  .termo .assin > .ln { display: block; height: 6.4mm; width: 100%; }
+  .termo .assin .leg { grid-column: 1 / -1; display: block; font-size: 7.2pt; color: var(--tinta-suave); margin-top: 0.4mm; white-space: nowrap; }
+  .termo .assin .dt { white-space: nowrap; display: flex; align-items: flex-end; height: 6.4mm; }
+
+  /* ---------- p3: ficha de observação ---------- */
+  .cabec { border: 0.45mm solid var(--tinta); border-radius: var(--raio-sm); overflow: hidden; margin-bottom: 2.6mm; }
+  .cabec .lf { display: flex; border-bottom: 0.3mm solid var(--borda); }
+  .cabec .lf:last-child { border-bottom: none; }
+  .cabec .cp { padding: 0.9mm 1.8mm 1.1mm; border-right: 0.3mm solid var(--borda); display: flex; flex-direction: column; justify-content: space-between; min-height: 9.4mm; }
+  .cabec .cp .rot { white-space: nowrap; line-height: 1.2; }
+  .cabec .cp:last-child { border-right: none; }
+  .cabec .cp .v { font-size: 8.6pt; display: flex; align-items: center; gap: 1mm; white-space: nowrap; }
+  .cabec .cp.dest { background: #f2f7fe; }
+
+  .jogadas { display: flex; align-items: center; gap: 2mm; margin-bottom: 2.6mm; }
+  .jogadas .rot { flex: 0 0 auto; line-height: 1.15; }
+  .jogadas .qd { display: grid; grid-template-columns: repeat(36, 1fr); flex: 1; border: 0.35mm solid var(--tinta); border-radius: 1mm; overflow: hidden; }
+  .jogadas .qd span { height: 5.8mm; border-right: 0.25mm solid var(--borda); font-size: 7pt; color: #8090a8; text-align: center; line-height: 3.6mm; }
+  .jogadas .qd span:last-child { border-right: none; }
+  .jogadas .qd span:nth-child(5n) { border-right-color: var(--tinta-suave); }
+
+  table.grade-erros { width: 100%; border-collapse: collapse; margin-bottom: 1.2mm; }
+  table.grade-erros th { background: var(--fundo); font-size: 8pt; font-weight: 600; text-align: left; padding: 1mm 1.6mm;
+                         border: 0.3mm solid var(--borda); }
+  table.grade-erros td { border: 0.3mm solid var(--borda); padding: 0.4mm 1.6mm; height: 7.2mm; vertical-align: middle; }
+  table.grade-erros td.n { width: 6mm; text-align: center; font-weight: 700; color: var(--brand-escuro); font-size: 9pt; }
+  table.grade-erros td.cat { width: 106mm; line-height: 1.12; white-space: nowrap; }
+  table.grade-erros td.cat b { font-size: 9pt; }
+  table.grade-erros td.cat .ex { display: block; font-size: 7.3pt; color: var(--tinta-suave); font-style: italic; margin-top: 0.2mm; }
+  table.grade-erros td.risco { width: 18mm; background: #fff; }
+  table.grade-erros td.nota-c { background: #fff; }
+  table.grade-erros tr:nth-child(even) td.cat, table.grade-erros tr:nth-child(even) td.n { background: var(--superficie-2); }
+
+  .contagens { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2mm; margin: 1.6mm 0 2mm; }
+  /* título + nota em cima; faixa tracejada embaixo para os traços e o total */
+  .contagens .ct { border: 0.35mm solid var(--tinta); border-radius: var(--raio-sm); padding: 0.8mm 1.8mm; height: 13.2mm; background: #fff;
+                   display: flex; flex-direction: column; }
+  .contagens .ct b { font-size: 8.6pt; display: block; line-height: 1.15; }
+  .contagens .ct .nota { line-height: 1.1; }
+  .contagens .ct::after { content: ''; flex: 1; margin-top: 0.6mm; border-top: 0.25mm dashed var(--borda); }
+
+  .duas-col { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; margin-bottom: 2.2mm; }
+  .linhas { border: 0.35mm solid var(--tinta); border-radius: var(--raio-sm); padding: 1.4mm 2.2mm 1.6mm; background: #fff; }
+  .linhas .tt { font-size: 9.2pt; font-weight: 600; display: flex; justify-content: space-between; align-items: baseline; }
+  .linhas .l { border-bottom: 0.3mm solid #b8c3d6; height: 5.8mm; display: flex; align-items: flex-end; font-size: 7.4pt; color: #8090a8; }
+  .linhas .l i { width: 11mm; flex: 0 0 11mm; border-right: 0.25mm solid #d5dce8; height: 100%; font-style: normal; display: flex; align-items: flex-end; padding-bottom: 0.4mm; }
+  .linhas .l b { margin-left: auto; width: 11mm; flex: 0 0 11mm; border-left: 0.25mm solid #d5dce8; height: 100%; font-weight: 400;
+                 display: flex; align-items: flex-end; justify-content: flex-end; padding-bottom: 0.4mm; }
+
+  .calor { border: 0.35mm solid var(--tinta); border-radius: var(--raio-sm); padding: 1.6mm 2.2mm 2mm; background: #fff; }
+  .calor .tt { display: flex; justify-content: space-between; align-items: baseline; gap: 4mm; margin-bottom: 1.2mm; }
+  .calor .tt b { font-size: 9.6pt; white-space: nowrap; }
+  .calor .leg { display: flex; gap: 2.6mm; font-size: 7.6pt; color: var(--tinta-suave); align-items: center; white-space: nowrap; }
+  .calor .leg .sw { display: inline-block; width: 3.2mm; height: 3.2mm; border-radius: 0.8mm; vertical-align: -0.6mm; margin-right: 0.8mm; border: 0.25mm solid rgba(0,0,0,.25); }
+  .calor .gr { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.4mm; }
+  .calor .sc { display: flex; align-items: center; justify-content: space-between; gap: 1.4mm; border: 0.3mm solid var(--borda); border-radius: 1.4mm;
+               height: 6.6mm; padding: 0 0 0 1.8mm; font-size: 8.2pt; line-height: 1.1; white-space: nowrap; }
+  .calor .sc .tl { flex: 0 0 12mm; height: 100%; border-left: 0.3mm dashed var(--borda); }
+
+  /* ---------- p4: questionário ---------- */
+  .quest { border: 0.45mm solid var(--tinta); border-radius: var(--raio); padding: 2.6mm 4mm 1.5mm; height: 117mm; position: relative; overflow: hidden; }
+  .pt-topo + .quest { margin-top: 5.6mm; }   /* (colapsa com os 3,2 mm do topo) linha de corte no meio do A4 (148,5 mm): 2 meias-folhas A5 */
+  .quest .qh { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6mm; }
+  .quest .qh .tq { font-size: 13pt; font-weight: 700; color: var(--brand-escuro); display: flex; align-items: center; gap: 2mm; }
+  .quest .qh .ids { display: flex; gap: 3.4mm; font-size: 9pt; align-items: flex-end; }
+  .quest .instr { font-size: 9.4pt; color: var(--tinta-suave); margin: 0 0 1mm; }
+  .quest table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .quest th { font-size: 8.8pt; font-weight: 600; color: var(--tinta); text-align: center; padding: 0 0 0.6mm; width: 15.6mm; line-height: 1.05; vertical-align: bottom; }
+  .quest th .lb { display: block; }
+  .quest th small { display: block; font-size: 7.6pt; font-weight: 400; color: var(--tinta-suave); margin-top: 0.3mm; }
+  .quest th.f { text-align: left; width: auto; }
+  .quest td { border-top: 0.3mm solid var(--borda); padding: 0.55mm 0; vertical-align: middle; }
+  .quest td.f { font-size: 10.6pt; padding-left: 0.6mm; white-space: nowrap; }
+  .quest td.f .num { display: inline-block; width: 5mm; color: var(--brand-escuro); font-weight: 700; }
+  .quest td.r { text-align: center; line-height: 0; }
+  .quest td.r .rw { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; }
+  .quest tr:nth-child(even) td { background: var(--superficie-2); }
+  /* 8b: complemento da frase 8 (fácil ou difícil demais) */
+  .quest tr.b8 td { background: #fff; border-top: 0.25mm dashed var(--borda); font-size: 9.6pt; padding: 0.6mm 0 0.6mm 0.6mm; white-space: nowrap; }
+  .quest tr.b8 .num { display: inline-block; width: 5mm; color: var(--brand-escuro); font-weight: 700; }
+  .quest tr.b8 .cx { margin-left: 2.4mm; }
+  .quest .abertas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.4mm; margin-top: 1.6mm; }
+  .quest .ab { border: 0.35mm solid var(--tinta); border-radius: var(--raio-sm); height: 20mm; padding: 1.2mm 2mm 1.4mm; font-size: 9.6pt; font-weight: 600;
+               display: flex; flex-direction: column; }
+  .quest .ab .num { color: var(--brand-escuro); font-weight: 700; margin-right: 1.4mm; }
+  .quest .ab .pauta { display: block; flex: 1; border-bottom: 0.3mm dotted #9aa6bb; }
+  .quest .obrigado { text-align: right; margin-top: 0.5mm; line-height: 1.15; font-size: 7.6pt; color: var(--tinta-suave); font-style: italic; }
+  .corte-h { position: relative; border-top: 0.35mm dashed #8b97ad; margin: 4.2mm -14mm 4.2mm; }
+  .corte-h span { position: absolute; left: 14mm; top: -2.5mm; background: #fff; padding: 0 1.4mm; font-size: 7.2pt; color: #6b7a94; display: flex; align-items: center; gap: 1mm; }
+  .aplica { font-size: 8.6pt; line-height: 1.3; margin: 2mm 0 0; }
+  svg.rosto { display: block; }
+
+  /* ---------- p5: registro ---------- */
+  table.sessoes { width: 100%; border-collapse: collapse; margin-bottom: 0; }
+  table.sessoes th { background: var(--fundo); font-size: 8pt; font-weight: 600; text-align: left; padding: 0.9mm 1.4mm; border: 0.3mm solid var(--borda); line-height: 1.12; vertical-align: bottom; }
+  table.sessoes th small { display: block; font-weight: 400; font-size: 7pt; color: var(--tinta-suave); }
+  table.sessoes td { border: 0.3mm solid var(--borda); height: 6.5mm; background: #fff; }
+  table.sessoes td.sid { font-weight: 700; color: var(--tinta-suave); text-align: center; font-size: 8.6pt; }
+
+  .p4-meio { display: grid; grid-template-columns: 1.12fr 1fr; gap: 3.4mm; margin: 2.2mm 0 2mm; align-items: start; }
+  .modelo { background: var(--fundo); border: 0.3mm solid var(--borda); border-left: 1.6mm solid var(--brand); border-radius: var(--raio-sm);
+            padding: 1.4mm 2.6mm 1.6mm; font-size: 8.6pt; line-height: 1.62; }
+  .modelo .coaut { display: block; line-height: 1.32; margin: 0.3mm 0 0; }
+  .modelo .tt { font-size: 9.4pt; font-weight: 600; line-height: 1.25; margin-bottom: 0.3mm; color: var(--brand-escuro); }
+  .modelo .nota { line-height: 1.25; display: block; margin-top: 0.6mm; }
+  .modelo .ln { height: 3.6mm; }
+  table.ajustes { width: 100%; border-collapse: collapse; }
+  table.ajustes th { background: var(--fundo); font-size: 8pt; font-weight: 600; text-align: left; padding: 0.8mm 1.4mm; border: 0.3mm solid var(--borda); }
+  table.ajustes td { border: 0.3mm solid var(--borda); height: 6.8mm; background: #fff; }
+  table.ajustes td.ok { text-align: center; }
+
+  .check { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2mm 2.8mm; margin-bottom: 2mm; }
+  .decidir { font-size: 8.5pt; margin: 1.4mm 0 0; line-height: 1.28; }
+  .ck { border: 0.3mm solid var(--borda); border-radius: var(--raio-sm); padding: 1mm 2mm 1.2mm; background: #fff; font-size: 8.5pt; line-height: 1.24; }
+  .ck.largo { grid-column: 1 / -1; }
+  .ck-cab { display: flex; align-items: center; gap: 1.6mm; margin-bottom: 0.3mm; }
+  .ck-cab b.t { font-size: 9pt; color: var(--brand-escuro); }
+  .ck-cab .res { font-size: 7.6pt; color: var(--tinta-suave); white-space: nowrap; display: flex; align-items: center; }
+  .ck-cab .res .cx { width: 3mm; height: 3mm; vertical-align: 0; }
+  .ck-cab .como { flex: 1; font-size: 7.4pt; color: var(--tinta-suave); white-space: nowrap; overflow: hidden; }
+  .ck-cab .como::before { content: '→ '; }
+  .ck .vis { float: right; display: flex; gap: 1mm; align-items: flex-end; margin: 0.2mm 0 0 1.6mm; }
+
+  table.prev { width: 100%; border-collapse: collapse; font-size: 8.5pt; }
+  table.prev th, table.prev td { border: 0.3mm solid var(--borda); padding: 0.2mm 1.6mm; text-align: center; height: 4.6mm; }
+  table.prev th { background: var(--fundo); font-weight: 600; }
+  table.prev td.r { text-align: left; width: 86mm; }
+  table.prev tr.obs td { background: #fff; }
+  table.prev tr.obs td.r { background: var(--aviso-fundo); font-weight: 600; }
+  table.prev tr.sim td { background: var(--superficie-2); color: var(--tinta); }
+</style>
+{% endblock %}
+
+{# ------------------------------------------------------------ macros #}
+{% macro topo(n, nome, quando) %}
+<div class="pt-topo">
+  <div class="pt-marca">{{ logo(6.2) }}<span class="pt-doc">Kit de playtest · {{ cfg.versao }}</span></div>
+  <div class="pt-tag"><span class="n">{{ n }}</span>{{ nome }} <span class="q">· {{ quando }}</span></div>
+</div>
+{% endmacro %}
+
+{% macro pe(n) %}
+<div class="rodape">
+  <span>Somatórios {{ cfg.versao }} · protótipo físico{% if cfg.grupo %} · {{ cfg.grupo }}{% endif %}</span>
+  <span>Kit de playtest · Página {{ n }}/6</span>
+</div>
+{% endmacro %}
+
+{% macro ln(w) %}<span class="ln" style="width: {{ w }}mm"></span>{% endmacro %}
+
+{% macro tesoura() %}<svg viewBox="0 0 12 12" width="3.4mm" height="3.4mm" aria-hidden="true"><g fill="none" stroke="#6b7a94" stroke-width="1.1" stroke-linecap="round"><circle cx="2.6" cy="3.2" r="1.8"/><circle cx="2.6" cy="8.8" r="1.8"/><path d="M4.1 4.2 L11 9.2 M4.1 7.8 L11 2.8"/></g></svg>{% endmacro %}
+
+{% macro rosto(nivel, t=6.6) %}
+{% set bocas = {1: 'M6.1 14.9 Q10 10.9 13.9 14.9', 2: 'M6.4 14.2 Q10 12.4 13.6 14.2', 3: 'M6.4 13.5 L13.6 13.5', 4: 'M6.4 12.5 Q10 15.7 13.6 12.5', 5: 'M5.9 11.9 Q10 18.2 14.1 11.9 Z'} %}
+<svg class="rosto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="{{ t }}mm" height="{{ t }}mm" role="img" aria-label="carinha {{ nivel }}"><circle cx="10" cy="10" r="8.9" fill="#fff" stroke="#14233b" stroke-width="1.05"/><circle cx="7" cy="7.9" r="1.15" fill="#14233b"/><circle cx="13" cy="7.9" r="1.15" fill="#14233b"/><path d="{{ bocas[nivel] }}" fill="{{ '#14233b' if nivel == 5 else 'none' }}" stroke="#14233b" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+{% endmacro %}
+
+{% macro questionario() %}
+<div class="quest">
+  <div class="qh">
+    <div class="tq">{{ chip('soma', 5) }} Questionário depois da partida</div>
+    <div class="ids">
+      <span>Código P{{ ln(7) }}</span><span>Sessão S{{ ln(8) }}</span><span>Idade {{ ln(12) }}</span>
+    </div>
+  </div>
+  <p class="instr">Não escreva seu nome. <strong>Não existe resposta certa.</strong> Marque um X na carinha que combina com você.</p>
+  <table>
+    <tr>
+      <th class="f"></th>
+      {% for rotulo in ['Não!', 'Não', 'Mais ou menos', 'Sim', 'Sim!'] %}<th><span class="lb">{{ rotulo }}</span><small>{{ loop.index }}</small></th>{% endfor %}
+    </tr>
+    {% set frases = [
+      'Eu me diverti.',
+      'Eu entendi as regras.',
+      'Foi fácil aprender a jogar.',
+      'O jogo me ajudou a praticar contas.',
+      'Eu jogaria de novo.',
+      'O resultado da partida (vitória ou derrota) foi justo.',
+      'Todo mundo participou.',
+      'O desafio foi na medida: nem fácil, nem difícil.'] %}
+    {% for f in frases %}
+    <tr>
+      <td class="f"><span class="num">{{ loop.index }}</span>{{ f }}</td>
+      {% for k in range(1, 6) %}<td class="r"><span class="rw">{{ rosto(k, 6) }}</span></td>{% endfor %}
+    </tr>
+    {% endfor %}
+    <tr class="b8">
+      <td colspan="6"><span class="num">8b</span>Se marcou <strong>Não!</strong> ou <strong>Não</strong> na frase 8, o jogo foi: <span class="cx"></span>fácil demais <span class="cx"></span>difícil demais</td>
+    </tr>
+  </table>
+  <div class="abertas">
+    {% for n, q in [(9, 'Do que você mais gostou?'), (10, 'O que foi confuso?'), (11, 'O que você mudaria no jogo?')] %}
+    <div class="ab"><span><span class="num">{{ n }}</span>{{ q }}</span><span class="pauta"></span><span class="pauta"></span></div>
+    {% endfor %}
+  </div>
+  <div class="obrigado">Obrigado por testar o Somatórios!</div>
+</div>
+{% endmacro %}
+
+{% macro termo() %}
+<div class="termo">
+  <div class="tt"><span>Termo de autorização</span><span class="cod">Código S{{ ln(7) }}-P{{ ln(5) }}</span></div>
+  <div class="lin">Quem vai jogar: <span class="ln"></span> Idade {{ ln(8) }}</div>
+  <div class="lin">Responsável (se menor de 18 anos): <span class="ln"></span></div>
+  <p>Autorizo a participação no teste do jogo de cartas <strong>Somatórios</strong> (autoria: {{ autores }}). Ela é <strong>voluntária</strong> e pode ser interrompida a qualquer momento. O nome <strong>não vai</strong> nas fichas. As respostas servem para melhorar o jogo, para trabalhos acadêmicos e, só em números e resumos, para inscrever o jogo em eventos (como o DOFF).</p>
+  <div class="ops"><span class="rotulo-fv"><strong>Fotos e vídeos</strong> (podem ir para o vídeo do jogo no YouTube):</span><span><span class="cx"></span>não</span><span><span class="cx"></span>só mãos e mesa</span><span><span class="cx"></span>com rosto</span></div>
+  <div class="ops"><span>Quem vai jogar concorda em participar:</span><span><span class="cx"></span>sim</span></div>
+  <div class="assin">
+    <span class="ln"></span>
+    <span class="dt">Data {{ ln(5) }}/{{ ln(5) }}/{{ ln(8) }}</span>
+    <span class="leg">Assinatura (do responsável, se menor de 18 anos)</span>
+  </div>
+  <div class="nota">Contato da equipe: {{ v('contato_email', 'e-mail de contato') }}</div>
+</div>
+{% endmacro %}
+
+{% block corpo %}
+{# ================================================================ P1 #}
+<section class="pagina pt">
+  {{ topo(1, 'Protocolo', 'leia antes de cada sessão') }}
+  <div class="pt-titulo">
+    <div>
+      <h1>Kit de playtest</h1>
+      <p class="lead">Como testar o jogo com <strong>pessoas de fora da equipe</strong>.</p>
+    </div>
+    <div class="imprima">
+      <strong>Imprima:</strong> p. 1 e p. 5 uma vez · p. 2: 1 folha por sessão (6 termos)<br>
+      p. 3: 1 por partida · p. 4: 1 folha a cada 2 pessoas<br>
+      <strong>Leve:</strong> kit montado, manual, lápis, lápis de cor, cronômetro
+    </div>
+  </div>
+
+  <div class="gqm">
+    <h2><span class="ic">?</span>O que medir <span class="nota" style="font-weight: 400">· modelo GQM (meta → perguntas → métricas) · usabilidade segundo a ISO 9241-11</span></h2>
+    <p class="frase">
+      <span class="k">Analisar</span> <span class="c">o protótipo físico do Somatórios</span>
+      <span class="k">com o propósito de</span> <span class="c">avaliar a compreensão das regras e a diversão</span>,
+      <span class="k">com respeito à</span> <span class="c">facilidade de aprender e ao engajamento</span>,
+      <span class="k">do ponto de vista de</span> <span class="c">pessoas que nunca jogaram</span>,
+      <span class="k">no contexto de</span> <span class="c">sessões de teste presencial</span>.
+    </p>
+    <div class="qs">
+      <div class="qq">
+        <span class="iso-tag">Eficácia</span>
+        <b class="t">Jogam certo só com o manual?</b>
+        <p class="m">vitória ou derrota · <strong>erros de regra por categoria</strong> · partida sem intervenção · item 2 do questionário</p>
+        <div class="al"><strong>Alerta:</strong> mesmo erro em 2+ grupos.</div>
+      </div>
+      <div class="qq">
+        <span class="iso-tag">Eficiência</span>
+        <b class="t">Aprendem rápido?</b>
+        <p class="m"><strong>tempo de preparação</strong> · duração · nº de jogadas · <strong>consultas ao manual</strong> · <strong>perguntas ao facilitador</strong> · hesitações · item 3</p>
+        <div class="al"><strong>Alerta:</strong> preparação acima de 10 min.</div>
+      </div>
+      <div class="qq">
+        <span class="iso-tag">Satisfação</span>
+        <b class="t">A partida diverte e engaja?</b>
+        <p class="m">itens 1 e 4 a 8 do questionário (média de 1 a 5) · <strong>frases marcantes</strong> · pedem outra partida sem convite?</p>
+        <div class="al"><strong>Alerta:</strong> média abaixo de 3,5 num item.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="p1-meio">
+    <div class="bloco">
+      <h2>{{ chip('soma', 5) }}Quem testa</h2>
+      <ul>
+        <li><strong>Pessoas de fora da equipe</strong> que nunca jogaram (nem o app).</li>
+        <li><strong>2–5 pessoas por partida</strong> (ideal: 3–4). Ao longo dos testes, faça ao menos <strong>1 partida com 2 pessoas</strong> e <strong>1 com 4</strong> (testam o marcador Início da rodada) e <strong>1 com 3 ou 5</strong>.</li>
+        <li>Idealmente, <strong>crianças de 8–10 anos</strong> e <strong>adultos</strong>. Para a variante Iniciante: crianças de 6–7 anos com um adulto.</li>
+        <li><span class="nao-regra">Ensaie antes com alguém da equipe. Esse piloto não conta como teste.</span></li>
+      </ul>
+    </div>
+    <div class="bloco">
+      <h2>{{ chip('multiplicacao', 5) }}Papéis</h2>
+      <div class="papeis">
+        <div class="papel">
+          <b class="t">Facilitador</b>
+          Entregue <strong>só o kit e o manual</strong>. <strong>Não explique, não ajude, não corrija</strong> (teste cego). Perguntaram? Responda: <em>“O que o manual diz?”</em> e anote.
+        </div>
+        <div class="papel">
+          <b class="t">Observador</b>
+          Sente de lado, <strong>não fale</strong>, cronometre e preencha a ficha. Anote frases <strong>exatas</strong>. <span class="nao-regra">Sozinho? Faça os dois papéis.</span>
+        </div>
+      </div>
+      <p class="travou"><strong>Grupo travado</strong> há mais de 3 min na mesma dúvida? Mostre a parte do manual, sem explicar, e anote como <strong>intervenção</strong>.</p>
+    </div>
+  </div>
+
+  <h2>{{ chip('subtracao', 5) }}Roteiro da sessão <span class="nota" style="font-weight: 400">· cerca de 40 min</span></h2>
+  <div class="roteiro">
+    <div class="passo">
+      <div class="cab"><span class="n">1</span><b>Termo</b><span class="tempo">2 min</span></div>
+      Recolha <strong>1 termo por pessoa</strong> (p. 2). Menor de 18 anos: <strong>envie antes</strong> ao responsável. Dê os códigos <strong style="white-space: nowrap">P1…P5</strong>.
+    </div>
+    <div class="passo">
+      <div class="cab"><span class="n">2</span><b>Entrega</b><span class="tempo">1 min</span></div>
+      Entregue o kit e o manual. Diga a <strong>frase de abertura</strong> (abaixo).
+    </div>
+    <div class="passo">
+      <div class="cab"><span class="n">3</span><b>Preparação</b><span class="tempo">cronometre</span></div>
+      Do início da leitura até a <strong>1ª carta jogada</strong>. Não ajude.
+    </div>
+    <div class="passo">
+      <div class="cab"><span class="n">4</span><b>Partida</b><span class="tempo">10–20 min</span></div>
+      Preencha a ficha (p. 3). No fim, espere 1 min: <strong>pedem outra partida?</strong> Anote. Se não pedirem e houver tempo, ofereça.
+    </div>
+    <div class="passo">
+      <div class="cab"><span class="n">5</span><b>Questionário</b><span class="tempo">5 min</span></div>
+      1 por pessoa (p. 4). Com crianças, <strong>leia cada frase em voz alta</strong>.
+    </div>
+    <div class="passo">
+      <div class="cab"><span class="n">6</span><b>Conversa</b><span class="tempo">5–10 min</span></div>
+      <em>“O que foi divertido? Onde travaram?”</em> Depois, explique os erros.
+    </div>
+  </div>
+  <div class="fala">
+    <span class="rot">Frase de<br>abertura</span>
+    <span class="balao">“Vamos testar um jogo novo. <strong>Quem está sendo testado é o jogo, não vocês.</strong> Eu não posso explicar nada: está tudo no manual. Joguem como acharem que o manual diz. Vocês podem parar quando quiserem.”</span>
+  </div>
+
+  <div class="p1-fim">
+    <div class="bloco">
+      <h2>{{ chip('divisao', 5) }}Privacidade <span class="nota" style="font-weight: 400">(LGPD, Lei 13.709/2018)</span></h2>
+      <ul>
+        <li><strong>Menores de 18 anos:</strong> só com o termo assinado pelo responsável e com o “sim” da própria pessoa. <span class="nao-regra">A LGPD (art. 14) protege os dados de crianças e adolescentes.</span></li>
+        <li><strong>Sem nomes</strong> nas fichas e nos questionários: use códigos <span style="white-space: nowrap">S01-P1…P5</span>.</li>
+        <li><strong>Fotos e vídeos:</strong> siga a opção marcada no termo. Rosto, só com autorização.</li>
+        <li>Guarde os termos <strong>longe das fichas</strong>. Divulgue só números e resumos.</li>
+      </ul>
+    </div>
+    <div class="bloco">
+      <h2><span class="ic">=</span>Depois da sessão</h2>
+      <ol>
+        <li>Junte as fichas e os questionários. Guarde os termos <strong>à parte</strong>.</li>
+        <li>Calcule a <strong>média de cada item</strong> do questionário (1 a 5).</li>
+        <li>Preencha <strong>1 linha</strong> do Registro (p. 5) no mesmo dia.</li>
+        <li>Mesmo problema em <strong>2 grupos ou mais</strong>? Mude o manual ou a carta de ajuda, <strong>uma coisa por vez</strong>.</li>
+      </ol>
+    </div>
+  </div>
+  {{ pe(1) }}
+</section>
+
+{# ================================================================ P2 #}
+<section class="pagina pt">
+  {{ topo(2, 'Termos de autorização', '1 por pessoa · recorte em 6') }}
+  <div class="pt-titulo" style="margin-bottom: 3.4mm">
+    <div>
+      <h1>Termos de autorização</h1>
+      <p class="lead">Recolha <strong>1 termo por pessoa</strong>. Menor de 18 anos: <strong>envie antes</strong> para o responsável assinar. Guarde <strong>longe das fichas</strong>.</p>
+    </div>
+  </div>
+  <div class="termos6">
+    <span class="tes">{{ tesoura() }}</span>
+    {% for i in range(6) %}{{ termo() }}{% endfor %}
+  </div>
+  {{ pe(2) }}
+</section>
+
+{# ================================================================ P3 #}
+<section class="pagina pt">
+  {{ topo(3, 'Ficha de observação', '1 ficha por partida') }}
+  <div class="pt-titulo" style="margin-bottom: 2.2mm">
+    <div>
+      <h1>Ficha de observação</h1>
+      <p class="lead">Quem preenche é o <strong>observador</strong>, em silêncio. Risque 1 traço por ocorrência.</p>
+    </div>
+  </div>
+
+  <div class="cabec">
+    <div class="lf">
+      <div class="cp" style="flex: 0 0 33mm"><span class="rot">Data</span><span class="v">{{ ln(6) }}/{{ ln(6) }}/{{ ln(10) }}</span></div>
+      <div class="cp" style="flex: 1"><span class="rot">Local</span><span class="v"></span></div>
+      <div class="cp" style="flex: 0 0 24mm"><span class="rot">Sessão</span><span class="v">S{{ ln(14) }}</span></div>
+      <div class="cp" style="flex: 0 0 23mm"><span class="rot">Partida nº</span><span class="v">{{ ln(15) }}</span></div>
+      <div class="cp" style="flex: 0 0 25mm"><span class="rot">Observador</span><span class="v">O{{ ln(15) }}</span></div>
+    </div>
+    <div class="lf">
+      <div class="cp" style="flex: 0 0 36mm"><span class="rot">Nº de pessoas</span><span class="v"><span class="bola">2</span><span class="bola">3</span><span class="bola">4</span><span class="bola">5</span></span></div>
+      <div class="cp" style="flex: 1"><span class="rot">Idades</span><span class="v">P1 {{ ln(6) }} P2 {{ ln(6) }} P3 {{ ln(6) }} P4 {{ ln(6) }} P5 {{ ln(6) }}</span></div>
+      <div class="cp" style="flex: 0 0 50mm"><span class="rot">Já conheciam o jogo?</span><span class="v"><span class="cx"></span>ninguém <span class="cx" style="margin-left: 1.4mm"></span>sim: P{{ ln(10) }}</span></div>
+    </div>
+    <div class="lf">
+      <div class="cp" style="flex: 1"><span class="rot">Regra usada <span style="text-transform: none; letter-spacing: 0; font-weight: 400">(marque todas)</span></span><span class="v"><span class="cx"></span>sem variante <span class="cx" style="margin-left: 1.4mm"></span>Iniciante <span class="cx" style="margin-left: 1.4mm"></span>Mesa aberta <span class="cx" style="margin-left: 1.4mm"></span>Desafio do placar</span></div>
+      <div class="cp" style="flex: 0 0 66mm"><span class="rot">Marcador Início da rodada</span><span class="v"><span class="cx"></span>usado (2 ou 4) <span class="cx" style="margin-left: 1.4mm"></span>não se aplica (3 ou 5)</span></div>
+    </div>
+    <div class="lf">
+      <div class="cp dest" style="flex: 0 0 24mm"><span class="rot">Objetivo</span><span class="v">{{ ln(18) }}</span></div>
+      <div class="cp dest" style="flex: 1"><span class="rot">Fim da partida</span><span class="v"><span class="cx"></span>vitória <span class="cx" style="margin-left: 1.4mm"></span>derrota · último resultado parcial {{ ln(12) }}</span></div>
+      <div class="cp dest" style="flex: 0 0 23mm"><span class="rot">Nº de jogadas</span><span class="v">{{ ln(17) }}</span></div>
+      <div class="cp dest" style="flex: 0 0 31mm"><span class="rot">Monte de compra</span><span class="v">sobraram {{ ln(9) }}</span></div>
+    </div>
+    <div class="lf">
+      <div class="cp" style="flex: 1"><span class="rot">Horários</span><span class="v">início da leitura {{ ln(4.5) }}:{{ ln(4.5) }} · 1ª carta {{ ln(4.5) }}:{{ ln(4.5) }} · fim {{ ln(4.5) }}:{{ ln(4.5) }}</span></div>
+      <div class="cp dest" style="flex: 0 0 32mm"><span class="rot">Tempo de preparação</span><span class="v">{{ ln(15) }} min</span></div>
+      <div class="cp dest" style="flex: 0 0 22mm"><span class="rot">Duração</span><span class="v">{{ ln(11) }} min</span></div>
+      <div class="cp dest" style="flex: 0 0 36mm"><span class="rot">Pediram outra partida?</span><span class="v"><span class="cx"></span>sim <span class="cx" style="margin-left: 1.4mm"></span>não</span></div>
+    </div>
+  </div>
+
+  <div class="jogadas">
+    <span class="rot">Jogadas<br><span style="text-transform: none; letter-spacing: 0; font-weight: 400">risque 1 por carta</span></span>
+    <div class="qd">{% for i in range(1, 37) %}<span>{{ i }}</span>{% endfor %}</div>
+  </div>
+
+  <table class="grade-erros">
+    <tr>
+      <th colspan="2">Erros e dúvidas por categoria <span class="nota" style="font-weight: 400">· em itálico, exemplos do que observar</span></th>
+      <th>Erros</th>
+      <th>Dúvidas</th>
+      <th>Nº da jogada · nota</th>
+    </tr>
+    {% set cats = [
+      ('Ordem número → operador → número', 'jogou operador na vez de número (ou o contrário); a 1ª carta não foi número'),
+      ('Carta em pé ou carta deitada', 'usou o naipe da carta em pé ou o número da carta deitada'),
+      ('Conta da esquerda para a direita', 'fez × ou ÷ antes de + ou −; montou a conta inteira no fim'),
+      ('Divisão, zero e negativos', 'arredondou errado (certo: 9 ÷ 2 = 4,5 → 5; 10 ÷ 3 → 3); não aceitou 5 − 9 = −4'),
+      ('Compra', 'esqueceu de comprar depois de jogar'),
+      ('Marcador Início da rodada', 'não passou à esquerda; usou com 3 ou 5; não guardou quando o monte de compra acabou'),
+      ('Vez e pular quem está sem cartas', 'jogou fora da vez; não pulou quem estava sem cartas; após pular, errou o tipo de carta'),
+      ('Regra de conversa', 'disse ou mostrou número ou naipe da mão: “Eu tenho um 7.”'),
+      ('Soma inicial e objetivo', 'disse os números da mão (só vale o total); errou a soma; não anotou o objetivo na Mesa'),
+      ('Fim de jogo', 'não percebeu a vitória; parou antes do fim das cartas; contou o operador final'),
+      ('Outra:', '') ] %}
+    {% for titulo, ex in cats %}
+    <tr>
+      <td class="n">{{ loop.index }}</td>
+      <td class="cat"><b>{{ titulo }}</b>{% if ex %}<span class="ex">{{ ex }}</span>{% endif %}</td>
+      <td class="risco"></td>
+      <td class="risco"></td>
+      <td class="nota-c"></td>
+    </tr>
+    {% endfor %}
+  </table>
+  <p class="nota" style="margin: 0"><strong>Erros</strong> = fez errado · <strong>Dúvidas</strong> = perguntou ou discutiu a regra (consultas ao manual: só no mapa) · Circule o traço quando <strong>o próprio grupo</strong> se corrigiu.</p>
+
+  <div class="contagens">
+    <div class="ct"><b>Consultas ao manual</b><span class="nota">total = soma do mapa abaixo</span></div>
+    <div class="ct"><b>Perguntas ao facilitador</b><span class="nota">escreva em Frases marcantes</span></div>
+    <div class="ct"><b>Intervenções do facilitador</b><span class="nota">grupo travou mais de 3 min</span></div>
+    <div class="ct"><b>Hesitações</b><span class="nota">pausa longa antes de jogar</span></div>
+  </div>
+
+  <div class="duas-col">
+    <div class="linhas">
+      <div class="tt">Momentos de hesitação <span class="nota" style="font-weight: 400">jogada · o que aconteceu · tempo (s)</span></div>
+      {% for i in range(3) %}<div class="l"><i>nº</i><b>s</b></div>{% endfor %}
+    </div>
+    <div class="linhas">
+      <div class="tt">Frases marcantes <span class="nota" style="font-weight: 400">quem · frase exata, entre aspas</span></div>
+      {% for i in range(3) %}<div class="l"><i>P</i></div>{% endfor %}
+    </div>
+  </div>
+
+  <div class="calor">
+    <div class="tt">
+      <b>Mapa de calor do manual</b>
+      <span class="leg">Risque 1 traço por consulta. No fim, pinte:
+        <span><span class="sw" style="background: #f4a3a3"></span>muita (vermelho)</span>
+        <span><span class="sw" style="background: #ffe08a"></span>alguma (amarelo)</span>
+        <span><span class="sw" style="background: #a9c8f0"></span>nenhuma (azul)</span>
+      </span>
+    </div>
+    <div class="gr">
+      {% for s in ['Componentes', 'Preparação', 'Objetivo', 'Como jogar', 'A conta', 'Marcador', 'Conversa à mesa', 'Fim de jogo', 'Exemplo de partida', 'Variantes', 'Perguntas frequentes', 'Depois da partida', 'Carta de ajuda', 'Mesa', 'Folha de registro', 'Outra:'] %}
+      <div class="sc"><span>{{ s }}</span><span class="tl"></span></div>
+      {% endfor %}
+    </div>
+  </div>
+  {{ pe(3) }}
+</section>
+
+{# ================================================================ P4 #}
+<section class="pagina pt">
+  {{ topo(4, 'Questionário', '1 por pessoa · recorte ao meio') }}
+  {{ questionario() }}
+  <div class="corte-h"><span>{{ tesoura() }} recorte aqui</span></div>
+  {{ questionario() }}
+  <p class="aplica"><strong>Para quem aplica:</strong> antes de entregar, escreva você o <strong>código P</strong> e a <strong>sessão S</strong> de cada pessoa. Com crianças, leia cada frase em voz alta e espere todas marcarem. Não comente as respostas. Depois, calcule a <strong>média de cada item</strong> de 1 a 8 (escala de 1 a 5) e anote no Registro (p. 5) os itens com média abaixo de 3,5. Item 8 baixo? O 8b diz se o jogo foi fácil ou difícil demais.</p>
+  {{ pe(4) }}
+</section>
+
+{# ================================================================ P5 #}
+<section class="pagina pt">
+  {{ topo(5, 'Registro de testes e ajustes', 'preencha ao fim de cada sessão') }}
+  <div class="pt-titulo" style="margin-bottom: 2mm">
+    <div>
+      <h1>Registro de testes e ajustes</h1>
+      <p class="lead">Uma linha por sessão. É a prova de que o jogo foi <strong>testado por terceiros</strong> e a base do texto para o DOFF.</p>
+    </div>
+  </div>
+
+  <h2>{{ chip('soma', 5) }}Sessões de teste</h2>
+  <table class="sessoes">
+    <tr>
+      <th style="width: 11mm">Sessão</th>
+      <th style="width: 14mm">Data</th>
+      <th style="width: 12mm">Nº de pessoas</th>
+      <th style="width: 25mm">Perfil<small>idades · conheciam?</small></th>
+      <th style="width: 15mm">Vitória?<small>ex.: 3 de 4</small></th>
+      <th style="width: 14mm">Duração<small>média, min</small></th>
+      <th style="width: 22mm">Questionário<small>itens com média abaixo de 3,5</small></th>
+      <th>Principais problemas<small>categorias da ficha</small></th>
+      <th style="width: 34mm">Ajuste decidido</th>
+    </tr>
+    {% for i in range(1, 6) %}
+    <tr><td class="sid">S0{{ i }}</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    {% endfor %}
+  </table>
+
+  <div class="p4-meio">
+    <div class="modelo">
+      <div class="tt">Texto para o campo livre do formulário do DOFF</div>
+      Fizemos {{ ln(6) }} sessões com {{ ln(6) }} pessoas de fora da equipe, de {{ ln(5) }} a {{ ln(5) }} anos, em grupos de {{ ln(5) }} a {{ ln(5) }} pessoas: {{ ln(5) }} vitórias em {{ ln(5) }} partidas, duração média de {{ ln(6) }} min. Depois dos testes, mudamos {{ ln(40) }}. Até julho de 2027, vamos {{ ln(48) }}.
+      <span class="coaut">Coautoria: {{ autores }}.</span>
+      <span class="nota">Cole no campo “Quer falar algo mais que julgue importante e relevante?”. Só números e resumos, nunca nomes de quem testou.</span>
+    </div>
+    <div>
+      <h2 style="margin-top: 0">{{ chip('subtracao', 5) }}Ajustes previstos até julho de 2027</h2>
+      <table class="ajustes">
+        <tr><th>Ajuste</th><th style="width: 25mm">Motivo <span class="nota" style="font-weight: 400">(sessão)</span></th><th style="width: 14mm">Até</th><th class="ok" style="width: 10mm">Feito</th></tr>
+        {% for i in range(4) %}<tr><td></td><td></td><td></td><td class="ok"><span class="cx" style="margin: 0"></span></td></tr>{% endfor %}
+      </table>
+      <p class="decidir"><strong>Como decidir:</strong> mesmo problema em 2 grupos ou mais → mude <strong>uma coisa por vez</strong>.</p>
+    </div>
+  </div>
+
+  <h2>{{ chip('multiplicacao', 5) }}Questões de design a validar <span class="nota" style="font-weight: 400">· marque o resultado quando tiver resposta</span></h2>
+  {% set itens = [
+    ('Marcador', 'Passam o marcador à esquerda no fim da rodada? Com 2 pessoas, quem recebe o marcador joga <strong>duas vezes seguidas</strong>? <strong>Guardam</strong> o marcador quando o monte de compra acaba?', 'grupos de 2 e 4 · ficha 6', ''),
+    ('Regra de conversa', 'Citam números ou naipes da mão sem querer (<em>“Eu tenho um&nbsp;7”</em>)? Conversam sobre a conta?', 'ficha 8 · frases', ''),
+    ('Arredondamento', 'Aplicam “inteiro mais próximo; <strong>exatamente meio → para cima</strong>” (9 ÷ 2 = 4,5 → 5) sem consultar?', 'ficha 4', ''),
+    ('Tempo real de partida', 'Cabe em <strong>10–20 min</strong> com 2, 3, 4 e 5 pessoas? Quanto dura a preparação?', 'tabela abaixo', ''),
+    ('Idade mínima', 'Crianças de <strong>8 anos</strong> jogam sem variante, sem ajuda de um adulto?', 'idades e erros', ''),
+    ('Partida com 5 pessoas', 'O objetivo maior (≈ 100) deixa a partida longa? Alguém fica muito tempo esperando?', 'duração · itens 7 e 8', ''),
+    ('Variante Iniciante', 'Para 6+ com um adulto: <strong>quanto</strong> mais longas ficam as partidas? A variante continua divertida?', 'cronômetro', ''),
+    ('Sinal girado, 6 e 9', 'Leem o sinal da carta deitada de <strong>qualquer lado</strong> da mesa? Confundem 6 e 9?', 'ficha 2', 'cartas'),
+    ('Cartas de ajuda e Mesa', 'Consultam a carta de ajuda <strong>Sua vez</strong>? Usam os espaços <strong>Operador</strong> e <strong>Número</strong> da Mesa e põem as cartas em <strong>Cartas jogadas</strong>, ao lado dela? Anotam cada conta na <strong>Folha de registro</strong>? A Mesa, o monte de compra e as cartas jogadas cabem na mesa de jogo?', 'mapa de calor · observe o manuseio', ''),
+  ] %}
+  <div class="check">
+    {% for titulo, pergunta, como, vis in itens %}
+    <div class="ck{% if loop.last %} largo{% endif %}">
+      <div class="ck-cab">
+        <b class="t">{{ titulo }}</b>
+        <span class="como">{{ como }}</span>
+        <span class="res"><span class="cx"></span>ok <span class="cx" style="margin-left: 1.6mm"></span>ajustar</span>
+      </div>
+      <div class="ck-corpo">
+        {% if vis == 'cartas' %}<span class="vis">{{ carta(6, 'subtracao', escala=0.14) }}{{ carta(9, 'divisao', escala=0.14, deitada=True) }}</span>{% endif %}
+        {{ pergunta|safe }}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <table class="prev">
+    <tr><th style="text-align: left">Previsto e observado <span class="nota" style="font-weight: 400">· por nº de pessoas</span></th><th>2</th><th>3</th><th>4</th><th>5</th></tr>
+    <tr class="sim"><td class="r">Objetivo médio <span class="nota">(simulação)</span></td><td>≈ 40</td><td>≈ 60</td><td>≈ 80</td><td>≈ 100</td></tr>
+    <tr class="sim"><td class="r">Mediana de jogadas até vencer, sem variante <span class="nota">(simulação)</span></td><td>9</td><td>11</td><td>13</td><td>15</td></tr>
+    <tr class="obs"><td class="r">Observado: jogadas até vencer, mediana <span class="nota" style="font-weight: 400">(sem variante)</span></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="sim"><td class="r">Vitórias na variante Iniciante <span class="nota">(simulação)</span></td><td>≈ 94%</td><td>≈ 89%</td><td>≈ 80%</td><td>≈ 60%</td></tr>
+    <tr class="obs"><td class="r">Observado: vitórias na variante Iniciante <span class="nota" style="font-weight: 400">(ex.: 3 de 4)</span></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="obs"><td class="r">Observado: vitórias sem variante <span class="nota" style="font-weight: 400">(ex.: 3 de 4)</span></td><td></td><td></td><td></td><td></td></tr>
+    <tr class="obs"><td class="r">Observado: duração, média em min <span class="nota" style="font-weight: 400">(previsto 10–20)</span></td><td></td><td></td><td></td><td></td></tr>
+  </table>
+  <p class="nota" style="margin: 1mm 0 0"><span class="nao-regra">A simulação compara variantes, não prevê pessoas reais. Ao acaso, o jogo vence só 1–4% das partidas; com jogo pensado, a maioria.</span></p>
+  {{ pe(5) }}
+</section>
+
+{# ---------------- página 6: experiência (PLEX) e observações do curso ---------------- #}
+<style>
+  .p6-ficha { border: 0.35mm solid var(--borda); border-radius: var(--raio-sm); padding: 1.8mm 3mm 1.4mm; margin-bottom: 1.8mm; }
+  .p6-ficha .tq { display: flex; align-items: center; gap: 2mm; font-weight: 600; font-size: 10.5pt; color: var(--brand-escuro); }
+  .p6-ficha .tq .cod { margin-left: auto; font-size: 8.5pt; font-weight: 500; color: var(--tinta-suave); }
+  .p6-tab { width: 100%; border-collapse: collapse; margin-top: 1.4mm; font-size: 9.2pt; }
+  .p6-tab td { padding: 0.5mm 1mm; border-bottom: 0.25mm solid #e3e9f3; vertical-align: middle; }
+  .p6-tab td.rs { white-space: nowrap; text-align: right; }
+  .p6-tab td.rs svg { display: inline-block !important; margin-left: 1.2mm; vertical-align: middle; }
+  .p6-tab .exp { display: block; font-size: 7.2pt; color: var(--tinta-suave); font-style: italic; }
+  .p6-aberta { margin-top: 1.6mm; font-size: 9.2pt; }
+  .p6-aberta .ln { display: block; border-bottom: 0.3mm solid var(--tinta-suave); height: 4.4mm; }
+  .p6-corte { display: flex; align-items: center; gap: 1.4mm; font-size: 7pt; color: #6b7a94; margin: 0 0 1.8mm; }
+  .p6-corte::after { content: ''; flex: 1; border-top: 0.3mm dashed #9aa6bb; }
+  .p6-obs { width: 100%; border-collapse: collapse; font-size: 8.6pt; }
+  .p6-obs th, .p6-obs td { border: 0.3mm solid var(--borda); padding: 0.9mm 1.8mm; vertical-align: middle; text-align: left; }
+  .p6-obs th { background: var(--fundo); width: 112mm; font-weight: 600; }
+  .p6-obs th .min { display: block; font-weight: 400; font-size: 7.2pt; color: var(--tinta-suave); font-style: italic; }
+  .p6-obs td { height: auto; }
+  .p6-op { display: inline-flex; gap: 2.4mm; font-size: 8.6pt; }
+  .p6-op .cx { display: inline-block; width: 3mm; height: 3mm; border: 0.3mm solid var(--tinta); border-radius: 0.6mm; vertical-align: -0.4mm; margin-right: 0.8mm; }
+</style>
+<section class="pagina pt">
+  {{ topo(6, 'Experiência e cooperação', 'curso de game design') }}
+  <div class="pt-titulo" style="margin-bottom: 2mm">
+    <div>
+      <h1>Experiência e cooperação</h1>
+      <p class="lead">Complemento do teste, com o que o curso de game design pede para observar: a <strong>experiência lúdica</strong> (PLEX), o <strong>momento mágico</strong> e se a cooperação é real.</p>
+    </div>
+  </div>
+
+  {% set itens = [
+    ('Fiquei feliz quando a conta fechou.', 'Conclusão (experiência central)'),
+    ('Senti que a gente era um time.', 'Companheirismo'),
+    ('O jogo me fez pensar bastante.', 'Desafio'),
+    ('Fiquei na torcida: será que a próxima carta fecha a conta?', 'Suspense'),
+    ('Fiquei tranquilo(a), mesmo quando uma conta deu errado.', 'controle: frustração baixa'),
+  ] %}
+  {% for k in range(2) %}
+  <div class="p6-ficha">
+    <div class="tq">{{ chip('soma', 4.6) }} Como foi para você? <span class="cod">Código P{{ ln(8) }} · Sessão S{{ ln(8) }} · circule um rosto por linha</span></div>
+    <table class="p6-tab">
+      {% for frase, exp in itens %}
+      <tr><td>{{ loop.index }}. {{ frase }}<span class="exp">{{ exp }}</span></td>
+          <td class="rs">{% for nv in range(1, 6) %}{{ rosto(nv, 5.6) }}{% endfor %}</td></tr>
+      {% endfor %}
+    </table>
+    <div class="p6-aberta">6. Qual foi o momento mais emocionante da partida? <span class="ln"></span></div>
+  </div>
+  {% if loop.first %}<div class="p6-corte">{{ tesoura() }} recorte aqui: 1 ficha por pessoa</div>{% endif %}
+  {% endfor %}
+
+  <table class="p6-obs">
+    <tr><th colspan="2" style="width: auto; background: var(--brand); color: #fff">Observações de design (facilitador ou observador) · 1 por partida</th></tr>
+    <tr><th>Momento mágico: em que jogada a mesa reagiu? O que aconteceu?<span class="min">hipótese: o encaixe exato no objetivo (Módulo 3)</span></th><td>Jogada nº {{ ln(10) }}</td></tr>
+    <tr><th>Ao escolher o operador, as pessoas estimavam ou chutavam?<span class="min">se chutam, falta informação; se calculam tudo, falta desafio (Bônus)</span></th><td><span class="p6-op"><span><span class="cx"></span>estimavam</span><span><span class="cx"></span>misto</span><span><span class="cx"></span>chutavam</span></span></td></tr>
+    <tr><th>Alguém mandou na jogada dos outros? Alguém ficou desligado fora da vez?<span class="min">cooperativo precisa de dependência real, não de um líder (Bônus)</span></th><td><span class="p6-op"><span><span class="cx"></span>não</span><span><span class="cx"></span>sim, jogada nº {{ ln(10) }}</span></span></td></tr>
+    <tr><th>Em que jogada o grupo começou a discutir a conta de verdade?<span class="min">"todo turno deve importar" (Módulo 3)</span></th><td>Jogada nº {{ ln(10) }}</td></tr>
+    <tr><th>Na derrota: culparam a sorte do monte ou as próprias decisões?<span class="min">dificuldade deve vir das decisões, não da sorte (Bônus)</span></th><td><span class="p6-op"><span><span class="cx"></span>sorte</span><span><span class="cx"></span>decisões</span><span><span class="cx"></span>não houve derrota</span></span></td></tr>
+    <tr><th>Com 2 pessoas, a partida pareceu menos cooperativa que com 3 ou mais?<span class="min">com 2 pessoas, quem deita o operador joga também o número seguinte</span></th><td><span class="p6-op"><span><span class="cx"></span>sim</span><span><span class="cx"></span>não</span><span><span class="cx"></span>não testamos</span></span></td></tr>
+  </table>
+  <p class="nota" style="margin: 1.2mm 0 0"><span class="nao-regra">PLEX = Playful Experiences, framework de experiências lúdicas usado na Atividade 1.1 do curso. Analise separando vitória de derrota e partidas de 2 pessoas das de 3 ou mais.</span></p>
+  {{ pe(6) }}
+</section>
+{% endblock %}

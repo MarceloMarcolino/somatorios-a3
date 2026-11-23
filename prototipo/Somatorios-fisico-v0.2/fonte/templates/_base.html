@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Somatórios · {{ titulo }} · {{ cfg.versao }}</title>
+  <link rel="stylesheet" href="../estilo.css">
+  <style>
+    @page { size: {% block tamanho_pagina %}A4 portrait{% endblock %}; margin: 0; }
+  </style>
+  {% block head %}{% endblock %}
+</head>
+<body>
+{% block corpo %}{% endblock %}
+</body>
+</html>

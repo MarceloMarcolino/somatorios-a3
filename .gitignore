@@ -25,3 +25,17 @@ yarn-error.log*
 # artefatos de revisao do Codex (screenshots/logs de validacao)
 codex-*
 .codex-*
+
+# prototipo fisico: material de terceiros (exemplos do DOFF) e link do curso pago ficam FORA do repo publico
+prototipo/Exemplos Vídeo & Folha de Vendas/
+prototipo/Game Design para RPG de Mesa, Card Game e Board Game.url
+
+# artefatos gerados pelo gerador do kit (python gerar_kit.py) e pelo pip --target
+prototipo/**/fonte/build/
+prototipo/**/fonte/vendor/bin/
+prototipo/**/fonte/vendor/share/
+__pycache__/
+*.pyc
+
+# backup local do .gitattributes antigo (nao versionar)
+.gitattributes.local-*

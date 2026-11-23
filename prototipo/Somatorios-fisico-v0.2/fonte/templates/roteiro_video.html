@@ -1,0 +1,661 @@
+{% extends "_base.html" %}
+{#
+  Roteiro do vídeo pitch — Somatórios v0.2 (id 'video', 3 páginas A4 retrato).
+  Regras e termos: REGRAS_CANONICAS.md (exemplo canônico Ana e Beto, objetivo 38).
+  A coluna "Narração" é o texto para ler em voz alta. A estimativa de fala de cada bloco
+  é calculada aqui (palavras ÷ 2,5 por segundo + 0,5 s por pausa, arredondada para cima);
+  se o texto mudar, ela se atualiza e fica vermelha quando passa do tempo do bloco.
+#}
+{% block head %}
+<style>
+  /* ---------- tipografia local ---------- */
+  .pagina h2 { font-size: 12pt; margin: 2.4mm 0 1.4mm; display: flex; align-items: center; gap: 2mm; }
+  .pagina h2 .n { display: inline-flex; align-items: center; justify-content: center; width: 5.4mm; height: 5.4mm;
+                  border-radius: 50%; background: var(--brand); color: #fff; font-size: 8.5pt; font-weight: 700; flex: 0 0 auto; }
+  .pagina h3 { font-size: 10pt; margin: 0 0 1mm; color: var(--brand-escuro); }
+  .c85 { font-size: 8.8pt; line-height: 1.32; }
+  .c85 ul { margin: 0; padding-left: 4mm; }
+  .c85 li { margin-bottom: 0.8mm; }
+  .c85 li:last-child { margin-bottom: 0; }
+
+  /* ---------- cabeçalhos ---------- */
+  .topo { display: flex; justify-content: space-between; align-items: flex-end; gap: 6mm;
+          padding-bottom: 2.2mm; border-bottom: 0.6mm solid var(--brand); }
+  .topo h1 { font-size: 23pt; margin-top: 1.4mm; }
+  .topo .sub { font-size: 9.2pt; color: var(--tinta-suave); margin-top: 0.8mm; }
+  .topo .lado { display: flex; flex-direction: column; align-items: flex-end; gap: 1.2mm; }
+  .etiqueta { display: inline-block; background: var(--fundo); color: var(--brand-escuro); border: 0.3mm solid var(--borda);
+              border-radius: 10mm; padding: 0.5mm 2.6mm; font-size: 8pt; font-weight: 600; white-space: nowrap; }
+  .prazo { display: inline-block; background: var(--aviso-fundo); border: 0.3mm solid var(--aviso-borda); color: var(--acento-ink);
+           border-radius: 10mm; padding: 0.5mm 2.6mm; font-size: 8pt; font-weight: 600; white-space: nowrap; }
+  .cab-min { display: flex; justify-content: space-between; align-items: center; gap: 4mm; padding-bottom: 1.8mm;
+             border-bottom: 0.5mm solid var(--brand); margin-bottom: 2.6mm; }
+  .cab-min .esq { display: flex; align-items: center; gap: 3.4mm; }
+  .cab-min h1 { font-size: 16pt; }
+  .cab-min h1 small { font-size: 11pt; font-weight: 500; color: var(--tinta-suave); }
+
+  .intro { font-size: 9.6pt; margin: 2.4mm 0 2.2mm; line-height: 1.36; }
+
+  /* ---------- especificação ---------- */
+  .spec { display: flex; gap: 1.8mm; }
+  .spec .item { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+                padding: 1.5mm 1mm 1.4mm; background: #fff; border: 0.35mm solid var(--borda); border-radius: var(--raio-sm); text-align: center; }
+  .spec .item.forte { border-color: var(--brand); background: #f3f8ff; }
+  .spec .valor { font-size: 12.5pt; font-weight: 700; line-height: 1.05; }
+  .spec .rotulo { font-size: 7.4pt; color: var(--tinta-suave); margin-top: 0.6mm; line-height: 1.2; }
+  .spec-nota { font-size: 7.4pt; color: var(--tinta-suave); margin: 0.9mm 0 0; text-align: right; }
+  .spec-nota .az { display: inline-block; width: 2.6mm; height: 2.6mm; vertical-align: -0.35mm; margin-right: 0.8mm;
+                   border: 0.35mm solid var(--brand); background: #f3f8ff; border-radius: 0.6mm; }
+  .spec-nota .br { display: inline-block; width: 2.6mm; height: 2.6mm; vertical-align: -0.35mm; margin: 0 0.8mm 0 2mm;
+                   border: 0.35mm solid var(--borda); background: #fff; border-radius: 0.6mm; }
+
+  /* ---------- faz / não faz ---------- */
+  .duas { display: grid; grid-template-columns: 1fr 1fr; gap: 3.2mm; }
+  .bloco { border-radius: var(--raio-sm); padding: 2.2mm 3mm 2.2mm; border: 0.3mm solid var(--borda); background: var(--superficie-2); }
+  .bloco.sim { background: #eef8eb; border-color: #bfe0b3; }
+  .bloco.nao { background: #fbefef; border-color: #ecc4c4; }
+  .bloco.branco { background: #fff; }
+  .bloco h3 { display: flex; align-items: center; gap: 1.6mm; }
+  .bloco.sim h3 { color: #2b6b1a; }
+  .bloco.nao h3 { color: #8a1717; }
+  .ic { width: 4.2mm; height: 4.2mm; flex: 0 0 auto; display: block; }
+
+  /* ---------- câmera e mesa ---------- */
+  .camera { display: grid; grid-template-columns: 74mm 1fr; gap: 4.4mm; align-items: start; }
+  .fig figcaption { font-size: 7.5pt; color: var(--tinta-suave); margin-top: 0.8mm; line-height: 1.25; }
+  .quadro { position: relative; width: 74mm; height: 41.6mm; background: #e9e1d2; border: 0.6mm solid var(--tinta);
+            border-radius: 1.2mm; overflow: hidden; }
+  .quadro .tag16 { position: absolute; right: 1.4mm; bottom: 1mm; font-size: 7pt; font-weight: 600; color: #6c5f49; }
+  /* Mesa em proporção A4 (48 × 34 mm), entre o monte (esquerda) e as cartas jogadas (direita), sem encostar nelas */
+  .q-mesa { position: absolute; left: 12.8mm; top: 3.2mm; width: 48mm; height: 34mm; background: #fff;
+            border-radius: 1mm; box-shadow: 0 0.3mm 0.8mm rgba(20,35,59,.25); }
+  .q-campo { position: absolute; top: 1.6mm; height: 8.4mm; border: 0.3mm solid var(--borda); border-radius: 0.8mm;
+             font-size: 7pt; color: var(--tinta-suave); padding: 0.3mm 1mm; line-height: 1.05; white-space: nowrap; }
+  .q-campo b { display: block; font-size: 10pt; color: var(--tinta); font-weight: 700; margin-top: 0.3mm; }
+  .q-campo.obj { left: 2.2mm; width: 14.6mm; border-color: #f0b27a; }
+  .q-campo.par { left: 18.4mm; width: 27.4mm; border-color: var(--brand); }
+  .q-esp { position: absolute; top: 11.6mm; height: 20.4mm; border: 0.35mm dashed; border-radius: 1mm;
+           display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.6mm; font-size: 7pt; font-weight: 600; }
+  .q-esp.op { left: 2.2mm; width: 20.6mm; border-color: #e08a2e; color: #8a4b00; background: #fff8ef; }
+  .q-esp.num { left: 25.2mm; width: 20.6mm; border-color: var(--brand); color: var(--brand-escuro); background: #f1f6fe; }
+  .q-esp .vazio { width: 10.2mm; height: 14.4mm; border: 0.3mm dashed #9db5d8; border-radius: 0.8mm; }
+  .q-monte { position: absolute; left: 1.3mm; top: 4mm; }
+  .q-monte svg + svg { margin-top: -14.2mm; margin-left: 0.7mm; }
+  .q-jog { position: absolute; right: 1.2mm; top: 4mm; }
+  .q-marc { position: absolute; left: 1.6mm; bottom: 2.4mm; }
+  .setup { display: block; margin-top: 2mm; }
+  .camera ul.lista-cam { font-size: 8.8pt; line-height: 1.32; margin: 0; padding-left: 4mm; }
+  .camera ul.lista-cam li { margin-bottom: 1.05mm; }
+  .gestos { display: grid; grid-template-columns: auto auto 1fr; gap: 0.5mm 1.6mm; margin: 0.8mm 0 0; align-items: baseline; }
+  .gestos .g { font-weight: 600; }
+  .gestos .s { color: var(--tinta-suave); }
+
+  /* ---------- pessoas / voz ---------- */
+  .passos-min { list-style: none; padding: 0; margin: 0; counter-reset: p; }
+  .passos-min > li { counter-increment: p; position: relative; padding-left: 5.4mm; margin-bottom: 0.9mm; }
+  .passos-min > li:last-child { margin-bottom: 0; }
+  .passos-min > li::before { content: counter(p); position: absolute; left: 0; top: 0.1mm; width: 3.9mm; height: 3.9mm; border-radius: 50%;
+                             background: var(--brand); color: #fff; font-size: 7.5pt; font-weight: 700; line-height: 3.9mm; text-align: center; }
+
+  /* ---------- antes de gravar ---------- */
+  .separar { display: flex; gap: 4mm; align-items: center; }
+  .mao { display: flex; flex-direction: column; gap: 0.8mm; flex: 0 0 auto; }
+  .mao .cartas { display: flex; gap: 1.2mm; }
+  .mao .rot { font-size: 8.5pt; color: var(--tinta-suave); }
+  .mao .rot b { color: var(--tinta); }
+  .separar .extra { flex: 1 1 auto; }
+
+  /* ---------- roteiro (tabela) ---------- */
+  .linha-conta { display: flex; align-items: center; justify-content: center; gap: 1.6mm; padding: 1.6mm 3mm;
+                 background: var(--fundo); border: 0.3mm solid var(--borda); border-radius: var(--raio-sm); margin-bottom: 1.8mm; }
+  .linha-conta .rot-l { font-size: 8pt; color: var(--tinta-suave); margin-right: 1.4mm; line-height: 1.25; max-width: 33mm; }
+  .linha-conta .rot-l b { color: var(--tinta); font-size: 9pt; display: block; }
+  .linha-conta .eq { font-size: 12pt; font-weight: 700; color: var(--tinta-suave); }
+  .linha-conta .res { font-size: 12pt; font-weight: 700; color: var(--brand); background: #fff; border: 0.3mm solid var(--borda);
+                      border-radius: var(--raio-sm); padding: 0.1mm 1.8mm; }
+  .linha-conta .res.fim { color: #fff; background: #2b7a17; border-color: #2b7a17; }
+  .linha-conta .mk { display: flex; flex-direction: column; align-items: center; gap: 0.4mm; font-size: 7pt; color: var(--tinta-suave); line-height: 1.1; }
+  .linha-conta .cel { display: flex; flex-direction: column; align-items: center; gap: 0.5mm; font-size: 7pt; color: var(--tinta-suave); line-height: 1.1; }
+
+  .legenda { display: flex; gap: 4.4mm; font-size: 7.5pt; color: var(--tinta-suave); margin: 0 0 1.6mm; align-items: center; justify-content: center; }
+  .legenda .amostra { display: inline-flex; align-items: center; gap: 1.1mm; white-space: nowrap; }
+
+  table.roteiro { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
+  table.roteiro col.c1 { width: 23mm; }
+  table.roteiro col.c2 { width: 63mm; }
+  table.roteiro th { background: var(--brand-escuro); color: #fff; font-size: 8.5pt; font-weight: 600; text-align: left; padding: 1.2mm 2mm; }
+  table.roteiro th:first-child { border-top-left-radius: var(--raio-sm); }
+  table.roteiro th:last-child { border-top-right-radius: var(--raio-sm); }
+  table.roteiro td { vertical-align: top; padding: 1.5mm 2mm 1.4mm; border-bottom: 0.3mm solid var(--borda); }
+  table.roteiro td.t { background: var(--superficie-2); border-left: 0.3mm solid var(--borda); }
+  table.roteiro td.f { font-size: 8.5pt; line-height: 1.28; border-left: 0.3mm solid var(--borda); }
+  table.roteiro td.n { font-size: 9.8pt; line-height: 1.36; border-left: 0.3mm solid var(--borda); border-right: 0.3mm solid var(--borda); }
+  table.roteiro td.f ul { margin: 0; padding-left: 3.4mm; }
+  table.roteiro td.f li { margin-bottom: 0.6mm; }
+  table.roteiro td.f li:last-child { margin-bottom: 0; }
+  table.roteiro tr.parte td { background: #fff3e3; border-left: 0.3mm solid var(--borda); border-right: 0.3mm solid var(--borda);
+                              padding: 1.1mm 2mm; font-size: 8.5pt; color: var(--acento-ink); font-weight: 600; }
+  table.roteiro tr.parte td span { color: var(--tinta-suave); font-weight: 400; }
+  table.roteiro tr.partida td.t { background: #fff8ef; }
+  table.roteiro tr.total td { background: var(--fundo); font-size: 8.5pt; padding: 1.6mm 2mm; border-left: 0.3mm solid var(--borda);
+                              border-right: 0.3mm solid var(--borda); }
+  table.roteiro tr:last-child td:first-child { border-bottom-left-radius: var(--raio-sm); }
+  table.roteiro tr:last-child td:last-child { border-bottom-right-radius: var(--raio-sm); }
+  .tempo { font-size: 10.5pt; font-weight: 700; color: var(--brand-escuro); line-height: 1.1; white-space: nowrap; }
+  .tempo small { font-size: 8.5pt; font-weight: 600; color: var(--tinta-suave); }
+  .bloco-nome { font-size: 8.5pt; font-weight: 600; margin-top: 0.8mm; line-height: 1.2; }
+  .dur-linha { display: flex; align-items: center; gap: 1.2mm; margin-top: 1mm; white-space: nowrap; }
+  .dur { display: inline-block; font-size: 7.5pt; font-weight: 600; background: #fff; border: 0.3mm solid var(--borda);
+         border-radius: 10mm; padding: 0.1mm 1.6mm; }
+  .est { font-size: 7pt; color: var(--tinta-suave); margin-top: 0.6mm; line-height: 1.2; }
+  .dur-linha .est { margin-top: 0; font-size: 7.5pt; }
+  .est.passou { color: var(--sub); font-weight: 600; }
+  .mini { display: flex; align-items: center; gap: 1.4mm; margin-top: 1.2mm; }
+  .mini .seta { font-size: 10pt; color: var(--tinta-suave); }
+
+  td.n p { margin: 0 0 1mm; }
+  td.n p:last-child { margin-bottom: 0; }
+  td.n b { font-weight: 600; color: var(--brand-escuro); }
+  .pausa { display: inline-block; vertical-align: 0.12em; margin: 0 0.5mm; width: 2.3mm; height: 2.3mm; border-radius: 50%;
+           border: 0.45mm solid var(--tinta-suave); }
+  .dialogo { display: block; margin: 0.4mm 0 1mm; padding: 0.8mm 2.2mm; background: #fff; border: 0.35mm solid var(--borda);
+             border-left: 1.2mm solid var(--acento); border-radius: var(--raio-sm); }
+  /* o nome de quem fala vem de data-quem (via CSS), para não entrar na contagem de palavras */
+  .dialogo[data-quem]::before { content: attr(data-quem); font-size: 7.5pt; font-weight: 600; color: var(--acento-ink);
+                                text-transform: uppercase; letter-spacing: 0.04em; margin-right: 1mm; }
+  .seu-nome { font-style: italic; color: var(--tinta-suave); border-bottom: 0.3mm dashed var(--tinta-suave); padding: 0 0.6mm; }
+  .amostra .dialogo { display: inline-block; margin: 0; padding: 0 1.4mm; font-size: 7.5pt; }
+  .dicas-voz { margin-top: 2.2mm; background: var(--superficie-2); border: 0.3mm solid var(--borda); border-radius: var(--raio-sm); padding: 2mm 3.2mm;
+               display: grid; grid-template-columns: auto 1fr; gap: 4mm; align-items: start; }
+  .dicas-voz h3 { margin: 0.2mm 0 0; white-space: nowrap; }
+  .dicas-voz ul { margin: 0; padding-left: 4mm; font-size: 8.8pt; line-height: 1.3; columns: 2; column-gap: 6mm; }
+  .dicas-voz li { margin-bottom: 0.8mm; break-inside: avoid; }
+
+  /* ---------- checklist e YouTube ---------- */
+  /* duas colunas independentes, em ordem: Antes → Na gravação | Na edição → Ao publicar */
+  .check { display: grid; grid-template-columns: 1fr 1fr; gap: 0 4mm; align-items: start; }
+  .check .grupo + .grupo { margin-top: 2mm; }
+  .check h3 { font-size: 9.2pt; margin-bottom: 0.6mm; }
+  .check ul { list-style: none; margin: 0; padding: 0; font-size: 8.5pt; line-height: 1.28; }
+  .check li { position: relative; padding-left: 4.8mm; margin-bottom: 0.6mm; }
+  .check li::before { content: ''; position: absolute; left: 0; top: 0.45mm; width: 2.8mm; height: 2.8mm;
+                      border: 0.35mm solid var(--tinta); border-radius: 0.6mm; background: #fff; }
+  .check code, .yt code { font-family: Consolas, 'Courier New', monospace; font-size: 7.8pt; background: var(--fundo); padding: 0 0.8mm; border-radius: 0.6mm; }
+  .campo-yt { border: 0.35mm solid var(--borda); border-radius: var(--raio-sm); background: #fff; padding: 1.6mm 2.6mm 1.8mm; margin-bottom: 1.8mm; }
+  .rot-yt { font-size: 7pt; color: var(--tinta-suave); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.6mm;
+            display: flex; justify-content: space-between; }
+  .titulo-yt { font-size: 10pt; font-weight: 600; }
+  .desc-yt { display: grid; grid-template-columns: 1fr 41mm; gap: 4mm; font-size: 8.5pt; line-height: 1.3; }
+  .links-yt { font-size: 8.5pt; line-height: 1.38; margin: 1.2mm 0 0; padding-top: 1.2mm; border-top: 0.3mm dashed var(--borda); }
+  .desc-yt p { margin: 0 0 1mm; }
+  .desc-yt p:last-child { margin: 0; }
+  .desc-yt .caps { margin: 0 0 1.2mm; }
+  .yt-config { display: flex; gap: 1.8mm; flex-wrap: wrap; font-size: 8pt; }
+  .yt-config span { background: var(--superficie-2); border: 0.3mm solid var(--borda); border-radius: 10mm; padding: 0.3mm 2.2mm; }
+</style>
+{% endblock %}
+
+{# ===================================================================== macros #}
+{% macro rodape(pag) %}
+<div class="rodape">
+  <span>Somatórios {{ cfg.versao }} · Roteiro do vídeo pitch{% if cfg.grupo %} · {{ cfg.grupo }}{% endif %}</span>
+  <span>Página {{ pag }}/3</span>
+</div>
+{% endmacro %}
+
+{% macro ic_sim() %}<svg class="ic" viewBox="0 0 10 10"><circle cx="5" cy="5" r="5" fill="#43a02a"/><path d="M2.7 5.2 L4.4 6.8 L7.4 3.4" fill="none" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>{% endmacro %}
+{% macro ic_nao() %}<svg class="ic" viewBox="0 0 10 10"><circle cx="5" cy="5" r="5" fill="#a51b1b"/><path d="M3.2 3.2 L6.8 6.8 M6.8 3.2 L3.2 6.8" fill="none" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/></svg>{% endmacro %}
+
+{# Uma linha do roteiro. Soma o tempo do bloco, as palavras e as pausas em ns.
+   Estimativa = palavras ÷ ritmo + 0,5 s por pausa, arredondada para cima.
+   Sem autores no config.json, a caixa PREENCHER conta como um nome de 2 palavras. #}
+{% macro linha(ns, t0, t1, seg, nome, filmar, fala, classe='') %}
+  {% set texto = fala|string %}
+  {% if ns.troca %}{% set texto = texto|replace(ns.troca, 'Nome Sobrenome') %}{% endif %}
+  {% set palavras = texto|striptags|wordcount %}
+  {% set pausas = texto.count('class="pausa"') %}
+  {% set est = (palavras / ns.ritmo + ns.s_pausa * pausas)|round(0, 'ceil')|int %}
+  {% set ns.seg = ns.seg + seg %}
+  {% set ns.palavras = ns.palavras + palavras %}
+  {% set ns.pausas = ns.pausas + pausas %}
+<tr class="{{ classe }}">
+  <td class="t">
+    <div class="tempo">{{ t0 }}<small>–{{ t1 }}</small></div>
+    <div class="bloco-nome">{{ nome }}</div>
+    <div class="dur-linha"><span class="dur">{{ seg }} s</span><span class="est{% if est > seg %} passou{% endif %}">≈ {{ est }} s</span></div>
+    <div class="est">{{ palavras }} palavras</div>
+  </td>
+  <td class="f">{{ filmar }}</td>
+  <td class="n">{{ fala }}</td>
+</tr>
+{% endmacro %}
+
+{% macro mmss(s) %}{{ s // 60 }}:{{ '%02d'|format(s % 60) }}{% endmacro %}
+
+{% block corpo %}
+{% set nomes_validos = cfg.autores|select|map('trim')|select|list %}
+{% set ns = namespace(seg=0, palavras=0, pausas=0, ritmo=2.5, s_pausa=0.5, troca=('' if nomes_validos else autores|string)) %}
+{% set grupo_falado = cfg.grupo|replace(' · ', ', da ') %}
+
+{# ============================================================ PÁGINA 1 #}
+<section class="pagina">
+  <header class="topo">
+    <div>
+      {{ logo(8.5) }}
+      <h1>Roteiro do vídeo pitch</h1>
+      <div class="sub">Área Catarse de Protótipos · Diversão Offline (DOFF) 2027</div>
+    </div>
+    <div class="lado">
+      <span class="etiqueta">1 · Especificação e preparo</span>
+      <span class="prazo">Inscrições até 24/11/2026</span>
+    </div>
+  </header>
+
+  <p class="intro">Junto com a folha de venda, o vídeo é a <strong>base da avaliação</strong>. Ele não é aula de regras nem propaganda:
+    mostra <strong>como é jogar</strong> e os <strong>pontos fortes</strong>, numa partida curta e de verdade. Roteiro completo nas páginas 2 e 3.</p>
+
+  <div class="spec">
+    <div class="item"><span class="valor">2:30–3:00</span><span class="rotulo">duração ideal</span></div>
+    <div class="item forte"><span class="valor">5:00</span><span class="rotulo">limite do regulamento:<br>só 5 min são vistos</span></div>
+    <div class="item forte"><span class="valor">16:9</span><span class="rotulo">YouTube, horizontal<br>pode ser não listado</span></div>
+    <div class="item"><span class="valor">1080p</span><span class="rotulo">resolução<br>30 quadros/s</span></div>
+    <div class="item forte"><span class="valor">Narrado</span><span class="rotulo">em português<br>fala e título</span></div>
+    <div class="item"><span class="valor">Sem música</span><span class="rotulo">texto na tela:<br>só o título</span></div>
+  </div>
+  <p class="spec-nota"><span class="az"></span>exigido pelo regulamento<span class="br"></span>recomendação</p>
+
+  <h2><span class="n">A</span>O que o vídeo faz e o que não faz</h2>
+  <div class="duas c85">
+    <div class="bloco sim">
+      <h3>{{ ic_sim() }}Mostre</h3>
+      <ul>
+        <li><strong>Como é jogar:</strong> uma partida curta, até a vitória.</li>
+        <li><strong>O giro da carta:</strong> <strong>em pé</strong> vale número; <strong>deitada</strong>, operador.</li>
+        <li><strong>A conversa à mesa</strong> e os <strong>3 pontos fortes</strong>.</li>
+      </ul>
+    </div>
+    <div class="bloco nao">
+      <h3>{{ ic_nao() }}Não faça</h3>
+      <ul>
+        <li><strong>Minúcias</strong> (divisão não exata, negativos, variantes).</li>
+        <li><strong>“Lenga-lenga”</strong> de venda: nada de “inovador”, “incrível”.</li>
+        <li><strong>Texto na tela:</strong> a curadoria não lê. No máximo, o título.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2><span class="n">B</span>Câmera, fundo e luz</h2>
+  <div class="camera">
+    <div>
+      <figure class="fig" style="margin:0">
+        <div class="quadro">
+          <div class="q-mesa">
+            <div class="q-campo obj">Objetivo<b>38</b></div>
+            <div class="q-campo par">Resultado parcial<b>36</b></div>
+            <div class="q-esp op">Operador{{ carta(6, 'soma', escala=0.164, deitada=True) }}</div>
+            <div class="q-esp num">Número<span class="vazio"></span></div>
+          </div>
+          <div class="q-monte">{{ verso(escala=0.164) }}{{ verso(escala=0.164) }}</div>
+          <div class="q-jog">{{ carta(4, 'soma', escala=0.164) }}</div>
+          <div class="q-marc">{{ marcador('frente', diametro=8.6) }}</div>
+          <span class="tag16">16:9</span>
+        </div>
+        <figcaption><strong>Vista de cima, antes da jogada 5:</strong> a Mesa ocupa quase toda a altura; nas laterais, monte de compra, cartas jogadas e marcador.</figcaption>
+      </figure>
+      <svg class="setup" viewBox="0 0 80 38" width="54mm" height="25.65mm" role="img" aria-label="celular fixo acima da mesa">
+        <rect x="2" y="6" width="10" height="12" rx="1" fill="#fff7e6" stroke="#e8b25c" stroke-width="0.45"/>
+        <line x1="7" y1="6" x2="7" y2="18" stroke="#e8b25c" stroke-width="0.35"/>
+        <line x1="2" y1="12" x2="12" y2="12" stroke="#e8b25c" stroke-width="0.35"/>
+        <path d="M13 8 L27 25 M13 12 L25 27 M13 16 L23 28.5" stroke="#e8b25c" stroke-width="0.45" stroke-dasharray="1.1 1" fill="none"/>
+        <text x="1.2" y="23.2" font-family="Fredoka, sans-serif" font-size="3.8" fill="#41506a">luz de</text>
+        <text x="1.2" y="27.4" font-family="Fredoka, sans-serif" font-size="3.8" fill="#41506a">lado</text>
+        <rect x="2" y="32.4" width="76" height="2.4" rx="0.6" fill="#cbbba3"/>
+        <line x1="8" y1="34.8" x2="8" y2="38" stroke="#b3a184" stroke-width="1.2"/>
+        <line x1="72" y1="34.8" x2="72" y2="38" stroke="#b3a184" stroke-width="1.2"/>
+        <rect x="24" y="31.7" width="30" height="0.7" fill="#fff" stroke="#9aa6bb" stroke-width="0.2"/>
+        <rect x="33" y="31.1" width="4" height="0.6" fill="#43a02a"/>
+        <rect x="41" y="31.1" width="4" height="0.6" fill="#1d3a80"/>
+        <line x1="66" y1="32.4" x2="66" y2="6" stroke="#41506a" stroke-width="0.9"/>
+        <line x1="66" y1="26" x2="61.5" y2="32.4" stroke="#41506a" stroke-width="0.7"/>
+        <line x1="66" y1="26" x2="70.5" y2="32.4" stroke="#41506a" stroke-width="0.7"/>
+        <line x1="66" y1="6" x2="39" y2="6" stroke="#41506a" stroke-width="0.9"/>
+        <rect x="32" y="6.5" width="14" height="1.9" rx="0.5" fill="#14233b"/>
+        <circle cx="39" cy="8.7" r="0.6" fill="#1457a8"/>
+        <polygon points="39,9.2 20,31.4 58,31.4" fill="#1457a8" fill-opacity="0.09" stroke="#1457a8" stroke-width="0.3" stroke-dasharray="1 0.8"/>
+        <line x1="39" y1="10.6" x2="39" y2="30.2" stroke="#14233b" stroke-width="0.3"/>
+        <path d="M37.9 12 L39 10.4 L40.1 12 M37.9 28.8 L39 30.4 L40.1 28.8" fill="none" stroke="#14233b" stroke-width="0.3"/>
+        <rect x="40" y="22.6" width="18.4" height="5" rx="0.8" fill="#fff" fill-opacity="0.9"/>
+        <text x="40.8" y="26.4" font-family="Fredoka, sans-serif" font-size="3.9" font-weight="600" fill="#14233b">35–45 cm</text>
+        <text x="52.5" y="3.9" font-family="Fredoka, sans-serif" font-size="3.8" fill="#41506a" text-anchor="middle">celular na horizontal</text>
+      </svg>
+    </div>
+    <div>
+      <ul class="lista-cam">
+        <li><strong>Câmera fixa, de cima:</strong> celular <strong>na horizontal</strong>, lente para baixo, a cerca de 35–45 cm da Mesa (tripé com braço ou suporte articulado). Suba ou desça o celular até a Mesa ocupar quase toda a altura do quadro.</li>
+        <li><strong>Trave foco e exposição</strong> (toque e segure na tela).</li>
+        <li><strong>Tampo ou toalha de cor neutra</strong> (cinza, bege, madeira clara). Evite verde, vermelho, azul e lilás: são as cores dos naipes.</li>
+        <li><strong>Papel fosco e luz de lado</strong> (janela). Luz forte de cima reflete nas cartas; capa plástica na Mesa também.</li>
+        <li><strong>Mãos sempre visíveis</strong>; nada no quadro além do jogo.</li>
+        <li><strong>Cartas legíveis:</strong> grave 10 s de teste e confira cada número na tela.</li>
+        <li><strong>Ao jogar,</strong> segure a carta parada no centro do quadro por 1 a 2 s. <span class="nao-regra">É assim que a câmera fixa “aponta” para a jogada.</span></li>
+        <li><strong>Câmera inteligente</strong> (alguém filmando com o celular na mão): combinem 3 gestos.
+          <div class="gestos">
+            <span class="g">dedo numa carta</span><span class="s">→</span><span>aproxime dela</span>
+            <span class="g">mão aberta na Mesa</span><span class="s">→</span><span>volte ao quadro geral</span>
+            <span class="g">polegar para cima</span><span class="s">→</span><span>pode cortar</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <h2><span class="n">C</span>Quem aparece, quem fala e como gravar</h2>
+  <div class="duas c85">
+    <div style="padding-top:0.6mm">
+      <ul>
+        <li><strong>Quem joga:</strong> 2 pessoas; só as <strong>mãos</strong> aparecem, nos papéis de <strong>Ana</strong> e <strong>Beto</strong> (exemplo do manual).</li>
+        <li><strong>Quem narra:</strong> 1 voz, lendo a coluna <em>Narração</em>.</li>
+        <li><strong>Rosto:</strong> recomendado na abertura (5–10 s), olhando para a lente, com o texto colado ao lado dela. <span class="nao-regra">Não conta ponto na curadoria, mas o vídeo vai para editoras: é seu cartão de visita.</span></li>
+        <li><strong>Ensaie 2 vezes</strong>, com cronômetro, antes de gravar valendo.</li>
+      </ul>
+    </div>
+    <div class="bloco branco">
+      <h3>Dica: grave a voz separada</h3>
+      <ol class="passos-min">
+        <li><strong>Voz primeiro:</strong> leia a narração num cômodo silencioso, com o celular a um palmo da boca.</li>
+        <li><strong>Imagem depois:</strong> grave a partida ouvindo a narração num fone, para seguir o ritmo.</li>
+        <li><strong>Junte as duas</strong> no <strong>123apps.com</strong>, que corta e junta vídeo e áudio no navegador.</li>
+      </ol>
+    </div>
+  </div>
+
+  <h2><span class="n">D</span>Antes de gravar: separe as cartas do exemplo</h2>
+  <div class="separar">
+    <div class="mao">
+      <div class="cartas">{% for v, n in [(9, 'divisao'), (6, 'soma'), (2, 'multiplicacao'), (7, 'subtracao')] %}{{ carta(v, n, escala=0.17) }}{% endfor %}</div>
+      <div class="rot"><b>Mão da Ana:</b> 9 + 6 + 2 + 7 = <b>24</b></div>
+    </div>
+    <div class="mao">
+      <div class="cartas">{% for v, n in [(3, 'multiplicacao'), (4, 'soma'), (5, 'divisao'), (2, 'subtracao')] %}{{ carta(v, n, escala=0.17) }}{% endfor %}</div>
+      <div class="rot"><b>Mão do Beto:</b> 3 + 4 + 5 + 2 = <b>14</b></div>
+    </div>
+    <div class="extra c85">
+      <ul>
+        <li>Baralho, de cima para baixo: <strong>as 4 cartas da Ana e, logo abaixo, as 4 do Beto</strong>. Na gravação, dê as 4 de cima à Ana e as 4 seguintes ao Beto.</li>
+        <li>Separe o <strong>8×</strong> para o giro; depois, ponha-o embaixo do baralho.</li>
+        <li>Deixe à mão: marcador, 2 cartas de ajuda <strong>Sua vez</strong>, Mesa, Folha de registro e caneta preta grossa.</li>
+      </ul>
+    </div>
+  </div>
+
+  {{ rodape(1) }}
+</section>
+
+{# ============================================================ textos do roteiro #}
+{% set f_abertura %}
+<ul>
+  <li>Rosto de quem narra (recomendado, 5–10 s) <strong>ou</strong> mãos segurando o baralho sobre a Mesa.</li>
+  <li><strong>Único texto na tela:</strong> o título <em>Somatórios</em>, nos primeiros 3 s.</li>
+</ul>
+{% endset %}
+{% set n_abertura %}
+<p>
+{# Uma só voz: com 1 autor, o nome dele (só nome e último sobrenome, para caber nos 15 s);
+   com vários, quem narra diz o próprio nome (os demais vão na descrição). #}
+{% if nomes_validos|length > 1 %}Olá, eu sou <span class="seu-nome">seu nome</span> e, {% if cfg.grupo %}com a {{ grupo_falado }}{% else %}com quem assina comigo{% endif %}, apresentamos <b>Somatórios</b>:
+{% elif nomes_validos %}{% set partes = nomes_validos[0].split() %}Olá, eu sou {{ (partes[0] ~ ' ' ~ partes[-1]) if partes|length > 2 else nomes_validos[0] }}{% if cfg.grupo %} e, com a {{ grupo_falado }}, apresentamos{% else %} e apresento{% endif %} <b>Somatórios</b>:
+{% else %}Olá, eu sou {{ autores }} e apresento <b>Somatórios</b>:
+{% endif %}
+um jogo <b>cooperativo</b> de cartas para 2 a 5 pessoas, de 10 a 20 minutos. <span class="pausa"></span>
+Todo mundo joga junto contra a conta.</p>
+{% endset %}
+
+{% set f_componentes %}
+<ul>
+  <li>Baralho em <strong>leque</strong> (2 s), <strong>sem embaralhar</strong>: as 8 do exemplo seguem por cima.</li>
+  <li>No centro, o <strong>8×</strong> em pé. Gire devagar e <strong>deite</strong>; aponte o sinal na faixa lateral. Depois, ponha o 8× embaixo do baralho.</li>
+  <li>Marcador, carta de ajuda <strong>Sua vez</strong>, Mesa e Folha de registro: 1 s cada.</li>
+</ul>
+<div class="mini">{{ carta(8, 'multiplicacao', escala=0.15) }}<span class="seta">→</span>{{ carta(8, 'multiplicacao', escala=0.15, deitada=True) }}</div>
+{% endset %}
+{% set n_componentes %}
+<p>São <b>36 cartas</b>, de 1 a 9, em quatro naipes: soma, subtração, multiplicação e divisão. <span class="pausa"></span>
+<b>Em pé</b>, a carta vale o número: este é um 8. <span class="pausa"></span>
+<b>Deitada</b>, vale o sinal do naipe: agora é “vezes”. Completam o jogo: marcador, cartas de ajuda, <b>Mesa</b> e Folha de registro.</p>
+{% endset %}
+
+{% set f_preparacao %}
+<ul>
+  <li>Dê <strong>4 cartas</strong> a cada pessoa: as 4 de cima para a Ana, as 4 seguintes para o Beto.</li>
+  <li>Cada pessoa espia a mão e a abre só para a <strong>câmera</strong>, 2 s: Ana&nbsp;9&nbsp;6&nbsp;2&nbsp;7 · Beto&nbsp;3&nbsp;4&nbsp;5&nbsp;2.</li>
+  <li>Anote <strong>38</strong> no campo Objetivo; o monte de compra fica ao lado da Mesa.</li>
+</ul>
+{% endset %}
+{% set n_preparacao %}
+<p>Cada pessoa recebe <b>4 cartas</b>, sem mostrar a ninguém. <span class="pausa"></span>
+Em silêncio, cada uma soma os números e diz <b>só o total</b>. Ana: 24. Beto: 14. <span class="pausa"></span>
+O <b>objetivo</b> é 38: um <b>somatório</b>! <span class="pausa"></span>
+Juntos, a gente precisa chegar <b>exatamente</b> a 38.</p>
+{% endset %}
+
+{% set f_j12 %}
+<ul>
+  <li><strong>Jogada 1:</strong> Ana pega o <strong>marcador</strong> e põe o <strong>9÷ em pé</strong> no espaço Número. Anote 9 em Resultado parcial; o 9 vai para Cartas jogadas. Ana compra.</li>
+  <li><strong>Jogada 2:</strong> Beto <strong>deita o 3×</strong> no espaço Operador e compra.</li>
+  <li>Ana passa o marcador para o Beto.</li>
+</ul>
+{% endset %}
+{% set n_j12 %}
+<p>Ana começa e pega o <b>marcador</b>. A primeira carta é sempre um número: o 9, <b>em pé</b>, é o primeiro <b>resultado parcial</b>. O naipe não importa. Ana compra. <span class="pausa"></span>
+Agora, um operador: Beto <b>deita</b> o 3, que vale “vezes”. O número não importa. Ele compra. <span class="pausa"></span>
+Os dois jogaram: fim da rodada. O marcador passa para a esquerda: para o Beto.</p>
+{% endset %}
+
+{% set f_j3 %}
+<ul>
+  <li>Beto deixa o marcador à vista.</li>
+  <li><strong>Jogada 3:</strong> Beto põe o <strong>4+ em pé</strong> no espaço Número.</li>
+  <li>Close: anote <strong>36</strong> (9 × 4); as duas cartas vão para Cartas jogadas. Beto compra.</li>
+</ul>
+{% endset %}
+{% set n_j3 %}
+<p>Beto fechou a rodada e abre a próxima: joga <b>duas vezes seguidas</b>. Está certo! <span class="pausa"></span>
+O marcador, usado só com <b>2 ou 4 pessoas</b>, faz cada pessoa alternar entre número e operador. <span class="pausa"></span>
+Beto põe o 4 em pé: 9 vezes 4, <b>36</b>.</p>
+{% endset %}
+
+{% set f_j45 %}
+<ul>
+  <li>Beto aponta para o Resultado parcial (a conversa).</li>
+  <li><strong>Jogada 4:</strong> Ana <strong>deita o 6+</strong> no espaço Operador e compra. Beto devolve o marcador a ela.</li>
+  <li><strong>Jogada 5:</strong> Ana põe o <strong>2× em pé</strong> no espaço Número. Anote <strong>38</strong> (36 + 2), ao lado do objetivo. Segure 2 s na comemoração: o <strong>encaixe exato</strong> é o momento mágico do jogo.</li>
+</ul>
+{% endset %}
+{% set n_j45 %}
+<p>Vale conversar sobre a conta:</p>
+<span class="dialogo" data-quem="Beto">“Faltam 2! Uma soma seria ótima.”</span>
+<p>Só não vale dizer nem mostrar as cartas da mão. <span class="pausa"></span>
+Ana <b>deita</b> o 6: “mais”. Fim da rodada: o marcador volta para ela. <span class="pausa"></span>
+Ana põe o 2 em pé: 36 mais 2… <b>38</b>! Todas as pessoas vencem!</p>
+{% endset %}
+
+{% set f_fim %}
+<ul>
+  <li>Close em <strong>38 = 38</strong> e um toque de mãos.</li>
+  <li>Mostre duas cartas <strong>deitadas</strong>: uma de − e uma de ÷.</li>
+  <li>Corte rápido, encenado: monte de compra vazio e mãos vazias.</li>
+</ul>
+{% endset %}
+{% set n_fim %}
+<p>Para vencer, o resultado parcial precisa ficar <b>exatamente igual</b> ao objetivo, logo depois de jogar um <b>número</b>. <span class="pausa"></span>
+Passou do objetivo? Dá para voltar com uma subtração ou uma divisão. <span class="pausa"></span>
+E, se o monte de compra e as mãos acabarem antes, todas as pessoas <b>perdem juntas</b>.</p>
+{% endset %}
+
+{% set f_fortes %}
+<ul>
+  <li>Plano geral: 3 ou 4 pessoas jogando (só mãos; com 3 pessoas, sem o marcador). Se tiver imagens do <strong>teste com outras pessoas</strong>, use aqui.</li>
+  <li>Close de uma carta sendo deitada.</li>
+  <li>Mãos conversando e apontando a Mesa.</li>
+</ul>
+{% endset %}
+{% set n_fortes %}
+<p>Três pontos para destacar. <span class="pausa"></span>
+Um: <b>ninguém joga sozinho</b>. Com três ou mais pessoas, quem deita o operador aposta no número de outra pessoa, sem ver a mão dela. <span class="pausa"></span>
+Dois: <b>uma carta, dois papéis</b>. Cada carta na mão é uma escolha: usar o número ou o operador. <span class="pausa"></span>
+Três: cada partida tem um <b>objetivo novo</b>, e a matemática vira <b>conversa</b>.</p>
+{% endset %}
+
+{% set f_encerramento %}
+<ul>
+  <li>Rosto de quem narra (opcional) <strong>ou</strong> cartas arrumadas, marcador no centro.</li>
+  <li>Sem créditos na tela. Termine com 2 s de imagem parada.</li>
+</ul>
+{% endset %}
+{% set n_encerramento %}
+<p>Agradecemos por assistir! <span class="pausa"></span>
+O <b>manual</b>, a folha de venda e o nosso <b>contato</b> estão na descrição do vídeo. <span class="pausa"></span>
+Até a próxima partida!</p>
+{% endset %}
+
+{# ============================================================ PÁGINA 2 #}
+<section class="pagina">
+  <div class="cab-min">
+    <div class="esq">{{ logo(5.4) }}<h1>Roteiro, tempo a tempo</h1></div>
+    <span class="etiqueta">2 · Abertura e partida</span>
+  </div>
+
+  <div class="linha-conta">
+    <div class="rot-l"><b>A partida do vídeo</b>2&nbsp;pessoas · objetivo&nbsp;38 · 5&nbsp;jogadas</div>
+    <div class="cel">{{ carta(9, 'divisao', escala=0.18) }}1 · Ana</div>
+    <div class="cel">{{ carta(3, 'multiplicacao', escala=0.18, deitada=True) }}2 · Beto</div>
+    <div class="mk">{{ marcador('frente', diametro=8.8) }}→ Beto</div>
+    <div class="cel">{{ carta(4, 'soma', escala=0.18) }}3 · Beto</div>
+    <span class="eq">=</span><span class="res">36</span>
+    <div class="cel">{{ carta(6, 'soma', escala=0.18, deitada=True) }}4 · Ana</div>
+    <div class="mk">{{ marcador('frente', diametro=8.8) }}→ Ana</div>
+    <div class="cel">{{ carta(2, 'multiplicacao', escala=0.18) }}5 · Ana</div>
+    <span class="eq">=</span><span class="res fim">38</span>
+  </div>
+
+  <div class="legenda">
+    <span class="amostra"><b style="color:var(--brand-escuro);font-weight:600">negrito</b> = dê ênfase</span>
+    <span class="amostra"><span class="pausa"></span> = pausa curta</span>
+    <span class="amostra"><span class="dialogo">fala</span> = fala de quem joga (pode ser a mesma voz)</span>
+    <span class="amostra"><span class="dur">20 s</span> ≈ 19 s = tempo do bloco e fala estimada</span>
+  </div>
+
+  <table class="roteiro">
+    <colgroup><col class="c1"><col class="c2"><col class="c3"></colgroup>
+    <thead><tr><th>Tempo</th><th>O que filmar</th><th>Narração (leia em voz alta)</th></tr></thead>
+    <tbody>
+      {{ linha(ns, '0:00', '0:15', 15, 'Abertura', f_abertura, n_abertura) }}
+      {{ linha(ns, '0:15', '0:35', 20, 'Componentes e o giro', f_componentes, n_componentes) }}
+      {{ linha(ns, '0:35', '0:55', 20, 'Preparação', f_preparacao, n_preparacao) }}
+      <tr class="parte"><td colspan="3">0:55–2:03 · Partida demonstrada <span>— exemplo do manual: Ana e Beto, objetivo 38. Após cada jogada, quem jogou compra 1 carta.</span></td></tr>
+      {{ linha(ns, '0:55', '1:20', 25, 'Jogadas 1 e 2', f_j12, n_j12, 'partida') }}
+      {{ linha(ns, '1:20', '1:40', 20, 'Jogada 3', f_j3, n_j3, 'partida') }}
+      {{ linha(ns, '1:40', '2:03', 23, 'Jogadas 4 e 5', f_j45, n_j45, 'partida') }}
+    </tbody>
+  </table>
+  <div class="dicas-voz">
+    <h3>Para narrar bem</h3>
+    <ul>
+      <li>Fale sem pressa, como numa conversa à mesa.</li>
+      <li>Diga os números devagar e com clareza: 24,&nbsp;14,&nbsp;<strong>38</strong>.</li>
+      <li>Errou? Pare, respire e repita a frase inteira.</li>
+      <li>Na abertura, diga só nome e um sobrenome; os demais autores vão na descrição.</li>
+    </ul>
+  </div>
+
+  {{ rodape(2) }}
+</section>
+
+{# ============================================================ PÁGINA 3 #}
+<section class="pagina">
+  <div class="cab-min">
+    <div class="esq">{{ logo(5.4) }}<h1>Roteiro, tempo a tempo <small>(continuação)</small></h1></div>
+    <span class="etiqueta">3 · Fechamento e publicação</span>
+  </div>
+
+  <table class="roteiro">
+    <colgroup><col class="c1"><col class="c2"><col class="c3"></colgroup>
+    <thead><tr><th>Tempo</th><th>O que filmar</th><th>Narração (leia em voz alta)</th></tr></thead>
+    <tbody>
+      {{ linha(ns, '2:03', '2:23', 20, 'Fim de jogo', f_fim, n_fim) }}
+      {{ linha(ns, '2:23', '2:48', 25, 'Pontos fortes', f_fortes, n_fortes) }}
+      {{ linha(ns, '2:48', '3:00', 12, 'Encerramento', f_encerramento, n_encerramento) }}
+      <tr class="total"><td colspan="3"><strong>Soma dos blocos: {{ mmss(ns.seg) }}</strong> ({{ ns.seg }} s) · fala estimada ≈ {{ mmss((ns.palavras / ns.ritmo + ns.s_pausa * ns.pausas)|round(0, 'ceil')|int) }} ({{ ns.palavras }} palavras a 2,5 por segundo e {{ ns.pausas }} pausas de 0,5 s); o resto é gesto. Passou de 3:00? Encurte primeiro as pausas; depois, a explicação do marcador (Jogada 3). <strong>Nunca passe de 5:00.</strong></td></tr>
+    </tbody>
+  </table>
+
+  <h2><span class="n">E</span>Checklist de gravação e edição</h2>
+  <div class="check">
+    <div>
+      <div class="grupo">
+        <h3>Antes</h3>
+        <ul>
+          <li>Baralho com as 4 cartas da Ana por cima e, logo abaixo, as 4 do Beto; o 8× separado.</li>
+          <li>Duração da partida (10–20 min) confirmada no playtest.</li>
+          <li>Celular: modo avião, bateria, espaço livre, lente limpa, 1080p na horizontal.</li>
+          <li>Teste de 10 s: cartas e Mesa legíveis, sem reflexo, sem sombra; ouça a voz no fone.</li>
+          <li>Roteiro ensaiado 2 vezes, com cronômetro.</li>
+        </ul>
+      </div>
+      <div class="grupo">
+        <h3>Na gravação</h3>
+        <ul>
+          <li>3 s de imagem parada no início e no fim de cada tomada (facilita o corte).</li>
+          <li>Cada carta jogada fica parada 1 a 2 s no centro do quadro.</li>
+          <li>Com a caneta preta, anote cada resultado parcial em números grandes, riscando o anterior: 9, 36, 38.</li>
+          <li>Se aparecer criança, só as mãos, e com autorização de quem é responsável.</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="grupo">
+        <h3>Na edição</h3>
+        <ul>
+          <li>Duração final entre <strong>2:30 e 3:00</strong> (nunca passe de 5:00).</li>
+          <li>Sem texto na tela além do título; sem música.</li>
+          <li>Closes (36; 38 = 38): com câmera fixa, amplie na edição.</li>
+          <li>Ouça sem olhar: dá para entender só pela voz? Cada número dito bate com a carta na tela?</li>
+          <li>Voz alta e clara no celular e no notebook; chiado ou ventilador? Use a redução de ruído do 123apps.</li>
+        </ul>
+      </div>
+      <div class="grupo">
+        <h3>Ao publicar</h3>
+        <ul>
+          <li>YouTube, vídeo comum horizontal (não Shorts), público ou “não listado”; marque “não é conteúdo para crianças” (o vídeo é para editoras). Teste o link numa janela anônima.</li>
+          <li>Cole o link no formulário e em <code>config.json</code> → <code>"url_video"</code>; o do PDF de inscrição hospedado vai em <code>"url_manual"</code>. Rode <code>python gerar_kit.py</code> para refazer os QR (folha de venda, manual e guia) e o PDF de inscrição. Só então envie esse PDF no formulário e confira se o QR abre o vídeo.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h2><span class="n">F</span>Modelo de título e descrição no YouTube</h2>
+  <div class="campo-yt">
+    <div class="rot-yt"><span>Título</span><span>até 100 caracteres</span></div>
+    <div class="titulo-yt">Somatórios · jogo cooperativo de cartas e cálculo mental · 2 a 5 pessoas · apresentação do protótipo</div>
+  </div>
+  <div class="campo-yt">
+    <div class="rot-yt"><span>Descrição</span><span>ajuste os capítulos aos tempos reais do vídeo</span></div>
+    <div class="desc-yt">
+      <div>
+        <p>Somatórios é um jogo cooperativo de cartas e cálculo mental para 2 a 5 pessoas, de 10 a 20 minutos, a partir de 8 anos (6+ com um adulto, na variante Iniciante). Para quem gosta de Hanabi, The Mind e Regicide. Partida rápida, boa para abrir ou fechar uma noite de jogos.</p>
+        <p>Cada pessoa soma a própria mão em silêncio e diz só o total: a soma dos totais é o objetivo. Juntos, vocês montam uma conta, carta por carta, até o resultado parcial ficar exatamente igual ao objetivo. Em pé, a carta vale o número; deitada, vale o sinal do naipe (+ − × ÷).</p>
+        <p>Componentes: 36 cartas, 1 marcador Início da rodada, 5 cartas de ajuda Sua vez, 1 Mesa (A4) e bloco Folha de registro.</p>
+      </div>
+      <div>
+        <p class="caps">0:00 Abertura<br>0:15 Componentes e o giro<br>0:35 Preparação<br>0:55 Partida<br>2:03 Fim de jogo<br>2:23 Pontos fortes<br>2:48 Encerramento</p>
+      </div>
+    </div>
+    <p class="links-yt">Manual e folha de venda (PDF): {{ v('url_manual', 'link do manual') }}<br>
+      Autoria: {{ autores }}{% if cfg.grupo %} · {{ cfg.grupo }}{% endif %}<br>
+      Contato: {{ v('contato_email', 'e-mail') }}{% if cfg.contato_instagram %} · {{ cfg.contato_instagram }}{% endif %}{% if cfg.contato_telefone %} · {{ cfg.contato_telefone }}{% endif %}<br>
+      Protótipo {{ cfg.versao }} · Área Catarse de Protótipos, Diversão Offline 2027</p>
+  </div>
+
+  {{ rodape(3) }}
+</section>
+{% endblock %}

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Somatórios · cartas individuais (para PNG)</title>
+  <link rel="stylesheet" href="../estilo.css">
+  <style>
+    @page carta { size: 63mm 88mm; margin: 0; }
+    @page marcador { size: 64mm 64mm; margin: 0; }
+    @page { size: 63mm 88mm; margin: 0; }
+    .pg { break-after: page; overflow: hidden; }
+    .pg:last-child { break-after: auto; }
+    .pg-carta { page: carta; width: 63mm; height: 88mm; }
+    .pg-marcador { page: marcador; width: 64mm; height: 64mm; }
+  </style>
+</head>
+<body>
+{% for n, valor in todas_as_cartas() %}
+  <div class="pg pg-carta">{{ carta(valor, n, economica=economica) }}</div>
+{% endfor %}
+  <div class="pg pg-carta">{{ verso() }}</div>
+  <div class="pg pg-marcador">{{ marcador('frente') }}</div>
+  <div class="pg pg-marcador">{{ marcador('verso') }}</div>
+</body>
+</html>

@@ -1,0 +1,512 @@
+{% extends "_base.html" %}
+{#
+  Mesa e Folha de registro — 3 páginas
+    p1  Mesa (A4 paisagem, página nomeada)  — equivalente físico da BarraStatus + Tableau do app
+    p2  Folha de registro (A4 retrato)      — uma linha por número jogado (máx. 18)
+    p3  Placar da turma (A4 retrato)        — variante Desafio do placar
+  Medidas da p1 em mm, posicionadas de forma absoluta: os espaços Operador (88 × 63)
+  e Número (63 × 88) têm o tamanho EXATO da carta.
+  Anotação: na Mesa, o número só é escrito em Resultado parcial (topo). Os painéis
+  "Resultado parcial anterior" e "Novo resultado parcial" do centro são guias, sem
+  espaço para escrever; a conta completa vai para a Folha de registro (p2).
+#}
+{% block head %}
+<style>
+  @page paisagem { size: A4 landscape; margin: 0; }
+  .pg-paisagem { page: paisagem; }
+
+  /* ================================================== P1 · MESA (paisagem) */
+  .p1 .abs { position: absolute; }
+  .p1-marca { left: 9mm; top: 9mm; width: 50mm; height: 37mm; display: flex; flex-direction: column; justify-content: space-between; }
+  .p1-marca h1 { font-size: 25pt; color: var(--brand-escuro); margin-top: 1.2mm; }
+  .p1-marca .sub { font-size: 8.5pt; line-height: 1.25; color: var(--tinta-suave); }
+
+  .status { top: 9mm; height: 37mm; background: #fff; border: 0.5mm solid var(--tinta); border-radius: 3mm;
+            padding: 2mm 3mm 1.8mm; display: flex; flex-direction: column; }
+  .status .rot { display: flex; align-items: center; gap: 1.6mm; font-size: 11pt; font-weight: 700;
+                 letter-spacing: 0.05em; text-transform: uppercase; line-height: 1; }
+  .status .rot svg { flex: none; }
+  .status .area { flex: 1; position: relative; }
+  .status .linha-base { position: absolute; left: 1mm; right: 1mm; bottom: 1.4mm; border-bottom: 0.3mm dashed #b8c4d8; }
+  .status .nota { font-size: 8pt; color: var(--tinta-suave); line-height: 1.2; }
+  .st-objetivo { left: 64mm; width: 62mm; }
+  .st-objetivo .rot { color: var(--acento-ink); }
+  .st-parcial { left: 131mm; width: 84mm; border: 0.9mm solid var(--brand); }
+  .st-parcial .rot { color: var(--brand); }
+  .st-faltam { left: 220mm; width: 68mm; }
+  .st-faltam .metades { flex: 1; display: grid; grid-template-columns: 1fr 1fr; }
+  .st-faltam .metade { display: flex; flex-direction: column; }
+  .st-faltam .metade:first-child { padding-right: 2.4mm; }
+  .st-faltam .metade + .metade { border-left: 0.35mm solid #b8c4d8; padding-left: 2.4mm; }
+  .st-faltam .rot { gap: 1.4mm; min-height: 5.6mm; }
+  .st-faltam .nota svg.chip { vertical-align: -0.3em; }
+
+  .titulo-conta { left: 26mm; top: 50mm; width: 124mm; }
+  .titulo-conta .t { font-size: 10.5pt; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--tinta); }
+  .titulo-conta .s { font-size: 8.5pt; color: var(--tinta-suave); margin-top: 0.6mm; }
+
+  .rotulo-esp { font-size: 9pt; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; line-height: 1;
+                text-align: center; white-space: nowrap; }
+  .rotulo-esp span { font-weight: 500; text-transform: none; letter-spacing: 0; color: var(--tinta-suave); }
+  .r-brand { color: var(--brand); }
+  .r-op { color: var(--acento-ink); }
+
+  .esp { position: relative; }
+  .esp > svg { position: absolute; left: 0; top: 0; display: block; }
+  .esp-in { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; line-height: 1.1; }
+  .esp-in .g { font-size: 22pt; font-weight: 700; letter-spacing: 0.06em; }
+  .esp-in .m { font-size: 13pt; font-weight: 600; margin-top: 0.6mm; }
+  .esp-in .p { font-size: 9pt; font-weight: 500; line-height: 1.25; }
+  .esp-operador .g { color: #b9650a; }
+  .esp-operador .m, .esp-operador .p { color: var(--acento-ink); }
+  .esp-operador .chips-esp { display: flex; gap: 3.4mm; margin: 3.4mm 0 3.2mm; }
+  .esp-numero .g { color: var(--brand); }
+  .esp-numero .m, .esp-numero .p { color: var(--brand-escuro); }
+  .esp-numero .faixa-num { font-size: 38pt; font-weight: 700; color: #9fb6d8; margin: 5mm 0 4mm; line-height: 1; }
+
+  /* painéis-guia do centro: NÃO são para escrever (o número fica só em Resultado parcial) */
+  .guia { background: var(--superficie-2); border: 0.4mm dashed #9aa6bb; border-radius: 2.5mm;
+          display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.2mm;
+          text-align: center; padding: 1.5mm 1.2mm; color: var(--tinta-suave); }
+  .guia .gs { font-size: 8.5pt; line-height: 1.22; }
+  .guia .gs strong { color: var(--brand-escuro); }
+  .guia .gp { font-size: 8pt; font-style: italic; line-height: 1.2; }
+  .guia .gt { font-size: 10.5pt; font-weight: 700; color: var(--brand); line-height: 1.1; }
+  .guia-novo { border-color: var(--brand); background: #eef4fc; }
+  .igual { font-size: 30pt; font-weight: 700; color: var(--tinta-suave); text-align: center; line-height: 1; }
+  .conversa { left: 26mm; top: 137mm; width: 128mm; font-size: 9pt; line-height: 1.25; color: var(--tinta); }
+  .conversa strong { color: var(--brand-escuro); }
+  .vitoria { background: #e7f6e3; border: 0.3mm solid #b9e0ad; border-radius: 2mm; color: #1f5a12;
+             font-size: 8.5pt; font-weight: 600; text-align: center; line-height: 1.2; padding: 1mm 1.2mm; }
+
+  .aba { top: 58mm; width: 14mm; height: 88mm; border: 0.35mm dashed #9aa6bb; border-radius: 2.5mm;
+         background: var(--superficie-2); display: flex; flex-direction: column; align-items: center;
+         justify-content: space-between; padding: 2.4mm 0; }
+  .aba .vert { writing-mode: vertical-rl; font-size: 10pt; font-weight: 700; letter-spacing: 0.06em;
+               text-transform: uppercase; color: var(--tinta); white-space: nowrap; line-height: 1.05; }
+  .aba .vert small { display: block; font-size: 7.5pt; font-weight: 500; letter-spacing: 0; text-transform: none;
+                     color: var(--tinta-suave); margin-left: 0.8mm; }
+  .aba.esq .vert { transform: rotate(180deg); }
+
+  .lembretes { left: 9mm; top: 150mm; width: 279mm; height: 30mm; display: grid;
+               grid-template-columns: repeat(4, 1fr); gap: 4mm; }
+  .lembrete { background: var(--superficie-2); border: 0.3mm solid var(--borda); border-radius: 2.5mm;
+              padding: 2mm 2.6mm; display: flex; align-items: center; gap: 2.6mm; overflow: hidden; }
+  .lembrete .ic { flex: none; min-width: 13mm; display: flex; align-items: center; justify-content: center; gap: 1mm; }
+  .lembrete .tx { font-size: 9pt; line-height: 1.24; }
+  .lembrete .tx strong { display: block; font-size: 9.5pt; margin-bottom: 0.4mm; }
+  .lembrete .ex { color: var(--tinta-suave); white-space: nowrap; }
+  .lembrete .fim-monte { display: block; margin-top: 0.6mm; }
+
+  .p1-pe { left: 9mm; top: 184mm; width: 279mm; height: 17mm; display: flex; align-items: center;
+           justify-content: space-between; gap: 5mm; }
+  .p1-pe .dica { font-size: 9pt; padding: 1.8mm 3mm; }
+  .regua { display: flex; flex-direction: column; align-items: center; font-size: 8pt; color: var(--tinta-suave);
+           white-space: nowrap; flex: none; text-align: center; line-height: 1.25; }
+  .regua .barra { width: 50mm; height: 2.2mm; border: 0.3mm solid var(--tinta); border-top: none; margin-bottom: 0.6mm; }
+  .p1-pe .ident { font-size: 7.5pt; color: var(--tinta-suave); text-align: right; line-height: 1.3; flex: none; }
+
+  /* ================================================== P2/P3 · retrato */
+  .cab-doc { display: flex; align-items: flex-end; justify-content: space-between; gap: 6mm;
+             border-bottom: 0.6mm solid var(--brand); padding-bottom: 2.2mm; }
+  .cab-doc h1 { font-size: 22pt; color: var(--brand-escuro); }
+  .cab-doc .sub { font-size: 9pt; line-height: 1.3; color: var(--tinta-suave); margin-top: 0.8mm; }
+  .cab-doc .marca { flex: none; padding-bottom: 1mm; display: flex; flex-direction: column; align-items: flex-end; }
+  .cab-doc .copias { font-size: 7.5pt; line-height: 1.25; text-align: right; margin-top: 1.4mm; }
+
+  .campos { display: grid; grid-template-columns: 34mm 1fr 1fr 62mm; column-gap: 4mm; row-gap: 2.6mm;
+            margin-top: 3.5mm; font-size: 9pt; }
+  .campo-r.desafio .lbl { font-weight: 500; }
+  .campo-r.desafio .var { font-weight: 700; color: var(--acento-ink); }
+  .campo-r.desafio .dica-c { white-space: normal; line-height: 1.15; }
+  .campo-r { display: flex; align-items: flex-end; gap: 1.6mm; white-space: nowrap; }
+  .campo-r .lbl { font-weight: 600; padding-bottom: 0.6mm; }
+  .campo-r .ln { flex: 1; border-bottom: 0.35mm solid var(--tinta-suave); height: 6.4mm; min-width: 8mm; }
+  .campo-r .opc { display: flex; gap: 1.4mm; padding-bottom: 0.4mm; }
+  .campo-r .opc span { border: 0.3mm solid var(--tinta-suave); border-radius: 3mm; padding: 0.2mm 1.8mm 0; font-weight: 500; }
+  .campo-r .dica-c { font-size: 7.5pt; color: var(--tinta-suave); font-style: italic; padding-bottom: 0.8mm; }
+  .span2 { grid-column: span 2; }
+  .span3 { grid-column: span 3; }
+  .span4 { grid-column: span 4; }
+
+  table.registro { width: 100%; border-collapse: collapse; margin-top: 3.6mm; table-layout: fixed; }
+  table.registro th { background: var(--fundo); font-size: 8.5pt; font-weight: 600; line-height: 1.12;
+                      border: 0.3mm solid var(--borda); padding: 1.2mm 1mm; text-align: center; vertical-align: middle; }
+  table.registro th small { display: block; font-size: 7pt; font-weight: 500; color: var(--tinta-suave); }
+  table.registro td { border: 0.3mm solid var(--borda); height: 7.75mm; padding: 0 1mm; text-align: center; vertical-align: middle; }
+  table.registro td.n { font-size: 8.5pt; font-weight: 600; color: var(--tinta-suave); background: var(--superficie-2); }
+  table.registro td.ops { white-space: nowrap; }
+  table.registro td.ops svg { margin: 0 1.2mm; vertical-align: middle; }
+  table.registro td.cinza { background: #f1f3f7; color: #5b6880; font-size: 7.5pt; font-style: italic; }
+  table.registro td.igual-c { position: relative; }
+  table.registro td.igual-c::before { content: '='; position: absolute; left: 1.4mm; top: 50%; transform: translateY(-52%);
+                                      font-weight: 700; color: #9aa6bb; font-size: 10pt; }
+  table.registro tr.primeira td { background: #f7f9fc; }
+  table.registro th.th-res { background: #e7f0fb; color: var(--brand-escuro); }
+
+  .fecho { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin-top: 3.6mm; }
+  .fecho .caixa { padding: 2.6mm 3.2mm; }
+  .fecho h3 { margin: 0 0 1.8mm; font-size: 10.5pt; color: var(--brand-escuro); }
+  .tally { display: flex; align-items: center; gap: 2mm; margin-bottom: 1.5mm; font-size: 9pt; }
+  .tally .nome { width: 25mm; }
+  .tally .cx { flex: 1; height: 6.6mm; background: #fff; border: 0.3mm solid var(--borda); border-radius: 1.5mm; }
+  .pergunta { font-size: 9pt; font-weight: 600; margin-top: 2.4mm; display: flex; align-items: center; gap: 2.2mm; flex-wrap: wrap; }
+  .pergunta .chips svg { margin-right: 1.4mm; }
+  .rostos { display: flex; justify-content: space-around; align-items: flex-start; margin: 0.6mm 0 1.2mm; }
+  .rosto { display: flex; flex-direction: column; align-items: center; gap: 0.8mm; font-size: 8.5pt; text-align: center; width: 28mm; white-space: nowrap; }
+  .linhas-escrever .l { border-bottom: 0.35mm solid var(--borda); height: 8.5mm; }
+  .peq-it { font-size: 8pt; }
+
+  /* placar */
+  .regra-linha { margin-top: 4mm; font-size: 12pt; font-weight: 600; padding: 3.2mm 4.5mm; }
+  .regra-linha .s2 { display: block; font-size: 9.5pt; font-weight: 400; opacity: 0.95; margin-top: 0.6mm; }
+  .recorde { margin-top: 4mm; border: 0.6mm solid var(--acento); border-radius: var(--raio); background: #fffaf3;
+             padding: 3mm 3.6mm 2.6mm; }
+  .recorde .topo { display: flex; align-items: center; gap: 2.4mm; margin-bottom: 2.2mm; }
+  .recorde h2 { margin: 0; font-size: 14pt; color: var(--acento-ink); }
+  .recorde .topo .nao-regra { font-size: 8.5pt; margin-left: auto; text-align: right; line-height: 1.2; max-width: 92mm; }
+  .rec-grade { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; }
+  .rec { background: #fff; border: 0.35mm solid var(--aviso-borda); border-radius: var(--raio-sm); padding: 1.8mm 2.4mm 2mm; }
+  .rec .np { font-size: 9.5pt; font-weight: 700; color: var(--acento-ink); text-align: center; }
+  .rec .np small { display: block; font-size: 7.5pt; font-weight: 500; color: var(--tinta-suave); }
+  .rec .pts { height: 12mm; border: 0.45mm solid var(--tinta); border-radius: 2mm; margin: 1.4mm 0 1.2mm; position: relative; }
+  .rec .pts span { position: absolute; right: 1.4mm; bottom: 0.6mm; font-size: 7pt; color: var(--tinta-suave); }
+  .rec .lin { display: flex; align-items: flex-end; gap: 1.2mm; font-size: 7.5pt; color: var(--tinta-suave); margin-top: 1mm; }
+  .rec .lin i { flex: 1; border-bottom: 0.3mm solid var(--tinta-suave); height: 4.6mm; font-style: normal; }
+
+  table.placar { width: 100%; border-collapse: collapse; margin-top: 4mm; table-layout: fixed; }
+  table.placar th { background: var(--fundo); font-size: 9pt; font-weight: 600; border: 0.3mm solid var(--borda);
+                    padding: 1.4mm 1.2mm; text-align: center; line-height: 1.12; }
+  table.placar th small { display: block; font-size: 7pt; font-weight: 500; color: var(--tinta-suave); }
+  table.placar td { border: 0.3mm solid var(--borda); height: 8.4mm; text-align: center; vertical-align: middle; font-size: 8.5pt; }
+  table.placar td.sn { color: var(--tinta-suave); }
+  table.placar td.sn span { border: 0.3mm solid #b8c4d8; border-radius: 3mm; padding: 0.1mm 1.8mm 0; margin: 0 0.6mm; }
+  table.placar th.th-pts { background: #fff1e0; color: var(--acento-ink); }
+  .placar-notas { margin-top: 3.6mm; font-size: 9pt; line-height: 1.3; }
+  .placar-notas p { margin: 0 0 1mm; }
+  .placar-notas p:last-child { margin-bottom: 0; }
+</style>
+{% endblock %}
+
+{# ---------------------------------------------------------------- ícones
+   redondos de propósito: os chips de naipe são quadrados arredondados #}
+{% macro ic_sigma(t=6) %}<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" width="{{ t }}mm" height="{{ t }}mm" aria-hidden="true"><circle cx="5" cy="5" r="5" fill="#ff7a00"/><path d="M7.2 2.4 H2.8 L5.6 5 L2.8 7.6 H7.2" fill="none" stroke="#fff" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round"/></svg>{% endmacro %}
+{% macro ic_igual(t=6) %}<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" width="{{ t }}mm" height="{{ t }}mm" aria-hidden="true"><circle cx="5" cy="5" r="5" fill="#1457a8"/><rect x="2.4" y="3.2" width="5.2" height="1.15" rx="0.55" fill="#fff"/><rect x="2.4" y="5.65" width="5.2" height="1.15" rx="0.55" fill="#fff"/></svg>{% endmacro %}
+{% macro ic_dif(t=6) %}<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" width="{{ t }}mm" height="{{ t }}mm" aria-hidden="true"><circle cx="5" cy="5" r="5" fill="#41506a"/><path d="M3.4 4.2 L5 2.4 L6.6 4.2 M3.4 5.8 L5 7.6 L6.6 5.8" fill="none" stroke="#fff" stroke-width="1.05" stroke-linecap="round" stroke-linejoin="round"/></svg>{% endmacro %}
+{% macro seta(dir='esq', t=7) %}<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" width="{{ t }}mm" height="{{ t }}mm" aria-hidden="true"><g transform="{% if dir == 'dir' %}rotate(180 5 5){% endif %}"><path d="M8.2 5 H2.4 M5.2 2 L2.2 5 L5.2 8" fill="none" stroke="#41506a" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></g></svg>{% endmacro %}
+{% macro seta_cima(t=2.8) %}<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" width="{{ t }}mm" height="{{ t }}mm" style="vertical-align: -0.12em" aria-hidden="true"><path d="M5 9 V1.6 M1.8 4.6 L5 1.4 L8.2 4.6" fill="none" stroke="#41506a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>{% endmacro %}
+{% macro rosto(tipo, t=12) %}<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="{{ t }}mm" height="{{ t }}mm" role="img" aria-label="rosto {{ tipo }}"><circle cx="10" cy="10" r="8.9" fill="#fff" stroke="#14233b" stroke-width="0.9"/><circle cx="7" cy="8" r="1.15" fill="#14233b"/><circle cx="13" cy="8" r="1.15" fill="#14233b"/>{% if tipo == 'feliz' %}<path d="M6 12 Q10 16.2 14 12" fill="none" stroke="#14233b" stroke-width="1" stroke-linecap="round"/>{% elif tipo == 'neutro' %}<path d="M6.6 13.3 H13.4" fill="none" stroke="#14233b" stroke-width="1" stroke-linecap="round"/>{% else %}<path d="M6 14.6 Q10 10.8 14 14.6" fill="none" stroke="#14233b" stroke-width="1" stroke-linecap="round"/>{% endif %}</svg>{% endmacro %}
+{% macro estrela(t=8) %}<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="{{ t }}mm" height="{{ t }}mm" aria-hidden="true"><path d="M10 1.6 L12.5 7 L18.3 7.5 L13.9 11.4 L15.2 17.2 L10 14.2 L4.8 17.2 L6.1 11.4 L1.7 7.5 L7.5 7 Z" fill="#ff7a00" stroke="#8a3d00" stroke-width="0.8" stroke-linejoin="round"/></svg>{% endmacro %}
+
+{# espaço de carta: contorno tracejado com a borda EXTERNA exatamente w × h mm #}
+{% macro espaco_carta(w, h, tipo) %}
+{% set sw = 0.6 %}
+{% set traco = '#d27a10' if tipo == 'operador' else '#1457a8' %}
+{% set fundo = '#fff6ea' if tipo == 'operador' else '#eef4fc' %}
+<div class="esp esp-{{ tipo }}" style="width: {{ w }}mm; height: {{ h }}mm">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {{ w }} {{ h }}" width="{{ w }}mm" height="{{ h }}mm" role="img" aria-label="espaço {{ tipo }}"><rect x="{{ sw/2 }}" y="{{ sw/2 }}" width="{{ w - sw }}" height="{{ h - sw }}" rx="3.5" fill="{{ fundo }}" stroke="{{ traco }}" stroke-width="{{ sw }}" stroke-dasharray="2.6 1.6"/></svg>
+  <div class="esp-in">
+  {% if tipo == 'operador' %}
+    <div class="g">OPERADOR</div>
+    <div class="m">carta deitada</div>
+    <div class="chips-esp">{% for n in ORDEM_NAIPES %}{{ chip(n, 9) }}{% endfor %}</div>
+    <div class="p">vale o sinal do naipe<br>(o número não importa)<br>deite para qualquer lado</div>
+  {% else %}
+    <div class="g">NÚMERO</div>
+    <div class="m">carta em pé</div>
+    <div class="faixa-num">1 a 9</div>
+    <div class="p">vale o número<br>(o naipe não importa)</div>
+  {% endif %}
+  </div>
+</div>
+{% endmacro %}
+
+{% macro rodape_doc(nome, pag) %}
+<div class="rodape">
+  <span>Somatórios {{ cfg.versao }} · {{ nome }}{% if cfg.grupo %} · {{ cfg.grupo }}{% endif %}</span>
+  <span>Página {{ pag }}/3</span>
+</div>
+{% endmacro %}
+
+{% block corpo %}
+{# ======================================================================
+   PÁGINA 1 — MESA (A4 paisagem)
+   ====================================================================== #}
+<section class="pagina paisagem pg-paisagem sem-margem p1">
+
+  {# ---------- topo: marca + 3 caixas de status ---------- #}
+  <div class="abs p1-marca">
+    <div>
+      {{ logo(7.4) }}
+      <h1>Mesa</h1>
+    </div>
+    <div class="sub">Deixe a Mesa no centro, à vista de todas as pessoas.</div>
+  </div>
+
+  <div class="abs status st-objetivo">
+    <div class="rot">{{ ic_sigma(5.6) }} Objetivo</div>
+    <div class="area"><div class="linha-base"></div></div>
+    <div class="nota">soma dos totais das mãos · vale até o fim</div>
+  </div>
+
+  <div class="abs status st-parcial">
+    <div class="rot">{{ ic_igual(5.6) }} Resultado parcial</div>
+    <div class="area"><div class="linha-base"></div></div>
+    <div class="nota"><strong>Atualizem depois de cada número.</strong> Zero e negativos valem (5 − 9 = −4).</div>
+  </div>
+
+  <div class="abs status st-faltam">
+    <div class="metades">
+      <div class="metade">
+        <div class="rot">{{ ic_dif(5.6) }} Faltam</div>
+        <div class="area"><div class="linha-base"></div></div>
+      </div>
+      <div class="metade">
+        <div class="rot">Passaram</div>
+        <div class="area"><div class="linha-base"></div></div>
+      </div>
+    </div>
+    <div class="nota">Anotem em um dos lados.<br>Passaram? Usem {{ chip('subtracao', 3.2) }} ou {{ chip('divisao', 3.2) }} para voltar.</div>
+  </div>
+
+  {# ---------- centro: a conta em construção ---------- #}
+  <div class="abs titulo-conta">
+    <div class="t">Conta em construção</div>
+    <div class="s">Depois de anotar o novo resultado parcial, levem as cartas da conta para <strong>Cartas jogadas</strong>.</div>
+  </div>
+
+  {# aba esquerda: monte de compra (fora da folha) #}
+  <div class="abs aba esq" style="left: 9mm">
+    {{ seta('esq', 7) }}
+    {{ verso(escala=0.17) }}
+    <div class="vert">Monte de compra<small>ao lado da Mesa, virado para baixo</small></div>
+    {{ seta('esq', 7) }}
+  </div>
+
+  {# resultado parcial anterior #}
+  <div class="abs rotulo-esp r-brand" style="left: 26mm; width: 36mm; top: 77.5mm">Resultado<br>parcial anterior</div>
+  <div class="abs guia" style="left: 26mm; top: 85mm; width: 36mm; height: 34mm">
+    {{ seta_cima(5) }}
+    <div class="gs">é o número que está em<br><strong>Resultado parcial</strong></div>
+    <div class="gp">não precisa copiar</div>
+  </div>
+
+  {# espaço OPERADOR: 88 × 63 mm, deitado #}
+  <div class="abs rotulo-esp r-op" style="left: 66mm; width: 88mm; top: 66mm">Operador <span>· carta deitada</span></div>
+  <div class="abs" id="esp-operador" style="left: 66mm; top: 70.5mm; width: 88mm; height: 63mm">{{ espaco_carta(88, 63, 'operador') }}</div>
+
+  {# conversa à mesa (regra canônica) #}
+  <div class="abs conversa"><strong>Conversem à vontade sobre a conta.</strong> Só não vale dizer nem mostrar os números ou os naipes das cartas da sua mão.</div>
+
+  {# espaço NÚMERO: 63 × 88 mm, em pé #}
+  <div class="abs rotulo-esp r-brand" style="left: 158mm; width: 63mm; top: 53.5mm">Número <span>· carta em pé</span></div>
+  <div class="abs" id="esp-numero" style="left: 158mm; top: 58mm; width: 63mm; height: 88mm">{{ espaco_carta(63, 88, 'numero') }}</div>
+
+  {# = novo resultado parcial #}
+  <div class="abs igual" style="left: 221.5mm; width: 11mm; top: 96.5mm">=</div>
+  <div class="abs rotulo-esp r-brand" style="left: 233mm; width: 36mm; top: 77.5mm">Novo<br>resultado parcial</div>
+  <div class="abs guia guia-novo" style="left: 233mm; top: 85mm; width: 36mm; height: 34mm">
+    <div class="gt">Façam a conta</div>
+    {{ seta_cima(4) }}
+    <div class="gs">e anotem em<br><strong>Resultado parcial</strong><br>e na <strong>Folha<br>de registro</strong></div>
+  </div>
+  <div class="abs vitoria" style="left: 232mm; top: 122mm; width: 38mm">Igual ao objetivo?<br>Todas as pessoas vencem!</div>
+
+  {# aba direita: cartas jogadas (fora da folha) #}
+  <div class="abs aba dir" style="left: 274mm">
+    {{ seta('dir', 7) }}
+    <div style="position: relative; width: 11mm; height: 15mm">
+      <div style="position: absolute; left: 0; top: 0">{{ carta(3, 'multiplicacao', escala=0.155, deitada=False, economica=economica) }}</div>
+      <div style="position: absolute; left: 1.4mm; top: 1.4mm">{{ carta(4, 'soma', escala=0.155, economica=economica) }}</div>
+    </div>
+    <div class="vert">Cartas jogadas<small>ao lado da Mesa</small></div>
+    {{ seta('dir', 7) }}
+  </div>
+
+  {# ---------- faixa inferior: 4 lembretes ---------- #}
+  <div class="abs lembretes">
+    <div class="lembrete">
+      <div class="ic" style="flex-direction: column; gap: 1.2mm">{{ carta(7, 'soma', escala=0.125, economica=economica) }}{{ carta(7, 'soma', escala=0.125, deitada=True, economica=economica) }}</div>
+      <div class="tx"><strong>Número, operador, número…</strong>A 1ª carta da partida é um número: ela já é o 1º resultado parcial.</div>
+    </div>
+    <div class="lembrete">
+      <div class="ic">{{ chip('soma', 6) }}{{ chip('multiplicacao', 6) }}</div>
+      <div class="tx"><strong>Esquerda → direita</strong>Uma operação por vez, sem prioridade de × e ÷.<br><span class="ex">5 + 6 × 3 → 5 + 6 = 11<br>→ 11 × 3 = 33</span></div>
+    </div>
+    <div class="lembrete">
+      <div class="ic">{{ chip('divisao', 9) }}</div>
+      <div class="tx"><strong>Divisão não exata?</strong>Arredonde para o inteiro mais próximo. Se der exatamente meio, para cima.<br><span class="ex">9 ÷ 2 = 4,5 → 5<br>10 ÷ 3 = 3,33… → 3</span></div>
+    </div>
+    <div class="lembrete">
+      <div class="ic">{{ verso(escala=0.16) }}</div>
+      <div class="tx"><strong>Compre 1 carta</strong>do monte de compra depois de jogar (se ainda houver).<br><span class="fim-monte">Acabou o monte? Guardem o marcador. Quem ficar sem cartas é pulado.</span></div>
+    </div>
+  </div>
+
+  {# ---------- pé ---------- #}
+  <div class="abs p1-pe">
+    <div class="caixa-aviso dica nao-regra">Dica: escreva a lápis e apague a cada novo número, ou coloque a Mesa numa capa plástica e use caneta de quadro branco.</div>
+    <div class="regua"><div class="barra"></div><div>50 mm · <strong>imprima em 100% (tamanho real)</strong> e confira:<br>uma carta cabe exatamente em cada contorno</div></div>
+    <div class="ident">Somatórios {{ cfg.versao }} · Mesa<br>{% if cfg.grupo %}{{ cfg.grupo }} · {% endif %}Página 1/3</div>
+  </div>
+</section>
+
+{# ======================================================================
+   PÁGINA 2 — FOLHA DE REGISTRO (A4 retrato)
+   ====================================================================== #}
+<section class="pagina">
+  <div class="cab-doc">
+    <div>
+      <h1>Folha de registro</h1>
+      <div class="sub">Anotem uma linha para cada <strong>número</strong> jogado (no máximo 18 por partida).<br>
+        <span class="nao-regra">Exemplo (objetivo 38) · linha 1: 9 · linha 2: 9 × 4 = 36, faltam 2 · linha 3: 36 + 2 = 38, vitória!</span></div>
+    </div>
+    <div class="marca">{{ logo(7) }}<div class="copias nao-regra">Imprima várias cópias desta página:<br>uma por partida.</div></div>
+  </div>
+
+  <div class="campos">
+    <div class="campo-r"><span class="lbl">Data</span><span class="ln"></span></div>
+    <div class="campo-r span2"><span class="lbl">Grupo ou turma</span><span class="ln"></span></div>
+    <div class="campo-r"><span class="lbl">Pessoas</span><span class="opc"><span>2</span><span>3</span><span>4</span><span>5</span></span><span class="dica-c">circule</span></div>
+
+    <div class="campo-r"><span class="lbl">Objetivo</span><span class="ln"></span></div>
+    <div class="campo-r"><span class="lbl">Hora de início</span><span class="ln"></span></div>
+    <div class="campo-r"><span class="lbl">Hora de fim</span><span class="ln"></span></div>
+    <div class="campo-r"><span class="lbl">Terminou em</span><span class="opc"><span>vitória</span><span>derrota</span></span><span class="dica-c">circule</span></div>
+
+    <div class="campo-r span4 desafio"><span class="lbl"><span class="var">Desafio do placar (variante):</span> venceram? Pontos do grupo</span><span class="ln" style="max-width: 22mm"></span><span class="dica-c">cartas que sobraram no monte de compra · anotem no Placar da turma</span></div>
+  </div>
+
+  <table class="registro">
+    <colgroup>
+      <col style="width: 11mm"><col style="width: 30mm"><col style="width: 31mm"><col style="width: 20mm">
+      <col style="width: 34mm"><col style="width: 28mm"><col style="width: 28mm">
+    </colgroup>
+    <thead>
+      <tr>
+        <th>Linha</th>
+        <th>Resultado<br>parcial anterior</th>
+        <th>Operador<small>circule</small></th>
+        <th>Número</th>
+        <th class="th-res">= Novo<br>resultado parcial</th>
+        <th>Faltam<small>para o objetivo</small></th>
+        <th>Passaram<small>do objetivo</small></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="primeira">
+        <td class="n">1</td>
+        <td class="cinza" colspan="2">1ª carta da partida: só o número →</td>
+        <td></td>
+        <td class="igual-c"></td>
+        <td></td>
+        <td></td>
+      </tr>
+      {% for i in range(2, 19) %}
+      <tr>
+        <td class="n">{{ i }}</td>
+        <td></td>
+        <td class="ops">{% for n in ORDEM_NAIPES %}{{ chip(n, 4.4) }}{% endfor %}</td>
+        <td></td>
+        <td class="igual-c"></td>
+        <td></td>
+        <td></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="fecho">
+    <div class="caixa">
+      <h3>Operadores usados</h3>
+      <div class="peq-it nao-regra" style="margin: -0.6mm 0 1.6mm">Ao final, contem os operadores circulados na tabela e anotem o total de cada um.</div>
+      {% for n in ORDEM_NAIPES %}
+      <div class="tally">{{ chip(n, 5.4) }}<span class="nome">{{ NAIPES[n].nome|capitalize }}</span><span class="cx"></span></div>
+      {% endfor %}
+      <div class="pergunta">Qual operador ajudou mais? <span class="chips">{% for n in ORDEM_NAIPES %}{{ chip(n, 5.6) }}{% endfor %}</span></div>
+    </div>
+    <div class="caixa">
+      <h3>Como foi a cooperação? <span class="peq-it nao-regra" style="font-weight: 400">Conversem e circulem um rosto.</span></h3>
+      <div class="rostos">
+        <div class="rosto">{{ rosto('feliz', 10.5) }}Muito boa</div>
+        <div class="rosto">{{ rosto('neutro', 10.5) }}Mais ou menos</div>
+        <div class="rosto">{{ rosto('triste', 10.5) }}Podemos melhorar</div>
+      </div>
+      <div class="pergunta" style="margin-top: 2.2mm">Em que momento a conta “virou”?</div>
+      <div class="linhas-escrever"><div class="l"></div></div>
+      <div class="pergunta" style="margin-top: 1.6mm">Que outro caminho chegaria ao objetivo?</div>
+      <div class="linhas-escrever"><div class="l"></div></div>
+    </div>
+  </div>
+
+  {{ rodape_doc('Folha de registro', 2) }}
+</section>
+
+{# ======================================================================
+   PÁGINA 3 — PLACAR DA TURMA (A4 retrato)
+   ====================================================================== #}
+<section class="pagina">
+  <div class="cab-doc">
+    <div>
+      <h1>Placar da turma</h1>
+      <div class="sub">Variante <strong>Desafio do placar</strong></div>
+    </div>
+    <div class="marca">{{ logo(7) }}</div>
+  </div>
+
+  <div class="caixa-marca regra-linha">
+    Ao vencer, as cartas que sobraram no monte de compra são os pontos do grupo.
+    <span class="s2">Anotem cada partida e tentem bater o recorde.</span>
+  </div>
+
+  <div class="recorde">
+    <div class="topo">
+      {{ estrela(8) }}
+      <h2>Recorde atual</h2>
+      <span class="nao-regra">Há um recorde para cada número de pessoas: quanto mais pessoas, menor o monte de compra no começo.</span>
+    </div>
+    <div class="rec-grade">
+      {% for np, monte in [(2, 28), (3, 24), (4, 20), (5, 16)] %}
+      <div class="rec">
+        <div class="np">{{ np }} pessoas<small>monte de compra: {{ monte }} cartas</small></div>
+        <div class="pts"><span>pontos</span></div>
+        <div class="lin">Grupo <i></i></div>
+        <div class="lin">Data <i></i></div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <table class="placar">
+    <colgroup>
+      <col style="width: 24mm"><col style="width: 56mm"><col style="width: 21mm"><col style="width: 21mm">
+      <col style="width: 30mm"><col style="width: 30mm">
+    </colgroup>
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Grupo ou turma</th>
+        <th>Pessoas</th>
+        <th>Objetivo</th>
+        <th>Venceram?<small>circule</small></th>
+        <th class="th-pts">Pontos<small>cartas no monte de compra</small></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in range(15) %}
+      <tr><td></td><td></td><td></td><td></td><td class="sn"><span>sim</span><span>não</span></td><td></td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="caixa-aviso placar-notas">
+    <p><strong>O desafio é bater o próprio recorde.</strong> No grupo, ninguém compete: todas as pessoas vencem ou perdem juntas.</p>
+    <p>Venceram depois que o monte de compra acabou? São 0 pontos, mas <strong>continua sendo vitória!</strong></p>
+    <p>Partida na <strong>Variante Iniciante</strong>? Marquem um <strong>I</strong> ao lado do número de pessoas.</p>
+    <p class="nao-regra">Pendurem o placar na sala e acompanhem os recordes da turma.</p>
+  </div>
+
+  {{ rodape_doc('Placar da turma', 3) }}
+</section>
+{% endblock %}

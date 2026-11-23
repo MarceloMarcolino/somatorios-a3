@@ -1,5 +1,10 @@
 # 📌 Status & Roadmap — Somatórios (A3)
 
+> 🆕 **Nov/2026 — Protótipo físico v0.2** (kit print-and-play para o Diversão Offline 2027): veja
+> [`HANDOFF_2026-11-23_prototipo-fisico.md`](HANDOFF_2026-11-23_prototipo-fisico.md) e
+> `prototipo/Somatorios-fisico-v0.2/LEIA-ME.md`. Instruções para agentes em `AGENTS.md`.
+> O restante deste documento é o roadmap do **app** (jun/2026).
+
 > Documento de acompanhamento. Atualizado em **2026-06-09**.
 > Apresentação da A3: **12/06/2026** (e **19/06/2026**).
 

@@ -1,0 +1,173 @@
+/* =====================================================================
+   Somatórios — protótipo físico v0.2 — estilo compartilhado (impressão)
+   Identidade herdada do app (Fredoka, azul da marca, laranja de acento)
+   + paleta de naipes otimizada para daltonismo.
+   Todos os documentos (templates/*.html) usam este arquivo.
+   ===================================================================== */
+
+@font-face {
+  font-family: 'Fredoka';
+  src: url('fonts/Fredoka-Variable.ttf') format('truetype');
+  font-weight: 300 700;
+  font-stretch: 75% 125%;
+  font-style: normal;
+}
+
+:root {
+  /* naipes (iguais a somatorios_svg.NAIPES) */
+  --soma: #43a02a;          --soma-claro: #e3f3dd;
+  --sub: #a51b1b;           --sub-claro: #f7dede;
+  --mult: #1d3a80;          --mult-claro: #dde4f5;
+  --div: #a774e0;           --div-claro: #efe5fb;
+  /* marca (app) */
+  --brand: #1457a8;
+  --brand-escuro: #0f3f7a;
+  --acento: #ff7a00;        /* só decorativo */
+  --acento-ink: #8a3d00;    /* laranja para TEXTO (contraste AA) */
+  /* superfícies e texto */
+  --tinta: #14233b;
+  --tinta-suave: #41506a;
+  --fundo: #eef4fc;
+  --fundo-2: #dce9f9;
+  --superficie-2: #f4f7fc;
+  --borda: #cdd8ea;
+  --aviso-fundo: #fff7e6;
+  --aviso-borda: #ffd591;
+  --raio: 4mm;
+  --raio-sm: 2.5mm;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: 'Fredoka', 'Segoe UI', sans-serif;
+  font-weight: 400;
+  font-size: 10.5pt;
+  line-height: 1.38;
+  color: var(--tinta);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------ páginas */
+.pagina {
+  width: 210mm;
+  height: 297mm;
+  position: relative;
+  overflow: hidden;
+  padding: 13mm 14mm 14mm;
+  page-break-after: always;
+  break-after: page;
+}
+.pagina:last-child { page-break-after: auto; break-after: auto; }
+.pagina.paisagem { width: 297mm; height: 210mm; }
+.pagina.sem-margem { padding: 0; }
+
+/* rodapé padrão das páginas */
+.rodape {
+  position: absolute;
+  left: 14mm; right: 14mm; bottom: 7mm;
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 7.5pt; color: var(--tinta-suave);
+  border-top: 0.3mm solid var(--borda);
+  padding-top: 1.6mm;
+}
+
+/* ------------------------------------------------------- tipografia */
+h1, h2, h3, h4 { font-family: 'Fredoka', sans-serif; letter-spacing: 0; margin: 0; line-height: 1.12; }
+h1 { font-size: 26pt; font-weight: 700; }
+h2 { font-size: 15pt; font-weight: 600; color: var(--brand-escuro); margin: 4mm 0 2mm; }
+h3 { font-size: 11.5pt; font-weight: 600; margin: 3mm 0 1.2mm; }
+p { margin: 0 0 2mm; }
+ul, ol { margin: 0 0 2mm; padding-left: 5.5mm; }
+li { margin-bottom: 1mm; }
+strong, b { font-weight: 600; }
+em, i { font-style: italic; }
+.nao-regra { font-style: italic; color: var(--tinta-suave); }   /* Manual de Manual: itálico = não é regra */
+.pequeno { font-size: 8.5pt; }
+.suave { color: var(--tinta-suave); }
+.centro { text-align: center; }
+.maiusculas { text-transform: uppercase; letter-spacing: 0.04em; }
+
+/* ------------------------------------------------- blocos reutilizáveis */
+.caixa {
+  background: var(--superficie-2);
+  border: 0.3mm solid var(--borda);
+  border-radius: var(--raio-sm);
+  padding: 3mm 3.5mm;
+}
+.caixa-aviso {
+  background: var(--aviso-fundo);
+  border: 0.3mm solid var(--aviso-borda);
+  border-radius: var(--raio-sm);
+  padding: 2.6mm 3.2mm;
+}
+.caixa-marca {
+  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-escuro) 100%);
+  color: #fff;
+  border-radius: var(--raio);
+  padding: 4mm 5mm;
+}
+
+/* ficha técnica (pessoas | tempo | idade | tipo) */
+.ficha { display: flex; gap: 2.2mm; flex-wrap: wrap; }
+.ficha .item {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-width: 22mm; padding: 1.8mm 2.6mm;
+  background: #fff; border: 0.35mm solid var(--borda); border-radius: var(--raio-sm);
+}
+.ficha .valor { font-size: 13pt; font-weight: 700; line-height: 1.05; }
+.ficha .rotulo { font-size: 7pt; color: var(--tinta-suave); text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* passos numerados */
+.passos { list-style: none; padding: 0; margin: 0; counter-reset: passo; }
+.passos > li { counter-increment: passo; position: relative; padding-left: 9mm; margin-bottom: 2.2mm; }
+.passos > li::before {
+  content: counter(passo);
+  position: absolute; left: 0; top: -0.3mm;
+  width: 6.4mm; height: 6.4mm; border-radius: 50%;
+  background: var(--brand); color: #fff;
+  font-weight: 700; font-size: 10pt; line-height: 6.4mm; text-align: center;
+}
+
+/* tabela simples */
+table.tabela { width: 100%; border-collapse: collapse; font-size: 9pt; }
+table.tabela th, table.tabela td { border: 0.3mm solid var(--borda); padding: 1.3mm 1.8mm; text-align: left; vertical-align: middle; }
+table.tabela th { background: var(--fundo); font-weight: 600; }
+
+/* campo para preencher à mão */
+.campo { border-bottom: 0.35mm solid var(--tinta-suave); min-height: 7mm; }
+.caixa-escrever {
+  border: 0.45mm solid var(--tinta); border-radius: var(--raio-sm);
+  background: #fff; min-height: 18mm;
+}
+
+/* destaque de dado faltando no config.json */
+.preencher {
+  background: #fff3a6; color: #6b4e00; border: 0.3mm dashed #c79a00;
+  padding: 0 1.2mm; border-radius: 1mm; font-weight: 600;
+}
+
+/* naipes como utilitários de cor */
+.c-soma { color: var(--soma); } .c-sub { color: var(--sub); }
+.c-mult { color: var(--mult); } .c-div { color: var(--div); }
+
+/* svg inline alinhado ao texto */
+svg.sinal, svg.chip { vertical-align: -0.18em; display: inline-block; }
+svg.carta-svg, svg.verso-svg, svg.marcador-svg, svg.logo-svg { display: block; }
+
+/* linha de cartas em diagrama (conta em construção) */
+.conta { display: flex; align-items: center; justify-content: center; gap: 2.4mm; flex-wrap: nowrap; }
+.conta .op-texto { font-size: 18pt; font-weight: 700; color: var(--tinta-suave); }
+.conta .resultado {
+  font-size: 17pt; font-weight: 700; color: var(--brand);
+  background: #e7f0fb; border-radius: var(--raio-sm); padding: 0.6mm 3mm;
+}
+.balao {
+  display: inline-block; background: #fff; border: 0.35mm solid var(--borda);
+  border-radius: var(--raio-sm); padding: 1mm 2.4mm; font-size: 8.5pt; font-weight: 500;
+}
+
+/* marcas de corte */
+.marca-corte { position: absolute; background: #6b7a94; }

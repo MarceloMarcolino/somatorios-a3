@@ -1,0 +1,48 @@
+﻿aberta     div=fracao  n=2 marcador=nao | vitoria= 59.6% | turnos ate vencer med=10.3 p90=19 | alvo med= 39.9 [21-62] | fracao=41.0% resto= 0.0% negativo= 0.1% | so-1-tipo=100.0%
+aberta     div=fracao  n=2 marcador=sim | vitoria= 85.2% | turnos ate vencer med=10.2 p90=19 | alvo med= 39.9 [22-61] | fracao=15.1% resto= 0.0% negativo= 0.1% | so-1-tipo=  0.0%
+aberta     div=fracao  n=3 marcador=nao | vitoria= 86.4% | turnos ate vencer med=11.4 p90=21 | alvo med= 59.9 [35-81] | fracao=13.5% resto= 0.0% negativo= 0.1% | so-1-tipo=  0.0%
+aberta     div=fracao  n=4 marcador=nao | vitoria= 56.2% | turnos ate vencer med=11.9 p90=19 | alvo med= 80.3 [51-107] | fracao=43.1% resto= 0.0% negativo= 0.8% | so-1-tipo=100.0%
+aberta     div=fracao  n=4 marcador=sim | vitoria= 80.1% | turnos ate vencer med=13.3 p90=21 | alvo med= 79.9 [59-107] | fracao=18.7% resto= 0.0% negativo= 0.3% | so-1-tipo=  0.0%
+aberta     div=fracao  n=5 marcador=nao | vitoria= 66.0% | turnos ate vencer med=15.3 p90=23 | alvo med= 99.9 [72-123] | fracao=31.4% resto= 0.0% negativo= 0.8% | so-1-tipo=  0.0%
+aberta     div=fracao  n=6 marcador=nao | vitoria= 39.1% | turnos ate vencer med=13.0 p90=19 | alvo med=120.0 [96-147] | fracao=58.0% resto= 0.0% negativo= 3.0% | so-1-tipo=100.0%
+aberta     div=fracao  n=6 marcador=sim | vitoria= 54.9% | turnos ate vencer med=15.0 p90=21 | alvo med=120.2 [96-144] | fracao=38.7% resto= 0.0% negativo= 0.9% | so-1-tipo=  0.0%
+aberta     div=inteira n=2 marcador=nao | vitoria= 70.0% | turnos ate vencer med=12.3 p90=25 | alvo med= 39.9 [21-62] | fracao= 0.0% resto=40.8% negativo= 0.2% | so-1-tipo=100.0%
+aberta     div=inteira n=2 marcador=sim | vitoria= 91.1% | turnos ate vencer med=10.9 p90=21 | alvo med= 39.9 [22-61] | fracao= 0.0% resto=15.0% negativo= 0.0% | so-1-tipo=  0.0%
+aberta     div=inteira n=3 marcador=nao | vitoria= 90.0% | turnos ate vencer med=11.8 p90=21 | alvo med= 59.9 [35-81] | fracao= 0.0% resto=13.1% negativo= 0.1% | so-1-tipo=  0.0%
+aberta     div=inteira n=4 marcador=nao | vitoria= 59.0% | turnos ate vencer med=12.5 p90=21 | alvo med= 80.3 [51-107] | fracao= 0.0% resto=43.1% negativo= 0.9% | so-1-tipo=100.0%
+aberta     div=inteira n=4 marcador=sim | vitoria= 83.4% | turnos ate vencer med=13.7 p90=23 | alvo med= 79.9 [59-107] | fracao= 0.0% resto=18.6% negativo= 0.1% | so-1-tipo=  0.0%
+aberta     div=inteira n=5 marcador=nao | vitoria= 68.7% | turnos ate vencer med=15.5 p90=23 | alvo med= 99.9 [72-123] | fracao= 0.0% resto=31.4% negativo= 0.8% | so-1-tipo=  0.0%
+aberta     div=inteira n=6 marcador=nao | vitoria= 40.9% | turnos ate vencer med=13.4 p90=19 | alvo med=120.0 [96-147] | fracao= 0.0% resto=57.9% negativo= 3.1% | so-1-tipo=100.0%
+aberta     div=inteira n=6 marcador=sim | vitoria= 56.8% | turnos ate vencer med=15.2 p90=23 | alvo med=120.2 [96-144] | fracao= 0.0% resto=38.7% negativo= 1.0% | so-1-tipo=  0.0%
+silenciosa div=fracao  n=2 marcador=nao | vitoria= 48.1% | turnos ate vencer med= 9.8 p90=19 | alvo med= 39.9 [21-62] | fracao=54.4% resto= 0.0% negativo= 0.1% | so-1-tipo=100.0%
+silenciosa div=fracao  n=2 marcador=sim | vitoria= 73.6% | turnos ate vencer med=11.0 p90=21 | alvo med= 39.9 [22-61] | fracao=26.6% resto= 0.0% negativo= 0.1% | so-1-tipo=  0.0%
+silenciosa div=fracao  n=3 marcador=nao | vitoria= 76.8% | turnos ate vencer med=11.2 p90=21 | alvo med= 59.9 [35-81] | fracao=22.9% resto= 0.0% negativo= 0.2% | so-1-tipo=  0.0%
+silenciosa div=fracao  n=4 marcador=nao | vitoria= 42.6% | turnos ate vencer med=11.2 p90=19 | alvo med= 80.3 [51-107] | fracao=56.4% resto= 0.0% negativo= 0.1% | so-1-tipo=100.0%
+silenciosa div=fracao  n=4 marcador=sim | vitoria= 68.8% | turnos ate vencer med=13.0 p90=21 | alvo med= 79.9 [59-107] | fracao=28.1% resto= 0.0% negativo= 0.4% | so-1-tipo=  0.0%
+silenciosa div=fracao  n=5 marcador=nao | vitoria= 47.5% | turnos ate vencer med=15.4 p90=23 | alvo med= 99.9 [72-123] | fracao=47.6% resto= 0.0% negativo= 1.0% | so-1-tipo=  0.0%
+silenciosa div=fracao  n=6 marcador=nao | vitoria= 18.7% | turnos ate vencer med=12.7 p90=19 | alvo med=120.0 [96-147] | fracao=78.3% resto= 0.0% negativo= 2.1% | so-1-tipo=100.0%
+silenciosa div=fracao  n=6 marcador=sim | vitoria= 26.2% | turnos ate vencer med=14.9 p90=23 | alvo med=120.2 [96-144] | fracao=66.5% resto= 0.0% negativo= 1.5% | so-1-tipo=  0.0%
+silenciosa div=inteira n=2 marcador=nao | vitoria= 63.9% | turnos ate vencer med=13.1 p90=27 | alvo med= 39.9 [21-62] | fracao= 0.0% resto=54.2% negativo= 0.3% | so-1-tipo=100.0%
+silenciosa div=inteira n=2 marcador=sim | vitoria= 83.2% | turnos ate vencer med=12.3 p90=23 | alvo med= 39.9 [22-61] | fracao= 0.0% resto=26.2% negativo= 0.1% | so-1-tipo=  0.0%
+silenciosa div=inteira n=3 marcador=nao | vitoria= 81.2% | turnos ate vencer med=11.9 p90=23 | alvo med= 59.9 [35-81] | fracao= 0.0% resto=22.7% negativo= 0.1% | so-1-tipo=  0.0%
+silenciosa div=inteira n=4 marcador=nao | vitoria= 46.2% | turnos ate vencer med=12.0 p90=21 | alvo med= 80.3 [51-107] | fracao= 0.0% resto=56.0% negativo= 0.2% | so-1-tipo=100.0%
+silenciosa div=inteira n=4 marcador=sim | vitoria= 72.0% | turnos ate vencer med=13.4 p90=21 | alvo med= 79.9 [59-107] | fracao= 0.0% resto=28.0% negativo= 0.4% | so-1-tipo=  0.0%
+silenciosa div=inteira n=5 marcador=nao | vitoria= 49.6% | turnos ate vencer med=15.7 p90=23 | alvo med= 99.9 [72-123] | fracao= 0.0% resto=47.6% negativo= 0.9% | so-1-tipo=  0.0%
+silenciosa div=inteira n=6 marcador=nao | vitoria= 20.5% | turnos ate vencer med=13.6 p90=21 | alvo med=120.0 [96-147] | fracao= 0.0% resto=78.3% negativo= 2.1% | so-1-tipo=100.0%
+silenciosa div=inteira n=6 marcador=sim | vitoria= 29.3% | turnos ate vencer med=15.6 p90=23 | alvo med=120.2 [96-144] | fracao= 0.0% resto=65.9% negativo= 1.5% | so-1-tipo=  0.0%
+aleatoria  div=fracao  n=2 marcador=nao | vitoria=  1.6% | turnos ate vencer med=11.8 p90=23 | alvo med= 39.9 [18-60] | fracao=95.8% resto= 0.0% negativo=65.0% | so-1-tipo=100.0%
+aleatoria  div=fracao  n=2 marcador=sim | vitoria=  1.9% | turnos ate vencer med= 9.8 p90=19 | alvo med= 39.9 [21-61] | fracao=95.5% resto= 0.0% negativo=63.5% | so-1-tipo=  0.0%
+aleatoria  div=fracao  n=3 marcador=nao | vitoria=  0.9% | turnos ate vencer med=13.1 p90=31 | alvo med= 59.8 [36-83] | fracao=96.2% resto= 0.0% negativo=64.6% | so-1-tipo=  0.0%
+aleatoria  div=fracao  n=4 marcador=nao | vitoria=  0.7% | turnos ate vencer med=15.3 p90=25 | alvo med= 80.4 [52-104] | fracao=95.9% resto= 0.0% negativo=65.1% | so-1-tipo=100.0%
+aleatoria  div=fracao  n=4 marcador=sim | vitoria=  0.8% | turnos ate vencer med=14.4 p90=23 | alvo med= 79.7 [54-105] | fracao=96.5% resto= 0.0% negativo=64.3% | so-1-tipo=  0.0%
+aleatoria  div=fracao  n=5 marcador=nao | vitoria=  0.4% | turnos ate vencer med=13.8 p90=17 | alvo med=100.1 [70-126] | fracao=96.4% resto= 0.0% negativo=65.0% | so-1-tipo=  0.0%
+aleatoria  div=fracao  n=6 marcador=nao | vitoria=  0.4% | turnos ate vencer med=16.3 p90=23 | alvo med=119.7 [96-145] | fracao=97.0% resto= 0.0% negativo=64.4% | so-1-tipo=100.0%
+aleatoria  div=fracao  n=6 marcador=sim | vitoria=  0.3% | turnos ate vencer med=17.0 p90=21 | alvo med=120.1 [93-143] | fracao=96.5% resto= 0.0% negativo=64.0% | so-1-tipo=  0.0%
+aleatoria  div=inteira n=2 marcador=nao | vitoria=  3.6% | turnos ate vencer med=19.0 p90=29 | alvo med= 40.0 [21-63] | fracao= 0.0% resto=96.0% negativo=68.5% | so-1-tipo=100.0%
+aleatoria  div=inteira n=2 marcador=sim | vitoria=  3.6% | turnos ate vencer med=17.9 p90=31 | alvo med= 40.0 [22-61] | fracao= 0.0% resto=95.6% negativo=66.5% | so-1-tipo=  0.0%
+aleatoria  div=inteira n=3 marcador=nao | vitoria=  2.4% | turnos ate vencer med=19.3 p90=33 | alvo med= 59.9 [36-83] | fracao= 0.0% resto=96.4% negativo=68.3% | so-1-tipo=  0.0%
+aleatoria  div=inteira n=4 marcador=nao | vitoria=  1.7% | turnos ate vencer med=21.7 p90=33 | alvo med= 80.2 [57-108] | fracao= 0.0% resto=96.5% negativo=66.6% | so-1-tipo=100.0%
+aleatoria  div=inteira n=4 marcador=sim | vitoria=  1.7% | turnos ate vencer med=19.1 p90=27 | alvo med= 79.7 [54-108] | fracao= 0.0% resto=96.3% negativo=66.2% | so-1-tipo=  0.0%
+aleatoria  div=inteira n=5 marcador=nao | vitoria=  1.0% | turnos ate vencer med=21.4 p90=33 | alvo med=100.0 [74-126] | fracao= 0.0% resto=96.8% negativo=66.8% | so-1-tipo=  0.0%
+aleatoria  div=inteira n=6 marcador=nao | vitoria=  1.0% | turnos ate vencer med=19.6 p90=31 | alvo med=119.8 [98-145] | fracao= 0.0% resto=97.0% negativo=66.6% | so-1-tipo=100.0%
+aleatoria  div=inteira n=6 marcador=sim | vitoria=  0.8% | turnos ate vencer med=21.9 p90=31 | alvo med=119.9 [93-143] | fracao= 0.0% resto=96.3% negativo=66.5% | so-1-tipo=  0.0%

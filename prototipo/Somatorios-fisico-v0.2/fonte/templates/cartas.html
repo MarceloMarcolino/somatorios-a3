@@ -1,0 +1,166 @@
+{% extends "_base.html" %}
+{% block head %}
+<style>
+  .grade { position: absolute; left: 10.5mm; top: 19mm; width: 189mm; height: 264mm;
+           display: grid; grid-template-columns: repeat(3, 63mm); grid-template-rows: repeat(3, 88mm); }
+  .grade > div { width: 63mm; height: 88mm; }
+  .cab { position: absolute; left: 10.5mm; right: 10.5mm; top: 7mm; display: flex; justify-content: space-between;
+         align-items: center; font-size: 8.5pt; color: var(--tinta-suave); }
+  .cab strong { color: var(--tinta); font-size: 10pt; }
+  .regua { display: flex; flex-direction: column; align-items: center; font-size: 6.5pt; flex: 0 0 auto; white-space: nowrap; }
+  .cab > div:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-right: 4mm; }
+  .regua .barra { width: 50mm; height: 2.2mm; border: 0.3mm solid var(--tinta); border-top: none; }
+  .pe { position: absolute; left: 10.5mm; right: 10.5mm; bottom: 6mm; font-size: 7pt; color: var(--tinta-suave);
+        display: flex; justify-content: space-between; }
+  .mc { position: absolute; background: #7d8aa3; }
+  /* marcadores e cartas de ajuda */
+  .area-marcadores { position: absolute; left: 14mm; right: 14mm; top: 22mm; }
+  .linha-marc { display: flex; justify-content: space-around; align-items: center; margin-bottom: 7mm; }
+  .marc-par { display: flex; gap: 8mm; align-items: center; }
+  .marc-cel { display: flex; flex-direction: column; align-items: center; gap: 1.5mm; font-size: 7.5pt; color: var(--tinta-suave); }
+  .instr { font-size: 9.5pt; }
+  .instr li { margin-bottom: 1.4mm; }
+  /* carta de ajuda dobrável: 95 × 136 (dobra ao meio -> 95 × 68) */
+  .ajudas { position: absolute; left: 10mm; top: 18mm; display: grid; grid-template-columns: repeat(2, 95mm);
+            grid-template-rows: repeat(2, 136mm); }
+  .ajuda { width: 95mm; height: 136mm; position: relative; }
+  .face { position: absolute; left: 0; width: 95mm; height: 68mm; padding: 3.6mm 4.2mm 3mm; overflow: hidden; }
+  .face.f1 { top: 0; }
+  .face.f2 { top: 68mm; transform: rotate(180deg); }
+  .face .moldura { position: absolute; inset: 1.2mm; border: 0.45mm solid var(--brand); border-radius: 3mm; }
+  .face .conteudo { position: relative; }
+  .face h3 { margin: 0 0 1.4mm; font-size: 12.5pt; color: var(--brand-escuro); display: flex; align-items: center; gap: 2mm; }
+  .face .chips { display: inline-flex; gap: 0.8mm; margin-left: auto; }
+  .face ol { margin: 0; padding-left: 4.6mm; font-size: 8.4pt; line-height: 1.28; }
+  .face ol li { margin-bottom: 1.1mm; }
+  .face .duas { display: flex; gap: 3mm; align-items: center; margin: 0.6mm 0 0.4mm; font-size: 7.6pt; color: var(--tinta-suave); }
+  .face .duas .it { display: flex; align-items: center; gap: 1.4mm; }
+  .face .vit { margin-top: 1.6mm; background: #e7f6e3; border: 0.3mm solid #b9e0ad;
+               border-radius: 2mm; padding: 1.1mm 2mm; font-size: 8pt; font-weight: 600; color: #1f5a12; text-align: center; }
+  .face .lista { font-size: 8.1pt; line-height: 1.28; margin: 0; padding-left: 4.2mm; }
+  .face .lista li { margin-bottom: 1.05mm; }
+  .face .ex { color: var(--tinta-suave); }
+  .dobra { position: absolute; left: -3mm; right: -3mm; top: 68mm; border-top: 0.3mm dashed #9aa6bb; }
+  .dobra span { position: absolute; right: 4mm; top: -3.2mm; font-size: 6pt; color: #8b97ad; background: #fff; padding: 0 1mm; }
+  .contorno { position: absolute; inset: 0; border: 0.25mm solid #c4ccd9; }
+</style>
+{% endblock %}
+
+{% macro cabecalho(titulo_pag, sub, pag, total) %}
+<div class="cab">
+  <div><strong>{{ titulo_pag }}</strong> &nbsp;·&nbsp; {{ sub }}</div>
+  <div class="regua"><div class="barra"></div>50 mm · imprima em 100% (tamanho real)</div>
+</div>
+<div class="pe">
+  <span>Somatórios {{ cfg.versao }} · protótipo físico{% if cfg.grupo %} · {{ cfg.grupo }}{% endif %}</span>
+  <span>Página {{ pag }}/{{ total }}</span>
+</div>
+{% endmacro %}
+
+{% macro marcas_corte(x0, y0, cols, rows, cw, ch) %}
+  {# marcas de corte fora da grade: x0/y0 em mm #}
+  {% for i in range(cols + 1) %}
+    {% set x = x0 + i * cw %}
+    <div class="mc" style="left: {{ x - 0.15 }}mm; top: {{ y0 - 5.5 }}mm; width: 0.3mm; height: 4.5mm"></div>
+    <div class="mc" style="left: {{ x - 0.15 }}mm; top: {{ y0 + rows * ch + 1 }}mm; width: 0.3mm; height: 4.5mm"></div>
+  {% endfor %}
+  {% for j in range(rows + 1) %}
+    {% set y = y0 + j * ch %}
+    <div class="mc" style="top: {{ y - 0.15 }}mm; left: {{ x0 - 5.5 }}mm; height: 0.3mm; width: 4.5mm"></div>
+    <div class="mc" style="top: {{ y - 0.15 }}mm; left: {{ x0 + cols * cw + 1 }}mm; height: 0.3mm; width: 4.5mm"></div>
+  {% endfor %}
+{% endmacro %}
+
+{% block corpo %}
+{% set TOTAL = 7 %}
+{% set nomes = {'soma': 'Naipe + (soma)', 'subtracao': 'Naipe − (subtração)', 'multiplicacao': 'Naipe × (multiplicação)', 'divisao': 'Naipe ÷ (divisão)'} %}
+
+{# ---------------- páginas 1–4: frentes ---------------- #}
+{% for n in ORDEM_NAIPES %}
+<section class="pagina sem-margem">
+  {{ cabecalho('Cartas — ' ~ nomes[n], '9 cartas (1 a 9) · recorte nas marcas', loop.index, TOTAL) }}
+  <div class="grade">
+    {% for valor in range(1, 10) %}<div>{{ carta(valor, n, economica=economica) }}</div>{% endfor %}
+  </div>
+  {{ marcas_corte(10.5, 19, 3, 3, 63, 88) }}
+</section>
+{% endfor %}
+
+{# ---------------- página 5: versos ---------------- #}
+<section class="pagina sem-margem">
+  {{ cabecalho('Versos (opcional)', 'imprima 4× no verso das págs. 1–4 (borda longa)', 5, TOTAL) }}
+  <div class="grade">
+    {% for i in range(9) %}<div>{{ verso() }}</div>{% endfor %}
+  </div>
+  {{ marcas_corte(10.5, 19, 3, 3, 63, 88) }}
+</section>
+
+{# ---------------- página 6: marcadores ---------------- #}
+<section class="pagina sem-margem">
+  {{ cabecalho('Marcador Início da rodada', 'só para 2 ou 4 pessoas · 1 marcador + 1 reserva', 6, TOTAL) }}
+  <div class="area-marcadores">
+    {% for k in range(2) %}
+    <div class="linha-marc">
+      <div class="marc-par">
+        <div class="marc-cel">{{ marcador('frente') }}<span>frente</span></div>
+        <div class="marc-cel">{{ marcador('verso') }}<span>verso</span></div>
+      </div>
+    </div>
+    {% endfor %}
+    <div class="caixa instr">
+      <strong>Como montar o marcador</strong>
+      <ol>
+        <li>Recorte a frente e o verso no contorno do círculo.</li>
+        <li>Cole os dois lados, costas com costas, sobre papelão ou papel-cartão grosso (caixa de cereal funciona bem) e recorte de novo.</li>
+        <li>O marcador é <strong>redondo de propósito</strong>: assim ele nunca se mistura às cartas do baralho.</li>
+      </ol>
+      <p class="pequeno suave" style="margin:0">Com 3 ou 5 pessoas, não usem o marcador. Quando o monte de compra acabar, guardem o marcador e sigam em sentido horário.</p>
+    </div>
+  </div>
+</section>
+
+{# ---------------- página 7: cartas de ajuda (dobráveis) ---------------- #}
+<section class="pagina sem-margem">
+  {{ cabecalho('Cartas de ajuda “Sua vez”', 'recorte, dobre e cole · imprima 2× (5 + reservas)', 7, TOTAL) }}
+  <div class="ajudas">
+    {% for i in range(4) %}
+    <div class="ajuda">
+      <div class="contorno"></div>
+      <div class="face f1">
+        <div class="moldura"></div>
+        <div class="conteudo">
+          <h3>Sua vez
+            <span class="chips">{% for n in ORDEM_NAIPES %}{{ chip(n, 4.2) }}{% endfor %}</span>
+          </h3>
+          <ol>
+            <li><strong>Jogue 1 carta</strong> na ordem da conta: número → operador → número…
+              <div class="duas">
+                <span class="it">{{ carta(7, 'soma', escala=0.2) }} em pé = <strong>número</strong></span>
+                <span class="it">{{ carta(7, 'soma', escala=0.2, deitada=True) }} deitada = <strong>operador</strong></span>
+              </div>
+            </li>
+            <li><strong>Jogou um número?</strong> Façam a conta e anotem o resultado parcial.</li>
+            <li><strong>Compre 1 carta</strong> do monte de compra (se ainda houver).</li>
+          </ol>
+          <div class="vit">Resultado parcial = objetivo logo após um número? Todas as pessoas vencem!</div>
+        </div>
+      </div>
+      <div class="face f2">
+        <div class="moldura"></div>
+        <div class="conteudo">
+          <h3>A conta</h3>
+          <ul class="lista">
+            <li><strong>Uma operação por vez</strong>, da esquerda para a direita: <span class="ex">5 + 6 × 3 → 5 + 6 = 11 → 11 × 3 = 33</span></li>
+            <li><strong>Divisão não exata:</strong> arredonde; meio → para cima. <span class="ex">9 ÷ 2 → 5 · 10 ÷ 3 → 3</span></li>
+            <li><strong>Zero e negativos</strong> valem. Passou do objetivo? Use − ou ÷.</li>
+            <li><strong>Conversem sobre a conta</strong>, mas não digam nem mostrem as cartas da mão.</li>
+            <li><strong>2 ou 4 pessoas:</strong> no fim da rodada, o marcador vai para a esquerda. Acabou o monte de compra? Guardem o marcador.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="dobra"><span>dobre aqui</span></div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
