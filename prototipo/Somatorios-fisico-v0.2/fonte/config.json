@@ -13,8 +13,8 @@
   "url_video": "",
   "duracao_video": "",
   "_duracao_video": "opcional, ex.: \"2:45\" — aparece na legenda do QR do vídeo (sem ela: \"até 3 min\")",
-  "url_manual": "",
-  "_url_manual": "link público do PDF Inscricao_DOFF_Folha_de_Venda_e_Manual.pdf (folha + manual), ex.: Google Drive",
+  "url_manual": "https://github.com/MarceloMarcolino/somatorios-a3/blob/main/prototipo/Somatorios-fisico-v0.2/Inscricao_DOFF_Folha_de_Venda_e_Manual.pdf",
+  "_url_manual": "link público do PDF Inscricao_DOFF_Folha_de_Venda_e_Manual.pdf (folha + manual); hoje é o próprio arquivo no GitHub (o link não muda quando o PDF é regerado e enviado)",
   "url_versao_digital": "",
   "mostrar_versao_digital_na_folha": false,
   "faixas_economicas": false

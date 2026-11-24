@@ -125,14 +125,19 @@ Regulamento: <https://diversaooffline.com.br/area-catarse-de-prototipos/> · Eve
 - [ ] Imprimir e montar o kit; fazer o **playtest zero**.
 - [ ] **Teste com terceiros** (obrigatório, ao menos 1) usando `06_Kit_de_Playtest_A4.pdf`. Ideal: um grupo par e um ímpar.
 - [ ] Gravar o **vídeo** (`07_Roteiro…`), em português e narrado, com até 3 min (máx. 5). Publicar no YouTube, horizontal (pode ser "não listado").
-- [ ] Hospedar `Inscricao_DOFF_Folha_de_Venda_e_Manual.pdf` (folha + manual; ex.: link público do Google Drive) e colocar esse link em `url_manual` e o do vídeo em `url_video`, no `config.json`.
-- [ ] Rodar `python gerar_kit.py` para gerar os **QR codes** reais e o PDF de inscrição atualizado.
-      O PDF de inscrição traz um QR para o próprio link: **substitua o arquivo mantendo o mesmo link**
-      (no Google Drive: botão direito → *Gerenciar versões* → *Enviar nova versão*).
+- [x] **Link do manual** (`url_manual`): o próprio `Inscricao_DOFF_Folha_de_Venda_e_Manual.pdf` neste repositório público
+      no GitHub (<https://github.com/MarceloMarcolino/somatorios-a3/blob/main/prototipo/Somatorios-fisico-v0.2/Inscricao_DOFF_Folha_de_Venda_e_Manual.pdf>).
+      O link não muda quando o PDF é regerado: basta enviar a versão nova ao GitHub. Os QR do manual na folha de venda,
+      no manual e no guia do professor já apontam para ele (lidos e conferidos em 23/11/2026).
+- [ ] Colocar o link do vídeo em `url_video` (e, se quiser, a duração em `duracao_video`), no `config.json`.
+- [ ] Rodar `python gerar_kit.py` para gerar o **QR do vídeo** e o PDF de inscrição atualizado; enviar ao GitHub.
 - [ ] Formulário (exige login Google): tipo **Cartas**; título **Somatórios**; upload de `04_Folha_de_Venda_A4.pdf` (1 página) e
       `03_Manual_de_Regras_A4.pdf` como arquivos separados — ou, se o campo aceitar um só arquivo, `Inscricao_DOFF_Folha_de_Venda_e_Manual.pdf`;
       link do vídeo; no campo livre, os **testes feitos**, os **ajustes previstos até julho/2027** e os **coautores**.
 - [ ] Pix de **R$ 45** + comprovante; aceitar o regulamento.
+- [x] **Elegibilidade:** o jogo **não foi publicado** — o app web foi só um trabalho de faculdade (A3) e o que será
+      inscrito é a versão física. Se quiser, mencione isso no campo livre do formulário.
+- [ ] 2ª fase (se selecionado): protótipo virtual — use os PNGs de `png/` no Dextrous + Dustin's Designer Den (ou Screentop/Tabletopia).
 
 **Modelo para o campo livre do formulário** (troque os colchetes por dados **reais** dos testes):
 
@@ -166,9 +171,6 @@ O que já entrou no kit:
 - **Para estudar depois da inscrição** (não muda regra agora): com 2 pessoas, o marcador faz quem deita o operador jogar
   também o número seguinte, o que deixa a partida menos interdependente. Vale observar no playtest e, se confirmado,
   pensar numa variante ou num exemplo de 3 pessoas na v0.3.
-- [x] **Elegibilidade:** o jogo **não foi publicado** — o app web foi só um trabalho de faculdade (A3) e o que será
-      inscrito é a versão física. Se quiser, mencione isso no campo livre do formulário.
-- [ ] 2ª fase (se selecionado): protótipo virtual — use os PNGs de `png/` no Dextrous + Dustin's Designer Den (ou Screentop/Tabletopia).
 
 ---
 
@@ -191,11 +193,11 @@ python gerar_kit.py folha manual # só alguns (ids: cartas mesa manual folha pro
 
 ---
 
-## Perguntas em aberto (decisão de vocês)
+## Perguntas em aberto (decisão do autor)
 
-1. Links do vídeo e do manual: não estão no repositório (o RELATÓRIO da A3 ainda tem o campo de vídeo vazio). Os vídeos
-   antigos (demo do app e demonstração com baralho de pôquer) servem de referência, mas o DOFF pede um vídeo narrado do
-   **protótipo físico** — use o roteiro `07_…` e depois preencha `url_video` e `url_manual`.
+1. Link do vídeo: não está no repositório (o RELATÓRIO da A3 ainda tem o campo de vídeo vazio). Os vídeos antigos (demo
+   do app e demonstração com baralho de pôquer) servem de referência, mas o DOFF pede um vídeo narrado do
+   **protótipo físico** — use o roteiro `07_…` e depois preencha `url_video` (o `url_manual` já está preenchido).
 2. A paleta acessível (que difere do app e do rascunho) está aprovada? O app deveria adotá-la também (heurística de consistência)?
 3. Regra de conversa (sem citar as próprias cartas) e "guardar o marcador quando o monte acaba": aprovadas para o teste?
 4. O QR da versão digital entra na folha de venda? Hoje fica desligado (`mostrar_versao_digital_na_folha`), porque o app tem regras diferentes (sem marcador, objetivo automático).

@@ -16,8 +16,10 @@
   1. Teste com pessoas de fora do grupo (exigido pelo DOFF) usando `prototipo/Somatorios-fisico-v0.2/06_Kit_de_Playtest_A4.pdf`.
      Sem impressora: baralho comum, Ás a 9 dos 4 naipes (♥ = +, ♠ = −, ♦ = ×, ♣ = ÷).
   2. Gravar o vídeo (≤ 3 min) pelo `07_Roteiro_do_Video_Pitch_A4.pdf` e publicar no YouTube (pode ser não listado).
-  3. Hospedar o PDF de inscrição e preencher `url_video` e `url_manual` em `prototipo/Somatorios-fisico-v0.2/fonte/config.json`;
-     rodar `python gerar_kit.py` (gera os QR reais; os únicos "PREENCHER" restantes nos PDFs são esses dois links).
+  3. Preencher `url_video` em `prototipo/Somatorios-fisico-v0.2/fonte/config.json`; rodar `python gerar_kit.py` (gera o
+     QR do vídeo; o único "PREENCHER" restante nos PDFs é esse link) e enviar ao GitHub. O `url_manual` já está
+     preenchido (23/11): é o próprio `Inscricao_DOFF_Folha_de_Venda_e_Manual.pdf` neste repositório (link `blob/main`,
+     que abre o PDF no navegador e não muda quando o arquivo é regerado). QR do manual lidos e conferidos.
   4. Formulário do DOFF (login Google) + Pix de R$ 45. Modelo do campo livre no `LEIA-ME.md` do kit.
 - **Se o usuário voltar com dados do playtest:** registrar, ajustar regras **primeiro** em
   `prototipo/Somatorios-fisico-v0.2/fonte/REGRAS_CANONICAS.md`, depois os templates, depois `python gerar_kit.py`,
