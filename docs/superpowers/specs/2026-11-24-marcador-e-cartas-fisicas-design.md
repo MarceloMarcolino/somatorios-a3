@@ -1,7 +1,7 @@
 # Spec — Marcador "Início da rodada" e cartas do protótipo físico no app
 
-**Data:** 2026-11-24 · **Status:** implementado na branch `claude/marcador-e-cartas-fisicas`, aguardando revisão do
-Codex e teste manual do Marcelo (fluxo gated do `AGENTS.md`).
+**Data:** 2026-11-24 · **Status:** aprovado na revisão do Codex e no teste manual do Marcelo; publicado na `main`
+(commit `64aaae9`, deploy automático na Vercel).
 **Pedido do Marcelo:** "Modifique a versão online para que ela utilize as regras do marcador para quantidade de
 jogadores pares e utilize as cartas do físico." Toca `src/hooks/useSomatorios.js` e `src/utils/baralho.js` (travados):
 mudança autorizada por pedido explícito.

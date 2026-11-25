@@ -122,9 +122,12 @@ Ver §1. Checklist completo no `LEIA-ME.md` do kit.
   meio-termo temático é pior).
 - FAQ de automações esquecidas (esqueceu de comprar / de passar o marcador); revisar escrita em positivo.
 - Avaliar Folha de registro opcional; cartas de ajuda em 63 × 88 (41 cartas cabem numa folha de 54).
-- App React: consistência com o físico (marcador de rodada, paleta, desenho das cartas) — **implementado em 24/11/2026**
-  na branch `claude/marcador-e-cartas-fisicas` (spec: `docs/superpowers/specs/2026-11-24-marcador-e-cartas-fisicas-design.md`);
-  falta a revisão do Codex e o teste manual do Marcelo antes do merge na `main` (que re-deploya na Vercel).
+- ~~App React: consistência com o físico~~ — **feito e publicado em 24/11/2026** (commit `64aaae9`): marcador Início
+  da rodada (2 ou 4 jogadores), desenho das cartas do kit e paleta acessível. Revisado pelo Codex e testado pelo Marcelo.
+  Spec: `docs/superpowers/specs/2026-11-24-marcador-e-cartas-fisicas-design.md`. Lógica do marcador em
+  `src/utils/marcador.js`; desenhos em `src/components/CartaFisica.js` (mesma geometria de `fonte/somatorios_svg.py`:
+  se mudar o desenho do kit, mude os dois). Ainda diferente do físico, por decisão: objetivo calculado pelo app e o
+  termo "jogador".
 
 ---
 
