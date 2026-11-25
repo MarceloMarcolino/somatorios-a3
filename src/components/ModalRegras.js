@@ -1,5 +1,6 @@
 import React from 'react';
 import { useDialogoAcessivel } from '../hooks/useDialogoAcessivel';
+import { ChipOperador } from './CartaFisica';
 
 // HEURÍSTICA - Ajuda e documentação. Acessível por teclado (Passo 7):
 // foco preso no diálogo, Esc fecha, foco devolvido ao botão de origem.
@@ -32,10 +33,8 @@ export default function ModalRegras({ onFechar }) {
             </li>
             <li className="mb-2">
               <strong>Baralho:</strong> 36 cartas com números de 1 a 9 em quatro naipes, que são os
-              operadores <span style={{ color: 'var(--cor-soma)' }}>+</span>,{' '}
-              <span style={{ color: 'var(--cor-subtracao)' }}>−</span>,{' '}
-              <span style={{ color: 'var(--cor-multiplicacao)' }}>×</span> e{' '}
-              <span style={{ color: 'var(--cor-divisao)' }}>÷</span>.
+              operadores <ChipOperador naipe="soma" /> +, <ChipOperador naipe="subtracao" /> −,{' '}
+              <ChipOperador naipe="multiplicacao" /> × e <ChipOperador naipe="divisao" /> ÷.
             </li>
             <li className="mb-2">
               <strong>Início:</strong> cada jogador recebe 4 cartas. O objetivo é a soma dos valores
@@ -44,7 +43,14 @@ export default function ModalRegras({ onFechar }) {
             <li className="mb-2">
               <strong>Na sua vez:</strong> jogue uma carta. A sequência é sempre{' '}
               <em>número, operador, número, operador...</em> A mesma carta vale como número (em pé)
-              ou como operador (deitada).
+              ou como operador (deitada: o sinal grande das faixas fica de pé).
+            </li>
+            <li className="mb-2">
+              <strong>Marcador Início da rodada (2 ou 4 jogadores):</strong> quem começa fica com o
+              marcador. Quando todos jogarem 1 vez, ele passa para o próximo jogador, que começa a
+              nova rodada. Assim todos alternam números e operadores. Com 2 jogadores, quem recebe o
+              marcador joga duas vezes seguidas. Quando o monte de compra acaba, o marcador é
+              guardado e a vez segue em ordem.
             </li>
             <li className="mb-2">
               <strong>Conta:</strong> o resultado é calculado da esquerda para a direita, sem

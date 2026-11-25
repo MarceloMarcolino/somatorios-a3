@@ -122,7 +122,9 @@ Ver §1. Checklist completo no `LEIA-ME.md` do kit.
   meio-termo temático é pior).
 - FAQ de automações esquecidas (esqueceu de comprar / de passar o marcador); revisar escrita em positivo.
 - Avaliar Folha de registro opcional; cartas de ajuda em 63 × 88 (41 cartas cabem numa folha de 54).
-- App React: consistência com o físico (marcador de rodada, paleta) — **pelo fluxo gated do `AGENTS.md`**.
+- App React: consistência com o físico (marcador de rodada, paleta, desenho das cartas) — **implementado em 24/11/2026**
+  na branch `claude/marcador-e-cartas-fisicas` (spec: `docs/superpowers/specs/2026-11-24-marcador-e-cartas-fisicas-design.md`);
+  falta a revisão do Codex e o teste manual do Marcelo antes do merge na `main` (que re-deploya na Vercel).
 
 ---
 

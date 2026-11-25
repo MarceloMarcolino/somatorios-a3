@@ -5,6 +5,7 @@
 import { useState, useCallback } from 'react';
 import { criarBaralho, embaralhar } from '../utils/baralho';
 import { aplicarOperacao, ehVitoria, somaValores } from '../utils/jogo';
+import { usaMarcador, marcadorInicial, proximaVez } from '../utils/marcador';
 
 const CARTAS_POR_JOGADOR = 4;
 
@@ -41,6 +42,11 @@ export function useSomatorios() {
       resultadoParcial: null,   // resultado acumulado da operacao
       operadorPendente: null,   // operador aguardando o proximo numero
       vezAtual: 0,              // indice do jogador da vez
+      // marcador "Inicio da rodada" (regra do prototipo fisico): so com 2 ou 4 jogadores
+      usaMarcador: usaMarcador(jogadores.length),
+      marcador: marcadorInicial(jogadores.length, 0), // quem esta com o marcador (null = sem/guardado)
+      jogadasNaRodada: 0,       // jogadas ja feitas na rodada atual
+      eventoRodada: null,       // 'novaRodada' | 'marcadorGuardado' | null (aviso para a proxima vez)
       proximoTipo: 'numero',    // 'numero' | 'operador' - o que deve ser jogado agora
       revelado: false,          // pass-and-play: a mao so aparece quando o jogador confirma
       resultado: null,          // 'vitoria' | 'derrota' ao fim
@@ -104,15 +110,24 @@ export function useSomatorios() {
         return { ...base, fase: 'fim', resultado: 'derrota' };
       }
 
-      // passa a vez para o proximo jogador que ainda tenha cartas
-      let prox = (e.vezAtual + 1) % jogadores.length;
-      let voltas = 0;
-      while (jogadores[prox].mao.length === 0 && voltas < jogadores.length) {
-        prox = (prox + 1) % jogadores.length;
-        voltas++;
-      }
+      // passa a vez: com marcador (2 ou 4 jogadores), a rodada comeca com quem esta com ele;
+      // sem marcador (ou depois que o monte acaba), sentido horario pulando quem ficou sem cartas
+      const prox = proximaVez({
+        vezAtual: e.vezAtual,
+        marcador: e.marcador,
+        jogadasNaRodada: e.jogadasNaRodada,
+        cartasNaMao: jogadores.map((j) => j.mao.length),
+        cartasNoMonte: baralhoCompra.length,
+      });
 
-      return { ...base, vezAtual: prox, revelado: false };
+      return {
+        ...base,
+        vezAtual: prox.vez,
+        marcador: prox.marcador,
+        jogadasNaRodada: prox.jogadasNaRodada,
+        eventoRodada: prox.evento,
+        revelado: false,
+      };
     });
   }, []);
 

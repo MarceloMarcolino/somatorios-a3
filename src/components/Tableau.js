@@ -1,5 +1,6 @@
 import React from 'react';
 import { formatarNumero } from '../utils/jogo';
+import { FrenteCarta, ChipOperador } from './CartaFisica';
 
 // Palavras faladas dos operadores (frase acessivel do tableau - Passo 14).
 const PALAVRA_OP = {
@@ -22,7 +23,8 @@ function fraseExpressao(tableau, resultadoParcial) {
   return `Operação em construção: ${partes.join(' ')}${fim}.`;
 }
 
-// Mostra a conta em construcao: numeros (mini-cartas) e operadores em sequencia,
+// Mostra a conta em construcao: numeros (mini-cartas do baralho fisico, em pe) e operadores
+// (chips na cor do naipe, como nos diagramas do kit) em sequencia,
 // terminando com "= resultado parcial" (Passo 5). Lista com .map() + key.
 // Passo 14: a frase oculta acima carrega a informacao completa; o bloco visual
 // fica decorativo (aria-hidden) para o leitor nao ler a expressao duas vezes.
@@ -41,13 +43,9 @@ export default function Tableau({ tableau, resultadoParcial }) {
             {tableau.map((item) => (
               <span key={item.carta.id} className="tableau__item">
                 {item.tipo === 'numero' ? (
-                  <span className="mini-carta" style={{ '--cor-carta': item.carta.operador.cor }}>
-                    {item.carta.valor}
-                  </span>
+                  <FrenteCarta valor={item.carta.valor} naipe={item.carta.operador.id} className="mini-carta" />
                 ) : (
-                  <span className="tableau__operador" style={{ color: item.carta.operador.cor }}>
-                    {item.carta.operador.simbolo}
-                  </span>
+                  <ChipOperador naipe={item.carta.operador.id} className="tableau__operador" />
                 )}
               </span>
             ))}

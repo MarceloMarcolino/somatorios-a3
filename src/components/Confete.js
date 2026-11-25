@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 // Decorativo (aria-hidden). Só é renderizado quando o usuário NÃO pede menos
 // movimento (a checagem fica em TelaFim); e o @media prefers-reduced-motion
 // zera as animações como segunda barreira.
-const CORES = ['#1457a8', '#1b7f3b', '#c62828', '#6a1b9a', '#ff7a00', '#f4c20d'];
+const CORES = ['#1457a8', '#43a02a', '#a51b1b', '#a774e0', '#1d3a80', '#ff7a00', '#f4c20d']; // marca + naipes do baralho fisico
 
 export default function Confete({ quantidade = 28 }) {
   const pecas = useMemo(

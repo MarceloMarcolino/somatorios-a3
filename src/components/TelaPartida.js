@@ -14,6 +14,17 @@ export default function TelaPartida({ estado, onRevelar, onJogar, onAbandonar })
   const [mostrarConfirma, setMostrarConfirma] = useState(false);
 
   const jogador = estado.jogadores[estado.vezAtual];
+  const donoMarcador = estado.marcador !== null && estado.marcador !== undefined
+    ? estado.jogadores[estado.marcador].nome
+    : null;
+
+  // Aviso do marcador "Inicio da rodada" (so com 2 ou 4 jogadores)
+  let avisoRodada = '';
+  if (estado.eventoRodada === 'novaRodada') {
+    avisoRodada = ` Nova rodada: ${jogador.nome} está com o marcador Início da rodada e começa.`;
+  } else if (estado.eventoRodada === 'marcadorGuardado') {
+    avisoRodada = ' O monte de compra acabou: o marcador foi guardado e a vez segue em ordem.';
+  }
 
   return (
     <div>
@@ -26,7 +37,7 @@ export default function TelaPartida({ estado, onRevelar, onJogar, onAbandonar })
 
       {/* Live region (Passo 14): anuncia a troca de turno a leitores de tela */}
       <p className="visually-hidden" aria-live="polite">
-        Vez de {jogador.nome}.
+        Vez de {jogador.nome}.{avisoRodada}
       </p>
 
       <BarraStatus
@@ -34,6 +45,8 @@ export default function TelaPartida({ estado, onRevelar, onJogar, onAbandonar })
         resultadoParcial={estado.resultadoParcial}
         cartasNoBaralho={estado.baralhoCompra.length}
         jogadorAtual={jogador.nome}
+        usaMarcador={estado.usaMarcador}
+        donoMarcador={donoMarcador}
       />
 
       <Tableau tableau={estado.tableau} resultadoParcial={estado.resultadoParcial} />
@@ -41,7 +54,12 @@ export default function TelaPartida({ estado, onRevelar, onJogar, onAbandonar })
       {estado.revelado ? (
         <Mao jogador={jogador} proximoTipo={estado.proximoTipo} onJogar={onJogar} />
       ) : (
-        <PasseDispositivo nome={jogador.nome} onRevelar={onRevelar} />
+        <PasseDispositivo
+          nome={jogador.nome}
+          evento={estado.eventoRodada}
+          jogaDeNovo={estado.eventoRodada === 'novaRodada' && estado.jogadores.length === 2}
+          onRevelar={onRevelar}
+        />
       )}
 
       <div className="d-flex justify-content-center gap-2 mt-4">

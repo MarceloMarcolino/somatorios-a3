@@ -3,11 +3,13 @@
    Os tokens abaixo sao a base de design consumida nos Passos 3-6 (componentes). */
 
 :root {
-  /* ----- Operadores (naipes): cores escuras p/ contraste AA sobre branco ----- */
-  --cor-soma: #1b7f3b;          /* verde    */
-  --cor-subtracao: #c62828;     /* vermelho */
-  --cor-multiplicacao: #1457a8; /* azul     */
-  --cor-divisao: #6a1b9a;       /* roxo     */
+  /* ----- Operadores (naipes): paleta das cartas do prototipo fisico v0.2 -----
+     Otimizada para daltonismo (pior ΔE2000 17,2). Uso GRAFICO (faixas, chips, simbolos
+     grandes >= 3:1); texto pequeno nao usa estas cores (+ e ÷ ficam abaixo de 4,5:1). */
+  --cor-soma: #43a02a;          /* verde    */
+  --cor-subtracao: #a51b1b;     /* vermelho */
+  --cor-multiplicacao: #1d3a80; /* azul     */
+  --cor-divisao: #a774e0;       /* roxo     */
 
   /* ----- Marca / paleta ludica de alto contraste ----- */
   --brand: #1457a8;             /* azul forte (primaria)    */
@@ -61,24 +63,33 @@ body {
   overflow-x: hidden;
 }
 
-/* ----- Carta de baralho (Passo 4): numero em pe / operador deitado ----- */
+/* ----- Carta de baralho (Passo 4): desenho da carta do prototipo fisico (SVG) -----
+   --l = lado menor da carta. Em pe: l x (l * 86,4/61,4); deitada: o inverso (proporcao
+   da carta 63 x 88 mm sem a margem de corte). Paisagem por tamanho, sem rotacao CSS
+   (o SVG ja vem girado), entao nao ha risco de overflow. */
 .carta {
+  --l: 88px;
   position: relative;
-  width: 86px;
-  height: 120px;
-  border-radius: 14px;
-  border: 3px solid var(--cor-carta, #444);
+  width: var(--l);
+  height: calc(var(--l) * 86.4 / 61.4);
+  border-radius: calc(var(--l) * 3.5 / 61.4);
   background: #fff;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.16);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
   cursor: pointer;
   user-select: none;
   transition: transform 0.18s ease, box-shadow 0.18s ease;
   flex: 0 0 auto;
 }
-/* "carta deitada" = orientacao paisagem (sem rotacao CSS, sem risco de overflow) */
 .carta--operador {
-  width: 120px;
-  height: 86px;
+  width: calc(var(--l) * 86.4 / 61.4);
+  height: var(--l);
+}
+@media (min-width: 576px) { .carta { --l: 104px; } }
+@media (min-width: 992px) { .carta { --l: 116px; } }
+.carta__desenho {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 .carta:hover:not(.carta--desabilitada) {
   transform: translateY(-6px);
@@ -93,49 +104,21 @@ body {
   opacity: 0.55;
 }
 
-/* simbolo do naipe/operador nos cantos */
-.carta__canto {
-  position: absolute;
-  font-size: 1.05rem;
-  font-weight: 800;
-  color: var(--cor-carta, #444);
-  line-height: 1;
-}
-.carta__canto--tl { top: 7px; left: 9px; }
-.carta__canto--br { bottom: 7px; right: 9px; transform: rotate(180deg); }
-
-/* numero (em pe) ou simbolo do operador (deitado) no centro */
-.carta__centro {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 2.8rem;
-  color: var(--texto);
-}
-.carta--operador .carta__centro {
-  color: var(--cor-carta, #444);
-  font-size: 2.3rem;
-  line-height: 1;
-  transform: translateY(-8px);
+/* chip do operador (quadrado na cor do naipe com o sinal branco) no meio do texto */
+.chip-operador {
+  display: inline-block;
+  width: 1.25em;
+  height: 1.25em;
+  vertical-align: -0.28em;
 }
 
-/* chip com o numero da carta, exibido quando ela e jogada como operador */
-.carta__chip {
-  position: absolute;
-  bottom: 7px;
-  left: 50%;
-  transform: translateX(-50%);
-  min-width: 22px;
-  padding: 0 7px;
-  font-size: 0.82rem;
-  font-weight: 700;
-  line-height: 1.5;
-  color: #fff;
-  background: var(--cor-carta, #444);
-  border-radius: 999px;
+/* ficha "Inicio da rodada" (desenho do kit fisico; decorativa, o texto ao lado informa) */
+.marcador-rodada {
+  display: inline-block;
+  width: 1.6em;
+  height: 1.6em;
+  flex: 0 0 auto;
+  vertical-align: middle;
 }
 
 /* ----- Mao do jogador (Passo 4) ----- */
@@ -215,6 +198,17 @@ body {
 .status-chip__rotulo { font-size: 0.78rem; color: var(--texto-suave); }
 .status-chip__valor { font-size: 1.5rem; font-weight: 700; color: var(--texto); }
 .status-chip__valor--nome { font-size: 1.1rem; color: var(--sucesso); overflow-wrap: anywhere; }
+.status-chips--marcador { grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 576px) { .status-chips--marcador { grid-template-columns: repeat(4, 1fr); } }
+.status-chip__valor--marcador {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 1.1rem;
+  color: var(--brand-escuro);
+  overflow-wrap: anywhere;
+}
+.status-chip__valor--guardado { font-size: 1rem; font-weight: 600; color: var(--texto-suave); }
 
 /* ===== Termometro do objetivo (Passo 12): distancia ate o alvo =====
    Reforco VISUAL da Heuristica 1 (visibilidade do status). O TEXTO fica
@@ -289,7 +283,7 @@ body {
   gap: 0.5rem;
 }
 .tableau__item { display: inline-flex; align-items: center; }
-.tableau__operador { font-size: 2rem; font-weight: 800; }
+.tableau__operador { display: block; width: 40px; height: 40px; }
 .tableau__igual { font-size: 2rem; font-weight: 800; color: var(--texto-suave); margin: 0 0.15rem; }
 .tableau__resultado {
   font-size: 1.8rem;
@@ -300,19 +294,14 @@ body {
   padding: 0.1rem 0.7rem;
 }
 
-/* mini-carta usada no tableau */
+/* mini-carta usada no tableau (desenho da carta fisica, em pe) */
 .mini-carta {
-  width: 48px;
+  display: block;
+  width: 47px;
   height: 66px;
-  border-radius: 8px;
-  border: 2px solid var(--cor-carta, #444);
+  border-radius: 5px;
   background: #fff;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 1.45rem;
-  color: var(--texto);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
 }
 
 /* ----- Overlay "passe o dispositivo" (Passo 6) ----- */
@@ -322,16 +311,57 @@ body {
   background: linear-gradient(160deg, var(--brand-escuro) 0%, #0a2a52 100%);
   color: #fff;
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* a caixa centra com margin:auto; se nao couber, rola a partir do topo */
   justify-content: center;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   z-index: 1080;
   text-align: center;
   padding: 1.5rem;
 }
-.overlay-passe__caixa { max-width: 360px; }
+.overlay-passe__caixa { max-width: 360px; margin: auto; } /* margin auto: centra sem cortar o topo quando rola */
 .overlay-passe__rotulo { margin: 0; font-size: 1.1rem; opacity: 0.9; }
 .overlay-passe__nome { margin: 0.2rem 0 0.6rem; font-size: 2rem; font-weight: 800; }
 .overlay-passe__aviso { margin-bottom: 1.2rem; opacity: 0.85; }
+.overlay-passe__rodada {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 0 1rem;
+  padding: 0.6rem 0.8rem;
+  text-align: left;
+  color: var(--texto);
+  background: #fff;
+  border-radius: var(--raio-sm);
+}
+.overlay-passe__rodada .marcador-rodada { width: 3rem; height: 3rem; }
+.overlay-passe__versos {
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+.overlay-passe__versos .carta-fisica { width: 40px; height: 56px; }
+/* Celular deitado / tela baixa: o aviso de rodada aumenta a caixa. Compacta tudo e, se ainda
+   faltar altura, a propria tela de passe rola (o botao recebe o foco e entra na vista). */
+@media (max-height: 560px) {
+  .overlay-passe { padding: 0.75rem 1rem; }
+  .overlay-passe__caixa { max-width: 520px; }
+  .overlay-passe__versos { display: none; }
+  .overlay-passe__nome { font-size: 1.6rem; margin-bottom: 0.4rem; }
+  .overlay-passe__rodada { margin-bottom: 0.6rem; padding: 0.45rem 0.7rem; font-size: 0.95rem; }
+  .overlay-passe__rodada .marcador-rodada { width: 2.2rem; height: 2.2rem; }
+  .overlay-passe__aviso { margin-bottom: 0.6rem; font-size: 0.95rem; }
+}
+.dica-marcador {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0.6rem 0 0;
+  font-size: 0.9rem;
+  color: var(--texto-suave);
+}
+.dica-marcador .marcador-rodada { width: 2.2rem; height: 2.2rem; }
 
 /* ----- Modal simples (sem JS do Bootstrap) ----- */
 .modal-simples {

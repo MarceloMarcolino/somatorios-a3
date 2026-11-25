@@ -1,10 +1,19 @@
 import React from 'react';
 import { formatarNumero, EPSILON } from '../utils/jogo';
+import { MarcadorRodada } from './CartaFisica';
 
 // HEURISTICA 1 - Visibilidade do status do sistema (Passo 5):
 // Objetivo em destaque (heroi) + chips de resultado parcial, cartas e vez.
 // Passo 12: termometro do objetivo (distancia ate o alvo) — reforco VISUAL.
-export default function BarraStatus({ objetivo, resultadoParcial, cartasNoBaralho, jogadorAtual }) {
+// Marcador "Inicio da rodada" (2 ou 4 jogadores): 4o chip com quem esta com ele (ou "guardado").
+export default function BarraStatus({
+  objetivo,
+  resultadoParcial,
+  cartasNoBaralho,
+  jogadorAtual,
+  usaMarcador = false,
+  donoMarcador = null,
+}) {
   // Termometro: derivado SO de props ja recebidas (nao toca nas regras do jogo).
   const temResultado = resultadoParcial !== null;
   const atual = temResultado ? resultadoParcial : 0;
@@ -25,7 +34,7 @@ export default function BarraStatus({ objetivo, resultadoParcial, cartasNoBaralh
           <span className="status-objetivo__valor">{formatarNumero(objetivo)}</span>
         </div>
 
-        <div className="status-chips">
+        <div className={'status-chips' + (usaMarcador ? ' status-chips--marcador' : '')}>
           <div className="status-chip">
             <span className="status-chip__rotulo">
               <i className="fas fa-equals me-1" aria-hidden="true"></i>Resultado
@@ -44,6 +53,19 @@ export default function BarraStatus({ objetivo, resultadoParcial, cartasNoBaralh
             </span>
             <span className="status-chip__valor status-chip__valor--nome">{jogadorAtual}</span>
           </div>
+          {usaMarcador && (
+            <div className="status-chip">
+              <span className="status-chip__rotulo">Início da rodada</span>
+              {donoMarcador ? (
+                <span className="status-chip__valor status-chip__valor--marcador">
+                  <MarcadorRodada />
+                  {donoMarcador}
+                </span>
+              ) : (
+                <span className="status-chip__valor status-chip__valor--guardado">guardado</span>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

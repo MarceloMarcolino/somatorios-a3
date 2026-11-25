@@ -1,11 +1,15 @@
 // ====== Baralho do Somatorios (logica pura, sem React) ======
 // 36 cartas = valores de 1 a 9 em 4 "naipes", onde cada naipe e um operador matematico.
 
+// Cores = paleta das cartas do protótipo físico v0.2 (fonte/somatorios_svg.py), escolhida por
+// otimização para daltonismo (pior ΔE2000 = 17,2 sob deuteranopia/protanopia/tritanopia; a antiga = 6,6).
+// "cor" pinta as faixas da carta e os chips; "claro" é o fundo suave do naipe. Texto pequeno não usa "cor"
+// (o + e o ÷ ficam abaixo de 4,5:1 sobre branco): use os chips ou as faixas, que são elementos gráficos (≥ 3:1).
 export const OPERADORES = [
-  { id: 'soma',           simbolo: '+', nome: 'Soma',           cor: '#2e7d32' },
-  { id: 'subtracao',      simbolo: '−', nome: 'Subtracao', cor: '#c62828' }, // sinal de menos
-  { id: 'multiplicacao',  simbolo: '×', nome: 'Multiplicacao', cor: '#1565c0' }, // x
-  { id: 'divisao',        simbolo: '÷', nome: 'Divisao',   cor: '#6a1b9a' }, // divisao
+  { id: 'soma',           simbolo: '+', nome: 'Soma',          cor: '#43a02a', claro: '#e3f3dd' },
+  { id: 'subtracao',      simbolo: '−', nome: 'Subtração',     cor: '#a51b1b', claro: '#f7dede' }, // sinal de menos
+  { id: 'multiplicacao',  simbolo: '×', nome: 'Multiplicação', cor: '#1d3a80', claro: '#dde4f5' }, // x
+  { id: 'divisao',        simbolo: '÷', nome: 'Divisão',       cor: '#a774e0', claro: '#efe5fb' }, // divisao
 ];
 
 // Cria as 36 cartas do baralho (cada carta tem id unico, valor 1-9 e um operador).

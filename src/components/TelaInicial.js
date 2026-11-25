@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import ModalRegras from './ModalRegras';
+import { MarcadorRodada } from './CartaFisica';
+import { usaMarcador } from '../utils/marcador';
 
 const MIN_JOGADORES = 2;
 const OPCOES_JOGADORES = [2, 3, 4, 5];
@@ -61,6 +63,15 @@ export default function TelaInicial({ dicas, onIniciar, onAbrirEstatisticas }) {
                   </button>
                 ))}
               </div>
+              {usaMarcador(quantidade) && (
+                <p className="dica-marcador">
+                  <MarcadorRodada />
+                  <span>
+                    Com {quantidade} jogadores, a partida usa o marcador <strong>Início da rodada</strong>:
+                    a cada rodada ele passa para o próximo, para todos alternarem números e operadores.
+                  </span>
+                </p>
+              )}
             </fieldset>
 
             {/* Nomes (opcional) */}
